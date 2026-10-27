@@ -219,6 +219,53 @@ a {
   filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.35));
 }
 
+.wallpaper {
+  background-repeat: repeat;
+  opacity: 0.9;
+}
+
+.oshiro-boss {
+  filter: drop-shadow(0 0 10px rgba(140, 220, 255, 0.35));
+  z-index: 6;
+}
+
+.oshiro-host {
+  filter: drop-shadow(0 0 1px rgba(10, 6, 24, 0.9));
+}
+
+.dust-bunny {
+  filter: drop-shadow(0 0 2px rgba(255, 80, 80, 0.5));
+}
+
+.charge-warning {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1400px;
+  height: 80px;
+  background: linear-gradient(90deg, rgba(255, 60, 90, 0.35), rgba(255, 60, 90, 0.05) 70%, transparent);
+  border-top: 2px solid rgba(255, 120, 140, 0.5);
+  border-bottom: 2px solid rgba(255, 120, 140, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.charge-warning.show {
+  opacity: 1;
+  animation: warnPulse 0.25s steps(2) infinite;
+}
+
+@keyframes warnPulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.lamp {
+  background-size: 100% 100%;
+}
+
 .weather {
   position: absolute;
   inset: 0;

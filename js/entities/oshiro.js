@@ -54,6 +54,20 @@ export class OshiroHost extends Entity {
     }
 
     /**
+     * Completes a scripted move instantly.
+     *
+     * @returns {void}
+     */
+    finishMove() {
+        const move = this.#move;
+        if (!move) return;
+        this.position.x = move.x;
+        this.baseY = move.y;
+        this.#move = null;
+        move.resolve();
+    }
+
+    /**
      * Bobs gently and follows scripted movement.
      *
      * @param {number} dt - Step length in seconds.
@@ -116,6 +130,8 @@ export class OshiroBoss extends Entity {
     active = false;
     /** @type {HTMLElement|null} */
     #warning = null;
+    /** @type {{ x: number, speed: number, resolve: Function }|null} */
+    #scripted = null;
 
     constructor() {
         super({ x: -500, y: 0 }, { width: 288, height: 288 }, "oshiro-boss");
@@ -216,6 +232,17 @@ export class OshiroBoss extends Entity {
      * @returns {void}
      */
     step(dt) {
+        if (this.#scripted) {
+            const c = this.center();
+            const next = Math.min(this.#scripted.x, c.x + this.#scripted.speed * dt);
+            this.setCenter(next, c.y);
+            if (next >= this.#scripted.x) {
+                const { resolve } = this.#scripted;
+                this.#scripted = null;
+                resolve();
+            }
+            return;
+        }
         if (!this.active) return;
         this.#time += dt;
         const camera = game.camera;
@@ -292,6 +319,34 @@ export class OshiroBoss extends Entity {
         }
         const distance = Math.hypot(target.x - this.center().x, target.y - this.center().y);
         this.proximity = this.visible ? Math.max(0, 1 - distance / 700) : 0;
+    }
+
+    /**
+     * Charges to an x position under script control, used by cutscenes.
+     *
+     * @param {number} x - Target center x.
+     * @param {number} [speed=1300] - Speed in pixels per second.
+     * @returns {Promise<void>} Resolves on arrival.
+     */
+    scriptedCharge(x, speed = 1300) {
+        return new Promise((resolve) => {
+            this.#scripted = { x, speed, resolve };
+            playAnimation(this, "dash", true);
+        });
+    }
+
+    /**
+     * Completes a scripted charge instantly, used when skipping.
+     *
+     * @returns {void}
+     */
+    finishMove() {
+        if (!this.#scripted) return;
+        const c = this.center();
+        this.setCenter(this.#scripted.x, c.y);
+        const { resolve } = this.#scripted;
+        this.#scripted = null;
+        resolve();
     }
 
     /**
