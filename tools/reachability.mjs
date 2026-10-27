@@ -126,6 +126,7 @@ function arc(vx, vy, hold, force = 0, dash = null) {
     let t = 0;
     let variable = hold;
     let speedX = vx;
+    const holdSpeed = Math.min(vy, -JUMP);
     const out = [];
     let last = "";
     while (t < 2.2 && y < 1400) {
@@ -137,7 +138,7 @@ function arc(vx, vy, hold, force = 0, dash = null) {
             vy = dash[1] * END_DASH * (dash[1] < 0 ? 0.75 : 1);
         } else {
             if (variable > 0) {
-                vy = Math.min(vy, -JUMP);
+                vy = Math.min(vy, holdSpeed);
                 variable -= STEP;
             }
             const half = Math.abs(vy) < 160 && hold > 0 ? 0.5 : 1;
@@ -182,19 +183,46 @@ for (const [dx, dy] of [[1, 0], [-1, 0], [0, -1], [0, 1], [1, -1], [-1, -1], [1,
     dashes.push(arc(0, 0, 0, 0, [dx / n, dy / n]));
 }
 const climbJump = arc(0, -JUMP, 0.2).map(([, dy, vy]) => [0, dy, vy]);
+const springLaunches = {
+    up: [-360, -240, -120, 0, 120, 240, 360].map((vx) => arc(vx, -JUMP * 1.85, 0.2)),
+    right: [arc(MAX_RUN * 2.4, -JUMP * 1.15, 0, 0.22), arc(MAX_RUN * 2.4, -JUMP * 1.15, 0, 0.3)],
+    left: [arc(-MAX_RUN * 2.4, -JUMP * 1.15, 0, 0.22), arc(-MAX_RUN * 2.4, -JUMP * 1.15, 0, 0.3)]
+};
 
 /**
  * Breadth-first search over movement states.
  *
  * @param {*} grid - Occupancy grid.
  * @param {number[]} start - Start point in pixels.
- * @param {{ dash: boolean, crystals: number[][] }} options - Search options.
+ * @param {{ dash: boolean, crystals: number[][], springs?: Array<[number, number, string]> }} options - Search options; springs are the top-left corners of 50 pixel spring cells and the way they throw.
  * @returns {Set<number>} Reached cell indices.
  */
 export function search(grid, start, options) {
     const reach = new Set();
     const seen = new Set();
     const crystals = new Set(options.crystals.map(([x, y]) => (Math.floor(y / CELL) - grid.y0) * grid.w + Math.floor(x / CELL) - grid.x0));
+    const springs = new Map();
+    for (const [x, y, dir] of options.springs ?? []) {
+        const gx = Math.floor(x / CELL) - grid.x0;
+        const gy = Math.floor(y / CELL) - grid.y0;
+        for (let dy = 0; dy < 2; dy++) for (let dx = 0; dx < 2; dx++) springs.set((gy + dy) * grid.w + gx + dx, { dir, x: gx, y: gy });
+    }
+    const launched = new Set();
+    const springAt = (x, y, vy) => {
+        for (const row of [y - 1, y - 2]) {
+            const spring = springs.get(row * grid.w + x);
+            if (spring && (spring.dir !== "up" || vy >= 0)) return spring;
+        }
+        return null;
+    };
+    const launch = (spring) => {
+        const id = spring.y * grid.w + spring.x;
+        if (launched.has(id)) return;
+        launched.add(id);
+        const ox = spring.dir === "up" ? spring.x + 1 : spring.dir === "right" ? spring.x + 2 : spring.x - 1;
+        const oy = spring.dir === "up" ? spring.y + 1 : spring.y + 2;
+        for (const path of springLaunches[spring.dir]) fly(ox, oy, path, CLIMB_CELLS, options.dash ? 1 : 0, false);
+    };
     let sx = Math.floor(start[0] / CELL) - grid.x0;
     let sy = Math.floor(start[1] / CELL) - grid.y0;
     while (sy < grid.h && !grid.blocked(sx, sy)) sy++;
@@ -217,6 +245,11 @@ export function search(grid, start, options) {
             if (cx < 0 || cx >= grid.w || cy >= grid.h + 2) return;
             if (!grid.free(cx, cy) || grid.deadly(cx, cy)) return;
             reach.add(cy * grid.w + cx);
+            const spring = springs.size ? springAt(cx, cy, vy) : null;
+            if (spring) {
+                launch(spring);
+                return;
+            }
             if (crystals.has((cy - 1) * grid.w + cx) || crystals.has((cy - 2) * grid.w + cx)) {
                 stamina = CLIMB_CELLS;
                 dash = options.dash ? 1 : 0;
@@ -236,6 +269,10 @@ export function search(grid, start, options) {
     while (head < queue.length) {
         const [x, y, mode, stamina, dash] = queue[head++];
         reach.add(y * grid.w + x);
+        if (springs.size) {
+            const spring = springAt(x, y, 0);
+            if (spring) launch(spring);
+        }
         if (mode === modeKey.air) {
             for (const path of dashes) fly(x, y, path, stamina, 0, true);
             continue;
