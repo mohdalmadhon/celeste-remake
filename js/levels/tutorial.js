@@ -7,7 +7,8 @@ import { SFX } from "../helpers/sound.js";
 import { Level } from "../level.js";
 import { audio } from "../systems/audio.js";
 import { input } from "../systems/input.js";
-import { buildFill, buildFromAscii, buildFromJson, groundAt, MATERIALS } from "./builder.js";
+import { buildFromAscii, buildFromJson, groundAt, MATERIALS } from "./builder.js";
+import { buildPrologueMap, PROLOGUE_ORIGIN_X, PROLOGUE_ORIGIN_Y } from "./maps/prologueMap.js";
 
 /**
  * Creates the bird that teaches climbing and dashing.
@@ -84,38 +85,31 @@ export const prologue = {
     async build(context) {
         const data = await (await fetch("./js/data/levels.json")).json();
         const level = new Level({ width: 7200, height: 700 }, context.world, "prologue");
-        const special = buildFromJson(level, data.tutorial.tiles);
-        const fills = await (await fetch("./js/data/fills.json")).json();
-        buildFill(level, fills["prologue"]);
+        const special = buildFromJson(level, data.tutorial.tiles, {
+            skip: (name, group) => !(group.class || []).some((c) => c === "fall" || c === "none-collision")
+        });
+        buildFromAscii(level, buildPrologueMap(), { s: MATERIALS.snow, d: MATERIALS.dirt, i: MATERIALS.ice }, {
+            x: PROLOGUE_ORIGIN_X,
+            y: PROLOGUE_ORIGIN_Y,
+            edgeSolid: true
+        });
         level.cameraBounds = { left: 0, top: -150, right: 7240, bottom: 640 };
         level.killY = 720;
         level.voidDeath = true;
         const world = level.world;
 
-        const patches = [
-            { x: 550, y: 320, rows: ["dd"] },
-            { x: 950, y: 350, rows: ["d"] },
-            { x: 1350, y: 370, rows: ["dd"] },
-            { x: 1880, y: 410, rows: ["dd"] },
-            { x: 2060, y: 380, rows: ["dd"] },
-            { x: 2580, y: 290, rows: ["ss"] }
-        ];
-        for (const patch of patches) {
-            buildFromAscii(level, patch.rows, { d: MATERIALS.dirt, s: MATERIALS.snow }, { x: patch.x, y: patch.y, edgeSolid: false });
-        }
-
         const wallLeft = { x: -50, y: -800, w: 50, h: 1600, kind: "solid", active: true, climbable: false, cells: [] };
         world.add(wallLeft);
 
-        const iceParts = [
-            { x: 0, y: 0, w: 50, h: 50, path: "assets/tiles/celeste/blueIceEdgeLeft.png" },
-            { x: 49, y: 0, w: 50, h: 50, path: "assets/tiles/celeste/blueIce.png" },
-            { x: 98, y: 0, w: 50, h: 50, path: "assets/tiles/celeste/blueIceEdgeRight.png" },
-            { x: 0, y: 49, w: 50, h: 50, path: "assets/tiles/celeste/blueIceEdgeLeftBottom.png" },
-            { x: 49, y: 49, w: 50, h: 50, path: "assets/tiles/celeste/blueIceDown.png" },
-            { x: 98, y: 49, w: 50, h: 50, path: "assets/tiles/celeste/blueIceEdgeRightBototm.png" }
+        const snowParts = [
+            { x: 0, y: 0, w: 50, h: 50, path: "assets/tiles/celeste/snowEdgeLeft.png" },
+            { x: 50, y: 0, w: 50, h: 50, path: "assets/tiles/celeste/snow.png" },
+            { x: 100, y: 0, w: 50, h: 50, path: "assets/tiles/celeste/snowEdgeRight.png" },
+            { x: 0, y: 50, w: 50, h: 50, path: "assets/tiles/celeste/snowEdgeBottomLeft.png" },
+            { x: 50, y: 50, w: 50, h: 50, path: "assets/tiles/celeste/snowDown.png" },
+            { x: 100, y: 50, w: 50, h: 50, path: "assets/tiles/celeste/snowEdgeBottomRight.png" }
         ];
-        const iceTrap = new FallingBlock({ x: 1100, y: -60, w: 148, h: 99, parts: iceParts }, { triggerOnTouch: false, lands: true, shakeTime: 0.25, surface: "ice" });
+        const iceTrap = new FallingBlock({ x: 1100, y: 0, w: 150, h: 100, parts: snowParts }, { triggerOnTouch: false, lands: true, shakeTime: 0.3, surface: "snow" });
         level.addEntity(iceTrap);
         world.add(iceTrap.body);
 
@@ -266,10 +260,7 @@ export const prologue = {
              */
             onStart(checkpoint, fresh) {
                 game.player.dashEnabled = false;
-                if (checkpoint !== "start") {
-                    iceTrap.trigger();
-                    iceTrap.position.y = 254 - 99;
-                }
+                if (checkpoint !== "start") iceTrap.settle(200);
                 if (checkpoint === "bridge") state.grannyTalked = true;
                 if (checkpoint !== "start") state.birdSquawked = true;
                 if (fresh) {
