@@ -74,7 +74,8 @@ export class ParticleSystem {
      * @returns {void}
      */
     burst(options) {
-        const count = Math.round((options.count ?? 8) * settings.vfxIntensity);
+        const requested = options.count ?? 8;
+        const count = Math.max(Math.min(1, requested), Math.round(requested * settings.vfxIntensity));
         const spread = options.spread ?? Math.PI * 2;
         const baseAngle = options.angle ?? 0;
         const jitter = options.jitter ?? 4;
