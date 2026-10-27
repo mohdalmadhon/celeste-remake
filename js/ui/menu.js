@@ -223,6 +223,7 @@ export class Menu {
      */
     #onInput(event) {
         if (!this.active || performance.now() < this.#lockUntil) return;
+        if (!["up", "down", "left", "right", "confirm", "jump", "back", "dash"].includes(event.action)) return;
         if (event.press !== undefined) {
             if (event.press === this.#lastPress) return;
             this.#lastPress = event.press;
