@@ -147,7 +147,8 @@ export const SPEAKERS = {
  *
  * @typedef {object} DialogueLine
  * @property {string} speaker - Key of {@link SPEAKERS}.
- * @property {string} key - Translation key of the text.
+ * @property {string} [key] - Translation key of the text.
+ * @property {string} [text] - Literal text, used instead of a key by levels made in the editor.
  * @property {string} [emotion="normal"] - Portrait emotion.
  * @property {Record<string, string|number>} [params] - Translation parameters.
  * @property {() => void} [onShow] - Called when the line appears, used for scene animation.
@@ -248,7 +249,7 @@ export class Dialogue {
         for (const line of lines) {
             if (this.#skipping) {
                 line.onShow?.();
-                this.history.push({ speaker: line.speaker, text: t(line.key, line.params) });
+                this.history.push({ speaker: line.speaker, text: line.text ?? t(line.key, line.params) });
                 continue;
             }
             await this.#show(line);
@@ -270,7 +271,7 @@ export class Dialogue {
     #show(line) {
         const speaker = SPEAKERS[line.speaker] || SPEAKERS.narrator;
         this.#line = line;
-        this.#text = t(line.key, line.params);
+        this.#text = line.text ?? t(line.key, line.params);
         this.#reveal = 0;
         this.#pause = 0;
         this.#guard = ADVANCE_GUARD;
