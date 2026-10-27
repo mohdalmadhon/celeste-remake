@@ -31,13 +31,13 @@ export const summit = {
     nameKey: "chapter.summit.name",
     subtitleKey: "chapter.summit.subtitle",
     art: "./assets/generated/checkpoints/summit.png",
-    timeLimit: 600,
-    lives: 10,
+    timeLimit: 720,
+    lives: 15,
     strawberries: 2,
     music: SFX.musicGolden,
     musicVolume: 0.55,
     ambience: "blizzard",
-    weather: { type: "blizzard", density: 1, wind: 120, gusts: 1.2 },
+    weather: { type: "blizzard", density: 0.85, wind: 90, gusts: 0.9 },
     parallax: "summit",
     checkpointNames: { ridge: "checkpoint.summit.ridge", ice: "checkpoint.summit.ice", cave: "checkpoint.summit.cave", reflection: "checkpoint.summit.reflection", peak: "checkpoint.summit.peak" },
 
@@ -142,7 +142,7 @@ export const summit = {
         summitFlag.body.active = false;
         summitFlag.visual.scaleX = 1.6;
         summitFlag.visual.scaleY = 1.6;
-        const badeline = add(new BadelineChaser(1.25));
+        const badeline = add(new BadelineChaser(1.9));
         const director = game.ui.cutscenes;
         const state = { chasing: false, reconciled: false, ending: false };
         const sky = document.getElementById("game");
@@ -311,7 +311,7 @@ export const summit = {
                 const row = (player.box.y + player.box.h) / TILE;
                 const windy = row >= map.windRows[0] && row <= map.windRows[1];
                 const gust = game.weather?.windNow ?? 0;
-                player.wind = windy ? Math.min(300, 60 + Math.max(0, gust - 120) * 0.7) : 0;
+                player.wind = windy ? Math.min(150, 35 + Math.max(0, gust - 120) * 0.35) : 0;
                 if (director.running) return;
                 if (echoes.granny.inRange()) memory(echoes.granny, [{ speaker: "grannyEcho", key: "summit.granny.1" }, { speaker: "grannyEcho", emotion: "laugh", key: "summit.granny.2" }]);
                 else if (echoes.theo.inRange()) memory(echoes.theo, [{ speaker: "theoEcho", emotion: "excited", key: "summit.theo.1" }, { speaker: "theoEcho", emotion: "normal", key: "summit.theo.2" }]);
