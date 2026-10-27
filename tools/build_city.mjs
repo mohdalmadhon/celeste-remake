@@ -7,14 +7,16 @@
  * spiked girder, a brick tower climbed between spiked walls with a floor of
  * rubble to dash through, rooftops where a key has to be fetched from a
  * spiked alley to open a door, a scaffold where three touch switches open
- * the gate to the ridge, and a windy ridge up to the lookout.
+ * the gate to the ridge, a windy ridge, a drop down a spiked shaft into an
+ * old underpass crossed on a zip cart and through a rubble wall, and a
+ * clock tower climbed on a rising cart and wall springs up to the lookout.
  *
  * Usage: node tools/build_city.mjs [--check-only] [--debug]
  */
 import { createLevel } from "./levelkit.mjs";
 
 const OUT = new URL("../js/data/levels/forsaken-city.json", import.meta.url);
-const W = 160;
+const W = 230;
 const H = 40;
 const L = createLevel(W, H, ".");
 const { rect, back, put, decor, spikes, events } = L;
@@ -171,11 +173,60 @@ rect(146, 7, 2, 1, "s");
 rect(146, 8, 1, 32, "s");
 decor("flags", 140, 3);
 put("strawberry", 135, 5);
-rect(150, 8, 10, 32, "s");
-decor("memorial", 152, 6);
-decor("pine", 157, 5);
+rect(150, 8, 4, 32, "s");
+put("checkpoint", 151, 7);
 decor("bush", 150, 7);
-put("goal", 155, 7);
+decor("sign", 152, 7);
+rect(157, 8, 33, 14, "b");
+back(154, 8, 3, 24, "b");
+spikes(154, 13, 4, "right");
+spikes(156, 19, 4, "left");
+rect(154, 32, 36, 8, "b");
+back(157, 22, 33, 10, "b");
+windows(160, 23, 6, 1, 2);
+put("checkpoint", 155, 31);
+spikes(160, 31, 19);
+put("zipMover", 157, 31, { dx: 14, dy: 0 });
+put("strawberry", 166, 24);
+rect(173, 30, 2, 2, "b");
+put("dashBlock", 176, 22, { w: 1, h: 10 });
+rect(178, 30, 3, 2, "b");
+spikes(181, 31, 3);
+decor("pipe", 170, 22);
+decor("lantern", 179, 22);
+
+rect(184, 8, 6, 24, ".");
+back(184, 8, 6, 24, "b");
+rect(190, 0, 1, 32, "b");
+rect(184, 0, 1, 8, "b");
+rect(203, 4, 1, 28, "b");
+back(191, 0, 12, 32, "b");
+windows(193, 3, 3, 9, 4);
+put("checkpoint", 186, 31);
+put("spring", 188, 31, { dir: "up" });
+rect(185, 25, 2, 1, "g");
+spikes(184, 20, 3, "right");
+rect(186, 17, 4, 1, "g");
+rect(190, 14, 1, 3, ".");
+put("zipMover", 191, 31, { dx: 0, dy: -9 });
+spikes(202, 23, 6, "left");
+put("falling", 199, 20, touch);
+put("spring", 202, 17, { dir: "left" });
+rect(193, 15, 3, 1, "g");
+put("crystal", 197, 11);
+put("falling", 200, 9, touch);
+put("dashBlock", 191, 6, { w: 12, h: 1 });
+put("strawberry", 196, 3);
+put("crumble", 201, 4);
+rect(184, 0, 20, 1, "b");
+
+rect(190, 32, 14, 8, "b");
+rect(204, 8, 26, 32, "s");
+decor("memorial", 212, 6);
+decor("pine", 225, 5);
+decor("bush", 208, 7);
+decor("bench", 216, 7);
+put("goal", 220, 7);
 
 events.push({
     id: "ev-theo", name: "Theo on the roof", once: true,
@@ -215,6 +266,6 @@ if (!process.argv.includes("--check-only")) {
         id: "forsaken-city",
         name: "Forsaken City",
         author: "Celeste Remake",
-        settings: { theme: "city", weather: "snow", music: "golden", timeLimit: 600, lives: 15, dashes: 1 }
+        settings: { theme: "city", weather: "snow", music: "golden", timeLimit: 840, lives: 20, dashes: 1 }
     });
 }

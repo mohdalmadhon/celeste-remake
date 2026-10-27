@@ -81,17 +81,20 @@ export const forsakenCity = chapterFromLevel("./js/data/levels/forsaken-city.jso
     nameKey: "chapter.city.name",
     subtitleKey: "chapter.city.subtitle",
     art: "./assets/generated/checkpoints/forsaken_city.png",
-    strawberries: 5,
+    strawberries: 7,
     custom: false,
     goalFlag: false,
     crumble: { path: "./assets/tiles/celeste/breakCracked.png", surface: "metal" },
-    settings: { theme: "city", weather: "snow", music: "golden", timeLimit: 600, lives: 15 },
+    settings: { theme: "city", weather: "snow", music: "golden", timeLimit: 840, lives: 20 },
     checkpointNames: {
         cp1: "checkpoint.city.crossing",
         cp2: "checkpoint.city.tower",
         cp3: "checkpoint.city.rooftops",
         cp4: "checkpoint.city.scaffold",
-        cp5: "checkpoint.city.heights"
+        cp5: "checkpoint.city.heights",
+        cp6: "checkpoint.city.drop",
+        cp7: "checkpoint.city.underpass",
+        cp8: "checkpoint.city.clock"
     },
     script: cityScript
 });
