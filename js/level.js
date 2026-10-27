@@ -53,6 +53,10 @@ export class Level {
     conditions = null;
     /** @type {boolean} */
     end = false;
+    /** @type {number|undefined} */
+    killY;
+    /** @type {boolean} */
+    voidDeath = false;
     /** @type {{ width: number, height: number }} */
     dimensions;
     /** @type {string} */

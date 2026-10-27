@@ -889,12 +889,15 @@ export class Player extends Entity {
     }
 
     /**
-     * Kills the player after falling out of the level.
+     * Kills the player after falling out of the level. Levels with void
+     * deaths also kill as soon as Madeline drops fully below the lowest
+     * point the camera can show.
      *
      * @returns {void}
      */
     #checkBounds() {
-        const killY = game.level.killY ?? Infinity;
+        let killY = game.level.killY ?? Infinity;
+        if (game.level.voidDeath && game.camera) killY = Math.min(killY, game.camera.lowestVisibleY + 8);
         if (this.box.y > killY) this.die(0, -1);
     }
 

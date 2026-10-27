@@ -95,6 +95,16 @@ export class Camera {
     }
 
     /**
+     * Lowest world y the camera can ever show with the current bounds.
+     *
+     * @returns {number} Bottom edge in world pixels, Infinity without bounds.
+     */
+    get lowestVisibleY() {
+        const bounds = this.#currentBounds();
+        return bounds ? bounds.bottom : Infinity;
+    }
+
+    /**
      * Returns the bounds the camera must stay inside right now.
      *
      * @returns {Rect|null} Active bounds.

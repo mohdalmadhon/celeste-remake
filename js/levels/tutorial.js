@@ -89,6 +89,7 @@ export const prologue = {
         buildFill(level, fills["prologue"]);
         level.cameraBounds = { left: 0, top: -150, right: 7240, bottom: 640 };
         level.killY = 720;
+        level.voidDeath = true;
         const world = level.world;
 
         const patches = [

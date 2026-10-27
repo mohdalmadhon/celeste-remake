@@ -55,6 +55,7 @@ export const forsakenCity = {
         const b = { ...level.contentBounds };
         level.cameraBounds = { left: b.left - 20, top: b.top - 120, right: b.right + 20, bottom: b.bottom + 40 };
         level.killY = b.bottom + 160;
+        level.voidDeath = true;
         const fills = await (await fetch("./js/data/fills.json")).json();
         buildFill(level, fills["forsaken-city"]);
         world.add(createBody(b.left - 60, b.top - 600, 60, b.bottom - b.top + 1200, "solid", { climbable: false }));
