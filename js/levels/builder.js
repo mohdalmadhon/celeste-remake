@@ -198,3 +198,20 @@ export const MATERIALS = Object.freeze({
     ice: { strip: "./assets/generated/tiles/auto_ice.png", surface: "ice" },
     resort: { strip: "./assets/generated/tiles/auto_resort.png", surface: "wood" }
 });
+
+/**
+ * Finds the top of the first solid below a point.
+ *
+ * @param {import("../systems/physics.js").CollisionWorld} world - Collision world.
+ * @param {number} x - World x to probe.
+ * @param {number} fromY - World y to start probing from.
+ * @param {number} [maxDepth=2000] - How far down to search.
+ * @returns {number} Ground y, or fromY when nothing was found.
+ */
+export function groundAt(world, x, fromY, maxDepth = 2000) {
+    for (let y = fromY; y < fromY + maxDepth; y += 2) {
+        const hit = world.solidAt(x - 8, y, 16, 2);
+        if (hit) return hit.y;
+    }
+    return fromY;
+}
