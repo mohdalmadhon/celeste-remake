@@ -14,7 +14,7 @@ import { snapPixel } from "./core/pixels.js";
  * @property {number} h - Height in pixels.
  * @property {string} src - Image URL.
  * @property {boolean} [solid=true] - Whether the tile blocks movement.
- * @property {string} [layer="tiles"] - Render layer: back, tiles or front.
+ * @property {string} [layer="tiles"] - Render layer: back, deco, tiles or front.
  * @property {string[]} [classes] - Extra CSS classes.
  * @property {string} [backgroundSize] - CSS background-size override.
  * @property {string} [backgroundPosition] - CSS background-position override.
@@ -73,7 +73,7 @@ export class Level {
         this.id = id;
         this.root = document.createElement("div");
         this.root.className = "level";
-        for (const name of ["back", "tiles", "entities", "fx", "front"]) {
+        for (const name of ["back", "deco", "tiles", "entities", "fx", "front"]) {
             const layer = document.createElement("div");
             layer.className = `layer layer-${name}`;
             this.root.appendChild(layer);

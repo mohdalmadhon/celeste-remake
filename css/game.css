@@ -1643,6 +1643,17 @@ textarea.ed-input {
   image-rendering: pixelated;
 }
 
+.ed-back-tile {
+  opacity: 0.95;
+}
+
+.ed-layer-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
 .ed-entity {
   position: absolute;
   width: 50px;
@@ -1758,6 +1769,119 @@ textarea.ed-input {
 
 .ed-entity.ed-icon-zip {
   width: 100px;
+}
+
+.ed-icon-spring {
+  background-image: url("../assets/generated/sprites/spring.png");
+  background-size: 300% 100%;
+  background-position: 0 0;
+}
+
+.ed-entity.ed-icon-spring[data-dir="right"] {
+  transform: rotate(90deg);
+}
+
+.ed-entity.ed-icon-spring[data-dir="left"] {
+  transform: rotate(-90deg);
+}
+
+.ed-icon-key {
+  background-image: url("../assets/generated/sprites/key.png");
+  background-size: 1400% 200%;
+  background-position: 0 0;
+}
+
+.ed-icon-door {
+  background-image: url("../assets/generated/sprites/padlock.png"), url("../assets/generated/sprites/door.png");
+  background-size: 50px 50px, 50px 50px;
+  background-repeat: no-repeat, repeat;
+}
+
+.ed-swatch .ed-icon-door {
+  background-size: contain, contain;
+}
+
+.ed-icon-switch {
+  background-image: url("../assets/generated/sprites/touch_switch.png");
+  background-size: 300% 100%;
+  background-position: 50% 0;
+}
+
+.ed-icon-gate {
+  background-image: url("../assets/generated/sprites/switch_gate.png");
+  background-size: 100px 50px;
+  background-repeat: repeat;
+  background-position: 0 0;
+}
+
+.ed-swatch .ed-icon-gate {
+  background-size: 48px 24px;
+}
+
+.ed-icon-dashblock {
+  background-image: url("../assets/generated/sprites/dash_block.png");
+  background-size: 50px 50px;
+  background-repeat: repeat;
+}
+
+.ed-swatch .ed-icon-dashblock {
+  background-size: contain;
+}
+
+.ed-icon-seeker {
+  background-image: url("../assets/generated/sprites/seeker.png");
+  background-size: 2000% 400%;
+  background-position: 0 0;
+}
+
+.ed-entity.ed-icon-seeker {
+  width: 100px;
+  height: 100px;
+  margin: -25px 0 0 -25px;
+}
+
+.ed-icon-npc {
+  background-image: url("../assets/generated/sprites/granny.png");
+  background-size: 2900% 400%;
+  background-position: 0 0;
+}
+
+.ed-entity.ed-icon-npc[data-look="theo"] {
+  background-image: url("../assets/generated/sprites/theo.png");
+  background-size: 1600% 500%;
+  background-position: 0 25%;
+}
+
+.ed-icon-decor {
+  background-image: url("../assets/generated/sprites/decor.png");
+  background-size: 3200% 300%;
+  background-position: 0 0;
+}
+
+.ed-entity.ed-icon-decor {
+  background-repeat: no-repeat;
+  opacity: 0.9;
+}
+
+.ed-icon-marker {
+  border: 2px dashed #8fe3ff;
+  border-radius: 50%;
+  background: rgba(143, 227, 255, 0.15);
+}
+
+.ed-entity.ed-icon-marker::after {
+  content: attr(data-name);
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  color: #8fe3ff;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.ed-entity.ed-sized {
+  background-position: 0 0;
 }
 
 .ed-path {
@@ -2062,4 +2186,64 @@ textarea.ed-input {
   .editor {
     grid-template-columns: 150px 1fr 250px;
   }
+}
+
+.layer-deco .decor-glow::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 160px;
+  height: 160px;
+  margin-left: -80px;
+  margin-top: -50px;
+  background: radial-gradient(circle, rgba(255, 210, 120, 0.28) 0%, rgba(255, 190, 90, 0.1) 40%, rgba(255, 190, 90, 0) 70%);
+  pointer-events: none;
+}
+
+.layer-deco .decor-window::after {
+  top: 50%;
+  margin-top: -80px;
+}
+
+.locked-door {
+  background-repeat: repeat;
+  image-rendering: pixelated;
+}
+
+.door-lock {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: url("../assets/generated/sprites/padlock.png") center / 100% 100% no-repeat;
+  image-rendering: pixelated;
+}
+
+.switch-gate {
+  background-repeat: repeat;
+  background-position: 0 0;
+  image-rendering: pixelated;
+  box-shadow: inset 0 0 0 3px rgba(20, 14, 30, 0.9);
+}
+
+.switch-gate.opening {
+  background-position: -50px 0;
+}
+
+.dash-block {
+  background-repeat: repeat;
+  image-rendering: pixelated;
+  box-shadow: inset 0 0 0 2px rgba(20, 14, 30, 0.75);
+}
+
+.touch-switch.lit {
+  filter: drop-shadow(0 0 8px rgba(120, 220, 255, 0.9));
+}
+
+.spring,
+.seeker,
+.snowball,
+.level-npc,
+.key-item {
+  image-rendering: pixelated;
 }
