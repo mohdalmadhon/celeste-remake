@@ -29,6 +29,8 @@ export class CutsceneDirector {
     letterbox;
     /** @type {Set<{ resolve: Function, time: number }>} */
     #waits = new Set();
+    /** @type {Set<Function>} */
+    #finishers = new Set();
 
     /**
      * @param {import("./dialogue.js").Dialogue} dialogue - Dialogue box.
@@ -97,6 +99,26 @@ export class CutsceneDirector {
         this.dialogue.skip();
         for (const wait of this.#waits) wait.resolve();
         this.#waits.clear();
+        for (const finish of this.#finishers) finish();
+        this.#finishers.clear();
+    }
+
+    /**
+     * Awaits a scripted action that can be completed early when skipping.
+     *
+     * @param {Promise<void>} promise - The action.
+     * @param {() => void} finish - Completes the action immediately.
+     * @returns {Promise<void>} Resolves when the action ends.
+     */
+    async track(promise, finish) {
+        this.#checkSkip();
+        this.#finishers.add(finish);
+        try {
+            await promise;
+        } finally {
+            this.#finishers.delete(finish);
+        }
+        this.#checkSkip();
     }
 
     /**
@@ -158,9 +180,7 @@ export class CutsceneDirector {
      * @returns {Promise<void>} Resolves on arrival.
      */
     async walk(x, speed = 0.5) {
-        this.#checkSkip();
-        await game.player.walkTo(x, speed);
-        this.#checkSkip();
+        await this.track(game.player.walkTo(x, speed), () => game.player.finishWalk());
     }
 
     /**
@@ -193,9 +213,7 @@ export class CutsceneDirector {
      * @returns {Promise<void>} Resolves when the pan ends.
      */
     async pan(x, y, duration = 1) {
-        this.#checkSkip();
-        await game.camera.focusOn(x, y, duration);
-        this.#checkSkip();
+        await this.track(game.camera.focusOn(x, y, duration), () => game.camera.release());
     }
 
     /**
@@ -230,8 +248,6 @@ export class CutsceneDirector {
      * @returns {Promise<void>} Resolves on arrival.
      */
     async move(npc, x, y, speed = 200) {
-        this.#checkSkip();
-        await npc.moveTo(x, y, speed);
-        this.#checkSkip();
+        await this.track(npc.moveTo(x, y, speed), () => npc.finishMove?.());
     }
 }

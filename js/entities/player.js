@@ -1052,6 +1052,20 @@ export class Player extends Entity {
     }
 
     /**
+     * Ends a scripted walk at the current position, used when skipping cutscenes.
+     *
+     * @returns {void}
+     */
+    finishWalk() {
+        const walk = this.#walk;
+        if (!walk) return;
+        this.#walk = null;
+        this.script.x = 0;
+        this.velocity.x = 0;
+        walk.resolve();
+    }
+
+    /**
      * Steers scripted walking.
      *
      * @returns {void}

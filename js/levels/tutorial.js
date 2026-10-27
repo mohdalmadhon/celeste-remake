@@ -193,7 +193,7 @@ export const prologue = {
             await director.run(async (cs) => {
                 await cs.walk(4150, 0.5);
                 cs.face(1);
-                cs.pan(4260, 220, 1.2);
+                game.camera.focusOn(4260, 220, 1.2);
                 await cs.say([
                     { speaker: "madeline", emotion: "normal", key: "prologue.granny.1" },
                     { speaker: "madeline", emotion: "distracted", key: "prologue.granny.2" }
