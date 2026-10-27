@@ -37,6 +37,8 @@ export const game = {
     invincible: false,
     /** @type {*} */
     chapter: null,
+    /** @type {import("./session.js").Session|null} */
+    session: null,
 
     /**
      * Pauses the simulation briefly to emphasise an impact.
