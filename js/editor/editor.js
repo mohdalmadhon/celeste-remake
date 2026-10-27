@@ -1,4 +1,4 @@
-import { ACTION_TYPES, createLevel, ENTITY_TYPES, fieldDefaults, LEVEL_LIMITS, levelProblems, MUSIC_OPTIONS, newId, normalizeLevel, THEME_OPTIONS, TILE_TYPES, TRIGGER_TYPES, WEATHER_PRESETS } from "../levels/levelFormat.js";
+import { ACTION_TYPES, createLevel, DECOR_SIZES, ENTITY_TYPES, fieldDefaults, LEVEL_LIMITS, levelProblems, MUSIC_OPTIONS, newId, normalizeLevel, THEME_OPTIONS, TILE_TYPES, TRIGGER_TYPES, WEATHER_PRESETS } from "../levels/levelFormat.js";
 import { button, el, fieldInputs, row, select } from "./forms.js";
 import { deleteLevel, duplicateLevel, exportLevel, importLevel, listLevels, loadLevel, saveLevel } from "./levelStore.js";
 
@@ -52,6 +52,8 @@ export class LevelEditor {
     tile = "s";
     /** @type {string|null} */
     placing = null;
+    /** @type {"tiles"|"background"} */
+    paintLayer = "tiles";
     /** @type {{ kind: "entity"|"event", id: string }|null} */
     selection = null;
     /** @type {boolean} */
@@ -66,6 +68,8 @@ export class LevelEditor {
     #lastSnapshot = "";
     /** @type {Map<string, HTMLElement>} */
     #tileElems = new Map();
+    /** @type {Map<string, HTMLElement>} */
+    #backElems = new Map();
     /** @type {*} */
     #drag = null;
     /** @type {{ x: number, y: number }|null} */
@@ -189,6 +193,16 @@ export class LevelEditor {
             swatch.append(preview, el("span", "ed-swatch-name", spec.name));
             tilePalette.appendChild(swatch);
         });
+        const layerSwitch = el("div", "ed-layer-switch");
+        for (const [id, label, title] of [["tiles", "Terrain", "Solid blocks the player stands on"], ["background", "Back wall", "Dark walls behind the player, never solid"]]) {
+            const option = button(label, () => {
+                this.paintLayer = id;
+                if (this.tool !== "rect") this.setTool("paint");
+                this.#refreshPalette();
+            }, "ed-tool", title);
+            option.dataset.layer = id;
+            layerSwitch.appendChild(option);
+        }
         const objectPalette = el("div", "ed-palette ed-objects");
         for (const [type, spec] of Object.entries(ENTITY_TYPES)) {
             const item = button("", () => {
@@ -201,17 +215,18 @@ export class LevelEditor {
             item.append(icon, el("span", "ed-swatch-name", spec.name));
             objectPalette.appendChild(item);
         }
-        left.append(el("h3", "", "Tools"), tools, el("h3", "", "Blocks"), tilePalette, el("h3", "", "Objects"), objectPalette);
+        left.append(el("h3", "", "Tools"), tools, el("h3", "", "Blocks"), layerSwitch, tilePalette, el("h3", "", "Objects"), objectPalette);
 
         const viewport = el("main", "ed-view");
         const world = el("div", "ed-world");
         const grid = el("div", "ed-grid");
+        const backLayer = el("div", "ed-layer ed-back");
         const tilesLayer = el("div", "ed-layer ed-tiles");
         const eventLayer = el("div", "ed-layer ed-events");
         const entityLayer = el("div", "ed-layer ed-entities");
         const cursor = el("div", "ed-cursor");
         const marquee = el("div", "ed-marquee hidden");
-        world.append(grid, tilesLayer, eventLayer, entityLayer, cursor, marquee);
+        world.append(grid, backLayer, tilesLayer, eventLayer, entityLayer, cursor, marquee);
         viewport.appendChild(world);
 
         const right = el("aside", "ed-right");
@@ -230,7 +245,7 @@ export class LevelEditor {
         const status = el("footer", "ed-status");
         const modal = el("div", "ed-modal hidden");
         root.append(top, left, viewport, right, status, modal);
-        this.#ui = { name, tools, tilePalette, objectPalette, viewport, world, grid, tilesLayer, eventLayer, entityLayer, cursor, marquee, tabs, panel, status, modal };
+        this.#ui = { name, tools, layerSwitch, backLayer, tilePalette, objectPalette, viewport, world, grid, tilesLayer, eventLayer, entityLayer, cursor, marquee, tabs, panel, status, modal };
 
         viewport.addEventListener("pointerdown", (event) => this.#pointerDown(event));
         viewport.addEventListener("pointermove", (event) => this.#pointerMove(event));
@@ -377,6 +392,7 @@ export class LevelEditor {
      */
     #refreshPalette() {
         for (const node of this.#ui.tools.children) node.classList.toggle("active", node.dataset.tool === this.tool);
+        for (const node of this.#ui.layerSwitch.children) node.classList.toggle("active", node.dataset.layer === this.paintLayer);
         for (const node of this.#ui.tilePalette.children) node.classList.toggle("active", node.dataset.tile === this.tile && (this.tool === "paint" || this.tool === "rect"));
         for (const node of this.#ui.objectPalette.children) node.classList.toggle("active", node.dataset.entity === this.placing);
         this.#ui.viewport.dataset.tool = this.tool;
@@ -634,7 +650,7 @@ export class LevelEditor {
         if (!this.#inside(cell)) return;
         if (erase && this.tool === "erase" && this.#removeEntityAt(cell, false)) return;
         const ch = erase ? "." : this.tile;
-        if (this.level.tiles[cell.y][cell.x] === ch) return;
+        if (this.level[this.paintLayer][cell.y][cell.x] === ch) return;
         this.#setTile(cell.x, cell.y, ch);
         this.#refreshTiles(cell.x - 1, cell.y - 1, 3, 3);
         this.dirty = true;
@@ -642,7 +658,7 @@ export class LevelEditor {
     }
 
     /**
-     * Writes one tile character.
+     * Writes one tile character into the layer being painted.
      *
      * @param {number} x - Column.
      * @param {number} y - Row.
@@ -650,8 +666,9 @@ export class LevelEditor {
      * @returns {void}
      */
     #setTile(x, y, ch) {
-        const rowText = this.level.tiles[y];
-        this.level.tiles[y] = rowText.slice(0, x) + ch + rowText.slice(x + 1);
+        const rows = this.level[this.paintLayer];
+        const rowText = rows[y];
+        rows[y] = rowText.slice(0, x) + ch + rowText.slice(x + 1);
     }
 
     /**
@@ -917,7 +934,9 @@ export class LevelEditor {
         world.style.height = `${this.level.height * CELL}px`;
         world.dataset.theme = this.level.settings.theme;
         this.#ui.tilesLayer.textContent = "";
+        this.#ui.backLayer.textContent = "";
         this.#tileElems.clear();
+        this.#backElems.clear();
         this.#refreshTiles(0, 0, this.level.width, this.level.height);
         this.#renderEntities();
         this.#renderEvents();
@@ -940,9 +959,29 @@ export class LevelEditor {
     #refreshTiles(x0, y0, w, h) {
         const level = this.level;
         const solid = (x, y) => x < 0 || y < 0 || x >= level.width || y >= level.height || level.tiles[y][x] !== ".";
+        const covered = (x, y) => solid(x, y) || level.background[y][x] !== ".";
         for (let y = Math.max(0, y0); y < Math.min(level.height, y0 + h); y++) {
             for (let x = Math.max(0, x0); x < Math.min(level.width, x0 + w); x++) {
                 const key = `${x},${y}`;
+                const back = level.background[y][x];
+                let backNode = this.#backElems.get(key);
+                if (back === "." || level.tiles[y][x] !== ".") {
+                    if (backNode) {
+                        backNode.remove();
+                        this.#backElems.delete(key);
+                    }
+                } else {
+                    if (!backNode) {
+                        backNode = el("div", "ed-tile ed-back-tile");
+                        backNode.style.left = `${x * CELL}px`;
+                        backNode.style.top = `${y * CELL}px`;
+                        this.#ui.backLayer.appendChild(backNode);
+                        this.#backElems.set(key, backNode);
+                    }
+                    const backMask = (covered(x, y - 1) ? 0 : 1) | (covered(x + 1, y) ? 0 : 2) | (covered(x, y + 1) ? 0 : 4) | (covered(x - 1, y) ? 0 : 8);
+                    backNode.style.backgroundImage = `url("${TILE_TYPES[back].strip.replace("/auto_", "/bg_")}")`;
+                    backNode.style.backgroundPosition = `${-backMask * CELL}px 0px`;
+                }
                 const ch = level.tiles[y][x];
                 let node = this.#tileElems.get(key);
                 if (ch === ".") {
@@ -980,12 +1019,27 @@ export class LevelEditor {
             node.style.left = `${entity.x * CELL}px`;
             node.style.top = `${entity.y * CELL}px`;
             node.title = spec.name;
+            const size = entity.type === "decor" ? DECOR_SIZES[entity.variant] : entity.type === "door" ? [1, entity.h] : entity.type === "gate" || entity.type === "dashBlock" ? [entity.w, entity.h] : null;
+            if (size) {
+                node.classList.add("ed-sized");
+                node.style.width = `${size[0] * CELL}px`;
+                node.style.height = `${size[1] * CELL}px`;
+            }
+            if (entity.type === "decor") {
+                const offset = Object.keys(DECOR_SIZES).slice(0, Object.keys(DECOR_SIZES).indexOf(entity.variant)).reduce((sum, name) => sum + DECOR_SIZES[name][0], 0);
+                node.style.backgroundSize = `${32 * CELL}px ${3 * CELL}px`;
+                node.style.backgroundPosition = `${-offset * CELL}px 0px`;
+            }
+            if (entity.type === "door") node.style.backgroundPosition = `center ${(entity.h - 1) * CELL / 2}px, 0 0`;
+            if (entity.type === "spring") node.dataset.dir = entity.dir;
+            if (entity.type === "npc") node.dataset.look = entity.look;
+            if (entity.type === "marker") node.dataset.name = entity.name;
             if (entity.type === "spike") node.style.backgroundImage = `url("${SPIKE_IMAGES[entity.dir]}")`;
             if (entity.type === "spike") node.dataset.dir = entity.dir;
             if (entity.type === "falling" && entity.trigger === "event") node.classList.add("ed-waits");
             if (this.selection?.kind === "entity" && this.selection.id === entity.id) node.classList.add("selected");
             layer.appendChild(node);
-            if ((entity.type === "dustBunny" || entity.type === "zipMover") && (entity.dx || entity.dy)) {
+            if ((entity.type === "dustBunny" || entity.type === "zipMover" || entity.type === "gate") && (entity.dx || entity.dy)) {
                 const path = el("div", "ed-path");
                 const sx = entity.x * CELL + (entity.type === "zipMover" ? CELL : CELL / 2);
                 const sy = entity.y * CELL + CELL / 2;
@@ -1129,12 +1183,13 @@ export class LevelEditor {
         width = Math.round(Math.min(LEVEL_LIMITS.maxWidth, Math.max(LEVEL_LIMITS.minWidth, width || level.width)));
         height = Math.round(Math.min(LEVEL_LIMITS.maxHeight, Math.max(LEVEL_LIMITS.minHeight, height || level.height)));
         const shift = anchor === "bottom" ? height - level.height : 0;
-        const rows = [];
-        for (let y = 0; y < height; y++) {
-            const source = level.tiles[y - shift] ?? "";
-            rows.push(source.slice(0, width).padEnd(width, "."));
-        }
-        level.tiles = rows;
+        const reshape = (source) => {
+            const rows = [];
+            for (let y = 0; y < height; y++) rows.push((source[y - shift] ?? "").slice(0, width).padEnd(width, "."));
+            return rows;
+        };
+        level.tiles = reshape(level.tiles);
+        level.background = reshape(level.background);
         level.width = width;
         level.height = height;
         level.entities = level.entities
