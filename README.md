@@ -17,8 +17,8 @@ Useful URL parameters while developing:
 
 | # | Chapter | Highlights |
 |---|---------|------------|
-| 0 | Prologue | Original layout, falling ice trap, climbing bird, Granny, collapsing bridge, dash lesson |
-| 1 | Forsaken City | Original girder level, zip movers, crumbling girders, resting ending with the bird |
+| 0 | Prologue | Original layout rebuilt on the grid, falling snow block, climbing bird, Granny, collapsing bridge, dash lesson |
+| 1 | Forsaken City | Original girder level aligned to the grid on solid rock, zip movers, crumbling girders, resting ending with the bird |
 | 2 | Celestial Resort | New Oshiro chase through hallways, a service shaft, a collapsing ballroom and the rooftops |
 | 3 | The Summit's Forgotten Echoes | New finale with wind, echoes of past characters, a doubt chase and a two-dash ascent |
 
@@ -48,5 +48,6 @@ Every key can be remapped in Settings → Controls.
 
 - `python3 tools/build_assets.py [group ...]` rebuilds every derived asset from the original art.
 - `node tools/reachability.mjs ...` checks that a layout can be completed with the current movement.
-- `node tools/dump_level.cjs <chapter> <dump.json> [x,y,label]` (needs Playwright and the game served on port 8123, with the chapter's entry removed from `js/data/fills.json`) writes a chapter's collision layout.
-- `node tools/backfill.mjs <dump.json> <chapter> js/data/fills.json --doomed [--sides=12]` fills the space the player can never reach with solid terrain and refuses to write anything that would cut off a checkpoint, strawberry or ending.
+- `python3 tools/convert_city.py [fill.json]` snaps the original Forsaken City layout to the grid and writes `js/levels/maps/cityMap.js`, merging in a fill when one is given.
+- `node tools/dump_level.cjs <chapter> <dump.json> [x,y,label]` (needs Playwright and the game served on port 8123) writes a chapter's collision layout.
+- `node tools/backfill.mjs <dump.json> <chapter> <fill.json> --doomed [--sides=12]` works out which space the player can never reach and writes a fill for it, refusing to write anything that would cut off a checkpoint, strawberry or ending.
