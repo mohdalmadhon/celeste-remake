@@ -549,7 +549,67 @@ def build_fonts():
     print("fonts", len(fonts))
 
 
+def detect_frame_rows(image):
+    """Find the top edge and frame count of every 160 pixel portrait row."""
+    alpha = image.split()[3].load()
+    rows = []
+    run = 0
+    for y in range(image.height + 1):
+        opaque = y < image.height and alpha[87, y] > 10
+        if opaque:
+            run += 1
+            continue
+        if run >= 150:
+            top = y - run
+            count = 0
+            while 7 + count * 167 + 80 < image.width and alpha[7 + count * 167 + 80, top + 80] > 10:
+                count += 1
+            rows.append((top, count))
+        run = 0
+    return rows
+
+
+def build_portrait_sheet(source, name, wanted, max_frames=8):
+    """Pack selected portrait rows into a compact sheet.
+
+    wanted maps an emotion name to the index of its row in the source sheet.
+    """
+    image = Image.open(os.path.join(ASSETS, source)).convert("RGBA")
+    rows = detect_frame_rows(image)
+    sheet = Image.new("RGBA", (160 * max_frames, 160 * len(wanted)), (0, 0, 0, 0))
+    meta = {}
+    for out_row, (emotion, index) in enumerate(wanted.items()):
+        top, count = rows[index]
+        frames = min(count, max_frames)
+        for col in range(frames):
+            x = 7 + col * 167
+            sheet.paste(image.crop((x, top, x + 160, top + 160)), (col * 160, out_row * 160))
+        meta[emotion] = (out_row, frames)
+    sheet.save(out_path("portraits", name))
+    print(name, meta)
+
+
+def build_portraits():
+    """Extract dialogue portrait strips for Madeline, her echo and Theo."""
+    build_portrait_sheet("faces/madline_full.png", "madeline.png", {
+        "normal": 4, "angry": 0, "deadpan": 1, "determined": 2, "distracted": 3,
+        "panic": 5, "peaceful": 6, "sad": 7, "sadder": 8, "surprised": 9,
+        "together": 10, "upset": 13,
+    }, 7)
+    build_portrait_sheet("faces/madline_full.png", "madeline_echo.png", {
+        "normal": 21, "angry": 14, "deadpan": 15, "determined": 17, "distracted": 19,
+        "panic": 22, "sad": 23, "surprised": 24, "upset": 25,
+    }, 7)
+    build_portrait_sheet("faces/theo.png", "theo.png", {
+        "normal": 2, "excited": 0, "nailedIt": 1, "serious": 3, "thinking": 4, "worried": 5, "wtf": 6, "yolo": 7,
+    }, 7)
+    build_portrait_sheet("faces/theo.png", "theo_echo.png", {
+        "normal": 10, "excited": 8, "serious": 11, "worried": 13,
+    }, 7)
+
+
 GROUPS = {
+    "portraits": build_portraits,
     "sheets": build_sheets,
     "player": build_player,
     "tiles": build_tiles,
