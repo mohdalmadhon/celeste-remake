@@ -599,8 +599,23 @@ def build_parallax():
     print("parallax layers")
 
 
+def build_favicon():
+    """Make the browser tab icon from the first strawberry frame."""
+    sheet = Image.open(out_path("sprites", "strawberry.png")).convert("RGBA")
+    frame = sheet.crop((0, 0, 32, 32))
+    icon = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    bounds = frame.getbbox()
+    berry = frame.crop(bounds)
+    scale = 60 // max(berry.size)
+    berry = berry.resize((berry.width * scale, berry.height * scale), Image.NEAREST)
+    icon.paste(berry, ((64 - berry.width) // 2, (64 - berry.height) // 2), berry)
+    icon.save(out_path("ui", "favicon.png"))
+    print("favicon")
+
+
 def build_ui():
     """Draw the pixel cursor, UI icons and a crisp mountain logo."""
+    build_favicon()
     cursor = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     shape = [
         "X...............",
