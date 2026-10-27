@@ -237,7 +237,7 @@ export const prologue = {
         const endingScene = async () => {
             state.ending = true;
             await director.run(async (cs) => {
-                await cs.walk(7090, 0.45);
+                await cs.walk(7060, 0.45);
                 cs.face(1);
                 cs.pose("lookUp");
                 audio.playMusic(SFX.theme, { fade: 3, volume: 0.8 });

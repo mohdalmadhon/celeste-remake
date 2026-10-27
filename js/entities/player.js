@@ -82,7 +82,7 @@ export class Player extends Entity {
     controlLocked = false;
     /** @type {{ x: number, jump: boolean, jumpHeld: boolean }} */
     script = { x: 0, jump: false, jumpHeld: false };
-    /** @type {{ x: number, speed: number, resolve: Function }|null} */
+    /** @type {{ x: number, speed: number, resolve: Function, stuck?: number }|null} */
     #walk = null;
     /** @type {string|null} */
     forcedAnimation = null;
@@ -1060,7 +1060,8 @@ export class Player extends Entity {
         const walk = this.#walk;
         const center = this.box.x + this.box.w / 2;
         const distance = walk.x - center;
-        if (Math.abs(distance) <= 3) {
+        walk.stuck = Math.abs(this.velocity.x) < 5 && this.script.x !== 0 ? (walk.stuck || 0) + 1 : 0;
+        if (Math.abs(distance) <= 3 || walk.stuck > 36) {
             this.script.x = 0;
             this.velocity.x = 0;
             this.#walk = null;
