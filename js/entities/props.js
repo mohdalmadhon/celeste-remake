@@ -309,6 +309,24 @@ export class FallingBlock extends Entity {
         this.visual.offsetX = 0;
         this.snap();
     }
+
+    /**
+     * Places the block where it comes to rest without playing the fall, used
+     * when a run resumes past the point where it dropped.
+     *
+     * @param {number} y - Top edge of the block once landed.
+     * @returns {void}
+     */
+    settle(y) {
+        this.status = "landed";
+        this.position.y = y;
+        this.body.y = y;
+        this.body.active = true;
+        game.level?.world.update(this.body);
+        this.visible = true;
+        this.visual.offsetX = 0;
+        this.snap();
+    }
 }
 
 /**
