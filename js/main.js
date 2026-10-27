@@ -378,7 +378,10 @@ async function boot() {
     ui.transition.set();
     loop.start();
     const params = new URLSearchParams(location.search);
-    if (params.has("debug")) window.game = game;
+    if (params.has("debug")) {
+        window.game = game;
+        window.gameLoop = loop;
+    }
     const requested = params.get("chapter");
     const index = CHAPTERS.findIndex((chapter) => chapter.id === requested);
     if (index >= 0) {

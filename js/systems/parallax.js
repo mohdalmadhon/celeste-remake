@@ -44,8 +44,13 @@ export class Parallax {
      */
     set(layers) {
         this.root.textContent = "";
+        this.root.style.background = "";
         this.#layers = [];
         for (const config of layers) {
+            if (!config.src) {
+                this.root.style.background = config.background || "";
+                continue;
+            }
             const elem = document.createElement("div");
             elem.className = "parallax-layer";
             const scale = config.scale ?? 1;
@@ -62,13 +67,10 @@ export class Parallax {
                 } else {
                     elem.style.backgroundSize = `${tileWidth}px ${(config.height ?? VIEW_HEIGHT) * scale}px`;
                     elem.style.backgroundRepeat = config.repeat === false ? "no-repeat" : "repeat-x";
-                    elem.style.width = `${VIEW_WIDTH + tileWidth * 2}px`;
+                    elem.style.width = `${Math.ceil(VIEW_WIDTH / tileWidth + 1) * tileWidth}px`;
                     elem.style.height = `${(config.height ?? VIEW_HEIGHT) * scale}px`;
                     elem.style.top = `${config.y ?? 0}px`;
                 }
-            } else {
-                elem.style.background = config.background || "transparent";
-                elem.style.inset = "0";
             }
             if (config.opacity !== undefined) elem.style.opacity = String(config.opacity);
             this.root.appendChild(elem);
@@ -86,7 +88,6 @@ export class Parallax {
     render(camera, dt) {
         for (const layer of this.#layers) {
             const { config } = layer;
-            if (!config.src) continue;
             layer.offset += (config.drift ?? 0) * dt;
             if (config.cover) {
                 const x = -Math.max(-80, Math.min(80, camera.x * (config.factorX ?? 0) % 160));
@@ -99,7 +100,7 @@ export class Parallax {
                 continue;
             }
             const raw = camera.x * (config.factorX ?? 0) - layer.offset;
-            const x = -(((raw % layer.tileWidth) + layer.tileWidth) % layer.tileWidth) - layer.tileWidth;
+            const x = -(((raw % layer.tileWidth) + layer.tileWidth) % layer.tileWidth);
             const y = -camera.y * (config.factorY ?? 0);
             const transform = `translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`;
             if (transform !== layer.last) {

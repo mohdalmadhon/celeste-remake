@@ -196,7 +196,6 @@ a {
   top: 0;
   margin: -2px 0 0 -2px;
   pointer-events: none;
-  will-change: transform, opacity;
 }
 
 .checkpoint {
@@ -299,15 +298,15 @@ a {
   pointer-events: none;
   overflow: hidden;
   z-index: 72;
+  will-change: transform;
+  contain: strict;
 }
 
 .flake {
   position: absolute;
   left: 0;
   top: 0;
-  border-radius: 50%;
   background: #fff;
-  will-change: transform;
 }
 
 .weather[data-type="dust"] .flake {
