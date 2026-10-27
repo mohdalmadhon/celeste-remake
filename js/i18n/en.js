@@ -167,7 +167,7 @@ export default {
     "credits.audioBy": "Sound effects and main theme from Celeste (Lena Raine)",
     "credits.procedural": "Wind, hotel ambience and chase percussion synthesised in the browser",
     "credits.font": "Font",
-    "credits.fontBy": "Pixelify Sans by Stefie Justprince (SIL Open Font License)",
+    "credits.fontBy": "Tiny5 by Gissio (SIL Open Font License)",
     "credits.thanks": "Thank you",
     "credits.thanksText": "for climbing. You can do this."
 };
