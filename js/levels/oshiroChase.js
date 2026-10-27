@@ -1,6 +1,7 @@
 import { playAnimation } from "../components/animation.js";
 import { TILE } from "../core/constants.js";
 import { game } from "../core/game.js";
+import { DashBlock, Spring } from "../entities/gadgets.js";
 import { DebrisDropper, DustBunny, Lamp, SlamDoor } from "../entities/hazards.js";
 import { OshiroBoss, OshiroHost } from "../entities/oshiro.js";
 import { PlayerState } from "../entities/player.js";
@@ -9,7 +10,7 @@ import { SFX } from "../helpers/sound.js";
 import { Level } from "../level.js";
 import { audio } from "../systems/audio.js";
 import { createBody } from "../systems/physics.js";
-import { buildFromAscii, MATERIALS } from "./builder.js";
+import { addSpike, buildFromAscii, MATERIALS } from "./builder.js";
 import { buildOshiroMap } from "./maps/oshiroMap.js";
 
 const CRUMBLE = "./assets/generated/tiles/resort_crumble.png";
@@ -21,16 +22,33 @@ const CRUMBLE = "./assets/generated/tiles/resort_crumble.png";
  * @type {Record<string, import("../entities/oshiro.js").ChasePhase>}
  */
 const PHASES = {
-    hall: { cooldown: 3.0, windup: 0.95, speed: 900, lag: 2.2 },
-    shaft: { cooldown: 2.6, windup: 0.9, speed: 950, lag: 2.6 },
-    ballroom: { cooldown: 2.2, windup: 0.8, speed: 1050, lag: 3 },
-    rooftop: { cooldown: 1.8, windup: 0.7, speed: 1200, lag: 3.4 }
+    hall: { cooldown: 2.7, windup: 0.9, speed: 950, lag: 2.3 },
+    shaft: { cooldown: 2.4, windup: 0.85, speed: 1000, lag: 2.7 },
+    ballroom: { cooldown: 2.0, windup: 0.75, speed: 1100, lag: 3.1 },
+    rooftop: { cooldown: 1.7, windup: 0.68, speed: 1220, lag: 3.4 },
+    wing: { cooldown: 1.6, windup: 0.65, speed: 1260, lag: 3.6 },
+    stairs: { cooldown: 1.5, windup: 0.6, speed: 1320, lag: 3.8 }
 };
+
+/**
+ * Wall springs and spikes by map character.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+const SPRINGS = Object.freeze({ s: "up", "{": "left", "}": "right" });
+
+/**
+ * Spike markers of the resort map mapped to the shared spike markers.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+const SPIKES = Object.freeze({ "^": "^", Y: "v", "<": "<", ">": ">" });
 
 /**
  * Chapter 2: Celestial Resort, the Oshiro chase. Oshiro begs Madeline to
  * stay, loses control and pursues her through the hallways, a service shaft,
- * a collapsing ballroom and over the rooftops.
+ * a collapsing ballroom, over the rooftops, through the old wing and up the
+ * grand staircase.
  *
  * @type {import("../core/session.js").ChapterDefinition}
  */
@@ -40,14 +58,21 @@ export const oshiroChase = {
     nameKey: "chapter.resort.name",
     subtitleKey: "chapter.resort.subtitle",
     art: "./assets/generated/checkpoints/resort.png",
-    timeLimit: 420,
-    lives: 8,
-    strawberries: 2,
+    timeLimit: 600,
+    lives: 12,
+    strawberries: 3,
     music: null,
     ambience: "hotel",
     weather: { type: "dust", density: 1, wind: 6, gusts: 0.2 },
     parallax: "resort",
-    checkpointNames: { hall: "checkpoint.resort.hall", shaft: "checkpoint.resort.shaft", ballroom: "checkpoint.resort.ballroom", rooftop: "checkpoint.resort.rooftop" },
+    checkpointNames: {
+        hall: "checkpoint.resort.hall",
+        shaft: "checkpoint.resort.shaft",
+        ballroom: "checkpoint.resort.ballroom",
+        rooftop: "checkpoint.resort.rooftop",
+        wing: "checkpoint.resort.wing",
+        stairs: "checkpoint.resort.stairs"
+    },
 
     /**
      * Builds the chase.
@@ -78,8 +103,8 @@ export const oshiroChase = {
 
         const resettable = [];
         const checkpoints = {};
-        const checkpointOrder = ["start", "hall", "shaft", "ballroom", "rooftop"];
-        const checkpointIds = ["hall", "shaft", "ballroom", "rooftop"];
+        const checkpointOrder = ["start", "hall", "shaft", "ballroom", "rooftop", "wing", "stairs"];
+        const checkpointIds = ["hall", "shaft", "ballroom", "rooftop", "wing", "stairs"];
         let checkpointIndex = 0;
         let host = null;
         let end = null;
@@ -92,6 +117,16 @@ export const oshiroChase = {
         };
 
         markers.sort((a, b) => a.x - b.x || a.y - b.y);
+        let rubble = null;
+        for (const marker of markers.filter((m) => m.ch === "B")) {
+            if (rubble && rubble.x === marker.x && rubble.y + rubble.h === marker.y) {
+                rubble.h += TILE;
+                continue;
+            }
+            if (rubble) add(new DashBlock(rubble.x, rubble.y, TILE, rubble.h));
+            rubble = { x: marker.x, y: marker.y, h: TILE };
+        }
+        if (rubble) add(new DashBlock(rubble.x, rubble.y, TILE, rubble.h));
         for (const marker of markers) {
             const { ch, x, y } = marker;
             const cx = x + TILE / 2;
@@ -154,6 +189,8 @@ export const oshiroChase = {
                     end = { x, y };
                     break;
                 default:
+                    if (SPRINGS[ch]) add(new Spring(x, y, SPRINGS[ch]));
+                    else if (SPIKES[ch]) addSpike(level, SPIKES[ch], x, y);
                     break;
             }
         }
