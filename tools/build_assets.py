@@ -264,6 +264,84 @@ def build_tiles():
     """Build the autotile strips for every original material."""
     for name, spec in MATERIALS.items():
         build_autotiles(name, spec)
+    build_girder_autotiles()
+    build_brick_autotiles()
+
+
+def build_girder_autotiles():
+    """Build the steel girder strip from the framed lattice tile.
+
+    The light outer frame is only drawn on exposed sides, so neighbouring
+    girder cells read as one continuous scaffold.
+    """
+    source = tile("IronBarOne")
+    inner = source.getpixel((1, 1))
+    strip = Image.new("RGBA", (16 * 16, 16), (0, 0, 0, 0))
+    for mask in range(16):
+        out = source.copy()
+        px = out.load()
+        for i in range(16):
+            if not mask & 1:
+                px[i, 0] = inner
+            if not mask & 2:
+                px[15, i] = inner
+            if not mask & 4:
+                px[i, 15] = inner
+            if not mask & 8:
+                px[0, i] = inner
+        strip.paste(out, (mask * 16, 0))
+    strip.save(out_path("tiles", "auto_girder.png"))
+    print("autotile girder")
+
+
+def build_brick_autotiles():
+    """Build the grey stone beam strip in the palette of the original beams.
+
+    Two staggered courses of bricks fill each cell, exposed tops get the light
+    capstone band of the original art and exposed sides a dark outline.
+    """
+    source = tile_any("break")
+    light = source.getpixel((20, 6))
+    face = source.getpixel((8, 18))
+    shade = source.getpixel((30, 21))
+    mortar = source.getpixel((12, 13))
+    outline = (14, 24, 31, 255)
+    base = Image.new("RGBA", (16, 16), face)
+    px = base.load()
+    for y in range(16):
+        course = y // 8
+        for x in range(16):
+            if y % 8 == 7 or (x + course * 8) % 16 == 15:
+                px[x, y] = mortar
+            elif y % 8 == 6:
+                px[x, y] = shade
+    strip = Image.new("RGBA", (16 * 16, 16), (0, 0, 0, 0))
+    for mask in range(16):
+        out = base.copy()
+        op = out.load()
+        if mask & 1:
+            for x in range(16):
+                op[x, 0] = outline
+                op[x, 1] = light
+                op[x, 2] = light
+                op[x, 3] = mortar
+        if mask & 4:
+            for x in range(16):
+                op[x, 15] = outline
+        if mask & 8:
+            for y in range(16):
+                op[0, y] = outline
+        if mask & 2:
+            for y in range(16):
+                op[15, y] = outline
+        strip.paste(out, (mask * 16, 0))
+    strip.save(out_path("tiles", "auto_brick.png"))
+    print("autotile brick")
+
+
+def tile_any(name):
+    """Load an original tile image of any size."""
+    return Image.open(os.path.join(ASSETS, "tiles/celeste", name + ".png")).convert("RGBA")
 
 
 def noise_rng(seed):
