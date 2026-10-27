@@ -17,7 +17,7 @@ const MIN_REPEAT_INTERVAL = 0.035;
 
 /**
  * Web Audio based mixer with buses, a buffer cache, music crossfades and
- * procedural ambience and percussion for chapters without original music.
+ * procedural ambience for wind, blizzards and the hotel.
  */
 export class AudioSystem {
     /** @type {AudioContext|null} */
@@ -28,14 +28,12 @@ export class AudioSystem {
     #buffers = new Map();
     /** @type {Map<string, { count: number, last: number }>} */
     #instances = new Map();
-    /** @type {{ path: string, source: AudioBufferSourceNode, gain: GainNode }|null} */
+    /** @type {{ path: string, element: HTMLAudioElement, source: MediaElementAudioSourceNode, gain: GainNode, volume: number }|null} */
     #music = null;
+    /** @type {string|null} */
+    #wantedMusic = null;
     /** @type {{ nodes: AudioNode[], gain: GainNode, kind: string }|null} */
     #ambience = null;
-    /** @type {{ timer: number, step: number, gain: GainNode, tempo: number }|null} */
-    #percussion = null;
-    /** @type {number} */
-    intensity = 0;
     /** @type {AudioBuffer|null} */
     #noise = null;
 
@@ -208,15 +206,27 @@ export class AudioSystem {
     /**
      * Crossfades to a looping music track, leaving it alone if it is already playing.
      *
+     * Music is streamed through an audio element instead of being decoded up
+     * front, so long tracks start at once and do not sit in memory, while
+     * still running through the music volume bus.
+     *
      * @param {string|null} path - Music URL, or null to fade out.
      * @param {{ fade?: number, volume?: number }} [options] - Fade time and volume.
      * @returns {Promise<void>} Resolves once the new track started.
      */
     async playMusic(path, options = {}) {
         const fade = options.fade ?? 1.5;
-        if (this.#music?.path === path) return;
+        this.#wantedMusic = path;
+        if (this.#music?.path === path) {
+            if (options.volume !== undefined && this.context) {
+                this.#music.volume = options.volume;
+                this.#music.gain.gain.setTargetAtTime(options.volume, this.context.currentTime, 0.3);
+            }
+            return;
+        }
         if (!this.context) {
             await new Promise((resolve) => events.once("audio:ready", resolve));
+            if (this.#wantedMusic !== path) return;
         }
         const previous = this.#music;
         this.#music = null;
@@ -225,21 +235,31 @@ export class AudioSystem {
             previous.gain.gain.cancelScheduledValues(t);
             previous.gain.gain.setValueAtTime(previous.gain.gain.value, t);
             previous.gain.gain.linearRampToValueAtTime(0, t + fade);
-            previous.source.stop(t + fade + 0.05);
+            setTimeout(() => {
+                previous.element.pause();
+                previous.element.removeAttribute("src");
+                previous.element.load();
+                previous.source.disconnect();
+            }, (fade + 0.1) * 1000);
         }
         if (!path) return;
-        const buffer = await this.load(path);
-        if (!buffer || this.#music) return;
-        const source = this.context.createBufferSource();
-        source.buffer = buffer;
-        source.loop = true;
+        const element = new Audio();
+        element.src = encodeURI(path);
+        element.loop = true;
+        element.preload = "auto";
+        const source = this.context.createMediaElementSource(element);
         const gain = this.context.createGain();
+        const volume = options.volume ?? 0.8;
         const t = this.context.currentTime;
         gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(options.volume ?? 0.8, t + fade);
+        gain.gain.linearRampToValueAtTime(volume, t + fade);
         source.connect(gain).connect(this.buses.music);
-        source.start();
-        this.#music = { path, source, gain };
+        this.#music = { path, element, source, gain, volume };
+        try {
+            await element.play();
+        } catch {
+            if (this.#music?.element === element) this.#music = null;
+        }
     }
 
     /**
@@ -250,7 +270,7 @@ export class AudioSystem {
      */
     duckMusic(ducked) {
         if (!this.#music || !this.context) return;
-        this.#music.gain.gain.setTargetAtTime(ducked ? 0.35 : 0.8, this.context.currentTime, 0.25);
+        this.#music.gain.gain.setTargetAtTime(this.#music.volume * (ducked ? 0.45 : 1), this.context.currentTime, 0.25);
     }
 
     /**
@@ -332,144 +352,6 @@ export class AudioSystem {
         gain.gain.linearRampToValueAtTime(0, t + 1);
         for (const node of nodes) node.stop(t + 1.1);
         this.#ambience = null;
-    }
-
-    /**
-     * Starts the procedural chase percussion whose layers follow {@link AudioSystem#intensity}.
-     *
-     * @param {number} [tempo=150] - Beats per minute.
-     * @returns {void}
-     */
-    startPercussion(tempo = 150) {
-        if (!this.context) return;
-        this.stopPercussion();
-        const gain = this.context.createGain();
-        gain.gain.value = 0.5;
-        gain.connect(this.buses.music);
-        this.#percussion = { timer: this.context.currentTime + 0.1, step: 0, gain, tempo };
-    }
-
-    /**
-     * Stops the chase percussion.
-     *
-     * @returns {void}
-     */
-    stopPercussion() {
-        if (!this.#percussion || !this.context) return;
-        const { gain } = this.#percussion;
-        gain.gain.setTargetAtTime(0, this.context.currentTime, 0.2);
-        this.#percussion = null;
-    }
-
-    /**
-     * Schedules upcoming percussion hits. Call once per rendered frame.
-     *
-     * @returns {void}
-     */
-    update() {
-        if (!this.#percussion || !this.context) return;
-        const ctx = this.context;
-        const lookAhead = ctx.currentTime + 0.15;
-        const sixteenth = 60 / this.#percussion.tempo / 4;
-        while (this.#percussion.timer < lookAhead) {
-            const step = this.#percussion.step % 16;
-            const at = this.#percussion.timer;
-            const level = this.intensity;
-            if (step % 4 === 0) this.#kick(at, 0.7);
-            if (level > 0.25 && step % 8 === 4) this.#snare(at, 0.35 + level * 0.25);
-            if (level > 0.45 && step % 2 === 0) this.#hat(at, 0.08 + level * 0.07);
-            if (level > 0.7 && (step === 14 || step === 15)) this.#snare(at, 0.25);
-            if (level > 0.55 && step % 8 === 0) this.#bass(at, step === 0 ? 55 : 49);
-            this.#percussion.step++;
-            this.#percussion.timer += sixteenth;
-        }
-    }
-
-    /**
-     * Synthesises a kick drum.
-     *
-     * @param {number} at - Context time to play at.
-     * @param {number} volume - Peak gain.
-     * @returns {void}
-     */
-    #kick(at, volume) {
-        const ctx = this.context;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.frequency.setValueAtTime(140, at);
-        osc.frequency.exponentialRampToValueAtTime(42, at + 0.12);
-        gain.gain.setValueAtTime(volume, at);
-        gain.gain.exponentialRampToValueAtTime(0.001, at + 0.25);
-        osc.connect(gain).connect(this.#percussion.gain);
-        osc.start(at);
-        osc.stop(at + 0.26);
-    }
-
-    /**
-     * Synthesises a noise snare.
-     *
-     * @param {number} at - Context time to play at.
-     * @param {number} volume - Peak gain.
-     * @returns {void}
-     */
-    #snare(at, volume) {
-        const ctx = this.context;
-        const source = ctx.createBufferSource();
-        source.buffer = this.#noiseBuffer();
-        const filter = ctx.createBiquadFilter();
-        filter.type = "highpass";
-        filter.frequency.value = 1200;
-        const gain = ctx.createGain();
-        gain.gain.setValueAtTime(volume, at);
-        gain.gain.exponentialRampToValueAtTime(0.001, at + 0.16);
-        source.connect(filter).connect(gain).connect(this.#percussion.gain);
-        source.start(at, Math.random());
-        source.stop(at + 0.17);
-    }
-
-    /**
-     * Synthesises a closed hi-hat.
-     *
-     * @param {number} at - Context time to play at.
-     * @param {number} volume - Peak gain.
-     * @returns {void}
-     */
-    #hat(at, volume) {
-        const ctx = this.context;
-        const source = ctx.createBufferSource();
-        source.buffer = this.#noiseBuffer();
-        const filter = ctx.createBiquadFilter();
-        filter.type = "highpass";
-        filter.frequency.value = 7000;
-        const gain = ctx.createGain();
-        gain.gain.setValueAtTime(volume, at);
-        gain.gain.exponentialRampToValueAtTime(0.001, at + 0.04);
-        source.connect(filter).connect(gain).connect(this.#percussion.gain);
-        source.start(at, Math.random());
-        source.stop(at + 0.05);
-    }
-
-    /**
-     * Synthesises a short bass note.
-     *
-     * @param {number} at - Context time to play at.
-     * @param {number} frequency - Note frequency in hertz.
-     * @returns {void}
-     */
-    #bass(at, frequency) {
-        const ctx = this.context;
-        const osc = ctx.createOscillator();
-        osc.type = "sawtooth";
-        osc.frequency.value = frequency;
-        const filter = ctx.createBiquadFilter();
-        filter.type = "lowpass";
-        filter.frequency.value = 300;
-        const gain = ctx.createGain();
-        gain.gain.setValueAtTime(0.18, at);
-        gain.gain.exponentialRampToValueAtTime(0.001, at + 0.35);
-        osc.connect(filter).connect(gain).connect(this.#percussion.gain);
-        osc.start(at);
-        osc.stop(at + 0.36);
     }
 
     /**

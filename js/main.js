@@ -316,14 +316,13 @@ function retry() {
 
 const loop = new GameLoop({
     /**
-     * Polls input devices and schedules audio once per display frame.
+     * Polls input devices once per display frame.
      *
      * @param {number} dt - Frame time in seconds.
      * @returns {void}
      */
     frame(dt) {
         input.poll(dt);
-        audio.update();
     },
     /**
      * Advances the running chapter by one fixed step.

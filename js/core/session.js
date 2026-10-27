@@ -328,8 +328,6 @@ export class Session {
         game.level?.destroy();
         game.level = null;
         this.runtime = null;
-        audio.stopPercussion();
-        audio.intensity = 0;
     }
 }
 
