@@ -17,6 +17,7 @@ import { settings } from "../core/settings.js";
  * @property {number} [drag=3] - Exponential drag per second.
  * @property {number} [jitter=4] - Random spawn offset radius.
  * @property {boolean} [shrink=true] - Whether particles shrink as they fade.
+ * @property {boolean} [round=false] - Draw circles instead of square pixels.
  */
 
 /**
@@ -101,6 +102,8 @@ export class ParticleSystem {
             }
             p.elem.style.width = `${p.size}px`;
             p.elem.style.height = `${p.size}px`;
+            const radius = options.round ? "50%" : "";
+            if (p.elem.style.borderRadius !== radius) p.elem.style.borderRadius = radius;
         }
     }
 

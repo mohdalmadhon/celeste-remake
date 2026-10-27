@@ -1014,7 +1014,7 @@ export class Player extends Entity {
             const color = this.dashes > 1 ? "#ff6def" : this.dashes > 0 ? "#d83b4a" : "#44b7ff";
             for (let i = 0; i < 8; i++) {
                 const angle = (Math.PI * 2 * i) / 8;
-                game.particles?.burst({ x: cx, y: cy, count: 1, color, size: 10, speed: 260, angle, spread: 0, life: 0.5, drag: 4, jitter: 0, shrink: true });
+                game.particles?.burst({ x: cx, y: cy, count: 1, color, size: 18, speed: 300, angle, spread: 0, life: 0.55, drag: 3.5, jitter: 0, shrink: true, round: true });
             }
             game.particles?.burst({ x: cx, y: cy, count: 12, color: "#fff", size: 4, speed: 200, life: 0.4, drag: 5 });
             audio.play(SFX.death, { volume: 0.7 });
