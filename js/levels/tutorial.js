@@ -7,7 +7,7 @@ import { SFX } from "../helpers/sound.js";
 import { Level } from "../level.js";
 import { audio } from "../systems/audio.js";
 import { input } from "../systems/input.js";
-import { buildFromJson, groundAt } from "./builder.js";
+import { buildFromAscii, buildFromJson, groundAt, MATERIALS } from "./builder.js";
 
 /**
  * Creates the bird that teaches climbing and dashing.
@@ -89,6 +89,18 @@ export const prologue = {
         level.killY = 720;
         const world = level.world;
 
+        const patches = [
+            { x: 550, y: 320, rows: ["dd"] },
+            { x: 950, y: 350, rows: ["d"] },
+            { x: 1350, y: 370, rows: ["dd"] },
+            { x: 1880, y: 410, rows: ["dd"] },
+            { x: 2060, y: 380, rows: ["dd"] },
+            { x: 2580, y: 290, rows: ["ss"] }
+        ];
+        for (const patch of patches) {
+            buildFromAscii(level, patch.rows, { d: MATERIALS.dirt, s: MATERIALS.snow }, { x: patch.x, y: patch.y, edgeSolid: false });
+        }
+
         const wallLeft = { x: -50, y: -800, w: 50, h: 1600, kind: "solid", active: true, climbable: false, cells: [] };
         world.add(wallLeft);
 
@@ -145,8 +157,8 @@ export const prologue = {
         level.addEntity(dashSign);
 
         const berries = [
-            new Strawberry("prologue-berry-1", 1000, -40),
-            new Strawberry("prologue-berry-2", 3720, -250)
+            new Strawberry("prologue-berry-1", 1040, 230),
+            new Strawberry("prologue-berry-2", 3550, 40)
         ];
         for (const berry of berries) {
             if (context.session.strawberries.has(berry.id)) continue;
@@ -250,6 +262,7 @@ export const prologue = {
              * @returns {void}
              */
             onStart(checkpoint, fresh) {
+                game.player.dashEnabled = false;
                 if (checkpoint !== "start") {
                     iceTrap.trigger();
                     iceTrap.position.y = 254 - 99;
@@ -319,7 +332,7 @@ export const prologue = {
                     playAnimation(dashBird, "idle");
                 }
 
-                if (!state.dashTaught && state.bridgeCollapsing && py > 400 && px > 6500 && !state.dashWaiting) {
+                if (!state.dashTaught && state.bridgeCollapsing && py > 395 && px > 6560 && !state.dashWaiting) {
                     state.dashWaiting = true;
                     player.refillDash(false);
                     dashSign.show();
@@ -327,6 +340,7 @@ export const prologue = {
                     audio.play(SFX.squawk, { volume: 0.7 });
                 }
                 if (state.dashWaiting) {
+                    player.dashEnabled = true;
                     if (input.pressedWithin("dash", 0.1)) {
                         state.dashWaiting = false;
                         state.dashTaught = true;
@@ -367,6 +381,7 @@ export const prologue = {
              * @returns {void}
              */
             onExit() {
+                game.player.dashEnabled = true;
                 climbSign.dispose();
                 jumpSign.dispose();
                 dashSign.dispose();
