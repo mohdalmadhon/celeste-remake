@@ -15,7 +15,7 @@ export const shatteredSpire = chapterFromLevel("./js/data/levels/shattered-spire
     art: "./assets/generated/checkpoints/spire.png",
     strawberries: 2,
     custom: false,
-    settings: { theme: "summit", weather: "heavy", timeLimit: 900, lives: 30 },
+    settings: { theme: "summit", weather: "heavy", music: "anxiety", timeLimit: 900, lives: 30 },
     checkpointNames: {
         cp1: "checkpoint.spire.cp1",
         cp2: "checkpoint.spire.cp2",

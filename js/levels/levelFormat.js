@@ -169,6 +169,18 @@ export const ACTION_TYPES = Object.freeze({
 export const THEME_OPTIONS = Object.freeze([["forest", "Forest night"], ["city", "Forsaken City"], ["resort", "Celestial Resort"], ["summit", "Summit"]]);
 
 /**
+ * Music a level can play, by id: label and file.
+ *
+ * @type {Readonly<Record<string, { name: string, path: string|null }>>}
+ */
+export const MUSIC_OPTIONS = Object.freeze({
+    theme: { name: "Main theme", path: "assets/soundTrack/main theme.mp3" },
+    golden: { name: "Golden", path: "assets/soundTrack/music/golden.mp3" },
+    anxiety: { name: "Anxiety", path: "assets/soundTrack/music/anxiety.mp3" },
+    none: { name: "No music", path: null }
+});
+
+/**
  * Weather presets.
  *
  * @type {Readonly<Record<string, { type: string, density?: number, wind?: number, gusts?: number }>>}
@@ -210,7 +222,7 @@ export function createLevel(width = 60, height = 24) {
         author: "",
         width,
         height,
-        settings: { theme: "forest", weather: "snow", timeLimit: 300, lives: 5, dashes: 1 },
+        settings: { theme: "forest", weather: "snow", music: "theme", timeLimit: 300, lives: 5, dashes: 1 },
         tiles: rows,
         entities: [
             { id: newId("e"), type: "spawn", x: 3, y: height - 4 },
@@ -231,7 +243,7 @@ export function createLevel(width = 60, height = 24) {
  * @property {string} author - Author name.
  * @property {number} width - Width in cells.
  * @property {number} height - Height in cells.
- * @property {{ theme: string, weather: string, timeLimit: number, lives: number, dashes: number }} settings - Play settings.
+ * @property {{ theme: string, weather: string, music: string, timeLimit: number, lives: number, dashes: number }} settings - Play settings.
  * @property {string[]} tiles - One string per row; see {@link TILE_TYPES}, "." for air.
  * @property {Array<{ id: string, type: string, x: number, y: number } & Record<string, *>>} entities - Placed objects.
  * @property {Array<{ id: string, name: string, once: boolean, trigger: { type: string } & Record<string, *>, actions: Array<{ type: string } & Record<string, *>> }>} events - Scripted events.
@@ -368,6 +380,7 @@ export function normalizeLevel(raw) {
         settings: {
             theme: THEME_OPTIONS.some(([id]) => id === settings.theme) ? settings.theme : "forest",
             weather: WEATHER_PRESETS[settings.weather] ? settings.weather : "snow",
+            music: MUSIC_OPTIONS[settings.music] ? settings.music : "theme",
             timeLimit: Math.round(clampNumber(settings.timeLimit, 30, 3600, 300)),
             lives: Math.round(clampNumber(settings.lives, 1, 99, 5)),
             dashes: Math.round(clampNumber(settings.dashes, 0, 2, 1))

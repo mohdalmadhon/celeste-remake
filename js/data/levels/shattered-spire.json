@@ -9,6 +9,7 @@
  "settings": {
   "theme": "summit",
   "weather": "heavy",
+  "music": "anxiety",
   "timeLimit": 900,
   "lives": 30,
   "dashes": 1

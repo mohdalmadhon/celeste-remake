@@ -9,7 +9,7 @@ import { SFX } from "../helpers/sound.js";
 import { Level } from "../level.js";
 import { audio } from "../systems/audio.js";
 import { addSpike, buildFromAscii } from "./builder.js";
-import { normalizeLevel, TILE_TYPES, WEATHER_PRESETS } from "./levelFormat.js";
+import { MUSIC_OPTIONS, normalizeLevel, TILE_TYPES, WEATHER_PRESETS } from "./levelFormat.js";
 
 const SPIKE_MARKER = { up: "^", down: "v", left: "<", right: ">" };
 const AMBIENCE = { none: "none", snow: "wind", heavy: "wind", blizzard: "blizzard" };
@@ -39,7 +39,7 @@ const AMBIENCE = { none: "none", snow: "wind", heavy: "wind", blizzard: "blizzar
  */
 export function chapterFromLevel(source, options = {}) {
     const preview = typeof source === "string" ? null : normalizeLevel(source);
-    const settings = { theme: "summit", weather: "blizzard", timeLimit: 900, lives: 10, ...options.settings, ...preview?.settings };
+    const settings = { theme: "summit", weather: "blizzard", music: "theme", timeLimit: 900, lives: 10, ...options.settings, ...preview?.settings };
     return {
         id: options.id ?? `custom:${preview?.id ?? source}`,
         number: options.number ?? -1,
@@ -49,8 +49,8 @@ export function chapterFromLevel(source, options = {}) {
         timeLimit: settings.timeLimit,
         lives: settings.lives,
         strawberries: options.strawberries ?? preview?.entities.filter((entity) => entity.type === "strawberry").length ?? 0,
-        music: SFX.theme,
-        musicVolume: 0.55,
+        music: MUSIC_OPTIONS[settings.music]?.path ?? SFX.theme,
+        musicVolume: 0.6,
         ambience: AMBIENCE[settings.weather],
         weather: WEATHER_PRESETS[settings.weather],
         parallax: settings.theme,

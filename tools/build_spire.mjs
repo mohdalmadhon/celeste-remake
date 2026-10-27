@@ -178,7 +178,7 @@ const level = {
     author: "Celeste Remake",
     width: W,
     height: H,
-    settings: { theme: "summit", weather: "heavy", timeLimit: 900, lives: 30, dashes: 1 },
+    settings: { theme: "summit", weather: "heavy", music: "anxiety", timeLimit: 900, lives: 30, dashes: 1 },
     tiles: tiles.map((row) => row.join("")),
     entities,
     events

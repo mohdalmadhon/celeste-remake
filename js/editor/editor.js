@@ -1,4 +1,4 @@
-import { ACTION_TYPES, createLevel, ENTITY_TYPES, fieldDefaults, LEVEL_LIMITS, levelProblems, newId, normalizeLevel, THEME_OPTIONS, TILE_TYPES, TRIGGER_TYPES, WEATHER_PRESETS } from "../levels/levelFormat.js";
+import { ACTION_TYPES, createLevel, ENTITY_TYPES, fieldDefaults, LEVEL_LIMITS, levelProblems, MUSIC_OPTIONS, newId, normalizeLevel, THEME_OPTIONS, TILE_TYPES, TRIGGER_TYPES, WEATHER_PRESETS } from "../levels/levelFormat.js";
 import { button, el, fieldInputs, row, select } from "./forms.js";
 import { deleteLevel, duplicateLevel, exportLevel, importLevel, listLevels, loadLevel, saveLevel } from "./levelStore.js";
 
@@ -1081,6 +1081,10 @@ export class LevelEditor {
             })),
             row("Weather", select([["none", "Clear"], ["snow", "Snow"], ["heavy", "Heavy snow"], ["blizzard", "Blizzard"]].filter(([id]) => WEATHER_PRESETS[id]), level.settings.weather, (value) => {
                 level.settings.weather = value;
+                this.#changed();
+            })),
+            row("Music", select(Object.entries(MUSIC_OPTIONS).map(([id, music]) => [id, music.name]), level.settings.music, (value) => {
+                level.settings.music = value;
                 this.#changed();
             })),
             row("Time limit (s)", number(level.settings.timeLimit, 30, 3600, (value) => {
