@@ -143,6 +143,8 @@ export default {
     "checkpoint.resort.shaft": "Puits de service",
     "checkpoint.resort.ballroom": "Grande salle de bal",
     "checkpoint.resort.rooftop": "Les toits",
+    "checkpoint.resort.wing": "La vieille aile",
+    "checkpoint.resort.stairs": "Le grand escalier",
     "resort.intro.1": "Ah ! Une cliente ! Bienvenue, bienvenue à l'Hôtel Céleste !",
     "resort.intro.2": "Euh… bonjour. Je ne fais que passer. On peut monter en traversant l'hôtel ?",
     "resort.intro.3": "Passer ? Balivernes ! Vous devez rester. Nous avons des chambres. Tellement de chambres.",
@@ -237,11 +239,8 @@ export default {
     "prologue.granny.10": "……",
 
     "credits.title": "Celeste",
-    "credits.remake": "Version navigateur",
-    "credits.remakeBy": "Mohammed — conception et programmation",
-    "credits.original": "Jeu original",
-    "credits.originalBy": "Celeste par Maddy Makes Games / EXOK",
-    "credits.originalTeam": "Ce remake de fan est fait pour apprendre. Tous les personnages appartiennent à leurs créateurs.",
+    "credits.madeBy": "Créé par",
+    "credits.beta": "Développeurs de l'édition bêta",
     "credits.art": "Graphismes",
     "credits.artBy": "Sprites et tuiles de Celeste (EXOK)",
     "credits.portraits": "Portraits extraits par AJ370 · Icônes de chapitre par Kirows · Sprites de mamie par PMR · Sprites de Theo par HugoMDM",
@@ -252,5 +251,4 @@ export default {
     "credits.font": "Police",
     "credits.fontBy": "Tiny5 par Gissio (SIL Open Font License)",
     "credits.thanks": "Merci",
-    "credits.thanksText": "d'avoir grimpé. Tu peux y arriver."
 };

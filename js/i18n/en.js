@@ -143,6 +143,8 @@ export default {
     "checkpoint.resort.shaft": "Service Shaft",
     "checkpoint.resort.ballroom": "Grand Ballroom",
     "checkpoint.resort.rooftop": "Rooftops",
+    "checkpoint.resort.wing": "The Old Wing",
+    "checkpoint.resort.stairs": "Grand Staircase",
     "resort.intro.1": "Ah! A guest! Welcome, welcome to the Celestial Resort!",
     "resort.intro.2": "Uh… hi. I'm just passing through. Is there a way up through the hotel?",
     "resort.intro.3": "Passing through? Nonsense! You must stay. We have rooms. So many rooms.",
@@ -237,11 +239,8 @@ export default {
     "prologue.granny.10": "……",
 
     "credits.title": "Celeste",
-    "credits.remake": "Browser remake",
-    "credits.remakeBy": "Mohammed — design and code",
-    "credits.original": "Original game",
-    "credits.originalBy": "Celeste by Maddy Makes Games / EXOK",
-    "credits.originalTeam": "This fan remake is made for learning. All characters belong to their creators.",
+    "credits.madeBy": "Made by",
+    "credits.beta": "Beta edition developers",
     "credits.art": "Art",
     "credits.artBy": "Sprites and tiles from Celeste (EXOK)",
     "credits.portraits": "Portrait rips by AJ370 · Chapter icons by Kirows · Granny sprites by PMR · Theo sprites by HugoMDM",
@@ -252,5 +251,4 @@ export default {
     "credits.font": "Font",
     "credits.fontBy": "Tiny5 by Gissio (SIL Open Font License)",
     "credits.thanks": "Thank you",
-    "credits.thanksText": "for climbing. You can do this."
 };

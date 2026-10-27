@@ -143,6 +143,8 @@ export default {
     "checkpoint.resort.shaft": "Служебная шахта",
     "checkpoint.resort.ballroom": "Большой бальный зал",
     "checkpoint.resort.rooftop": "Крыши",
+    "checkpoint.resort.wing": "Старое крыло",
+    "checkpoint.resort.stairs": "Парадная лестница",
     "resort.intro.1": "О! Гостья! Добро пожаловать, добро пожаловать на Небесный курорт!",
     "resort.intro.2": "Э… здравствуйте. Я просто прохожу мимо. Можно подняться через отель?",
     "resort.intro.3": "Мимо? Вздор! Вы должны остаться. У нас есть номера. Столько номеров.",
@@ -237,11 +239,8 @@ export default {
     "prologue.granny.10": "……",
 
     "credits.title": "Celeste",
-    "credits.remake": "Версия для браузера",
-    "credits.remakeBy": "Мохаммед — дизайн и программирование",
-    "credits.original": "Оригинальная игра",
-    "credits.originalBy": "Celeste от Maddy Makes Games / EXOK",
-    "credits.originalTeam": "Этот фанатский ремейк создан для обучения. Все персонажи принадлежат их авторам.",
+    "credits.madeBy": "Автор",
+    "credits.beta": "Разработчики бета-версии",
     "credits.art": "Графика",
     "credits.artBy": "Спрайты и тайлы из Celeste (EXOK)",
     "credits.portraits": "Портреты — AJ370 · Значки глав — Kirows · Спрайты бабушки — PMR · Спрайты Тео — HugoMDM",
@@ -252,5 +251,4 @@ export default {
     "credits.font": "Шрифт",
     "credits.fontBy": "Tiny5 от Gissio (SIL Open Font License)",
     "credits.thanks": "Спасибо",
-    "credits.thanksText": "за восхождение. Ты сможешь."
 };

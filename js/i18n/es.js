@@ -143,6 +143,8 @@ export default {
     "checkpoint.resort.shaft": "Pozo de servicio",
     "checkpoint.resort.ballroom": "Gran salón de baile",
     "checkpoint.resort.rooftop": "Los tejados",
+    "checkpoint.resort.wing": "El ala vieja",
+    "checkpoint.resort.stairs": "La gran escalera",
     "resort.intro.1": "¡Ah! ¡Una huésped! ¡Bienvenida, bienvenida al Hotel Celestial!",
     "resort.intro.2": "Eh… hola. Solo estoy de paso. ¿Hay forma de subir a través del hotel?",
     "resort.intro.3": "¿De paso? ¡Tonterías! Tienes que quedarte. Tenemos habitaciones. Muchísimas habitaciones.",
@@ -237,11 +239,8 @@ export default {
     "prologue.granny.10": "……",
 
     "credits.title": "Celeste",
-    "credits.remake": "Versión para navegador",
-    "credits.remakeBy": "Mohammed — diseño y programación",
-    "credits.original": "Juego original",
-    "credits.originalBy": "Celeste de Maddy Makes Games / EXOK",
-    "credits.originalTeam": "Este remake fan está hecho para aprender. Todos los personajes pertenecen a sus creadores.",
+    "credits.madeBy": "Hecho por",
+    "credits.beta": "Desarrolladores de la edición beta",
     "credits.art": "Arte",
     "credits.artBy": "Sprites y casillas de Celeste (EXOK)",
     "credits.portraits": "Retratos extraídos por AJ370 · Iconos de capítulo por Kirows · Sprites de la abuela por PMR · Sprites de Theo por HugoMDM",
@@ -252,5 +251,4 @@ export default {
     "credits.font": "Tipografía",
     "credits.fontBy": "Tiny5 de Gissio (SIL Open Font License)",
     "credits.thanks": "Gracias",
-    "credits.thanksText": "por escalar. Tú puedes."
 };

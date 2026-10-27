@@ -10,6 +10,16 @@ import { Menu } from "./menu.js";
 import { revealTitle } from "../helpers/sign.js";
 
 /**
+ * People named in the credits. Names are shown as written in every language.
+ *
+ * @type {Readonly<{ author: string, beta: string[] }>}
+ */
+const CREDIT_NAMES = Object.freeze({
+    author: "malmadhoo - Mohammed Almadhoon",
+    beta: ["mrajabi (Mohammed Rajabi)", "salmubar (Sulaiman Almubar)"]
+});
+
+/**
  * Callbacks the screens use to drive the game.
  *
  * @typedef {object} ScreenActions
@@ -629,12 +639,12 @@ export class Screens {
         roll.className = "credits-roll";
         const sections = [
             ["", ["credits.title"]],
-            ["credits.remake", ["credits.remakeBy"]],
-            ["credits.original", ["credits.originalBy", "credits.originalTeam"]],
+            ["credits.madeBy", [CREDIT_NAMES.author]],
+            ["credits.beta", CREDIT_NAMES.beta],
             ["credits.art", ["credits.artBy", "credits.portraits", "credits.icons"]],
             ["credits.audio", ["credits.audioBy", "credits.procedural"]],
             ["credits.font", ["credits.fontBy"]],
-            ["credits.thanks", ["credits.thanksText"]]
+            ["credits.thanks", []]
         ];
         for (const [heading, lines] of sections) {
             if (heading) {
