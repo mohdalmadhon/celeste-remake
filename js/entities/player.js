@@ -35,6 +35,13 @@ export const PlayerState = Object.freeze({
 });
 
 /**
+ * Sounds that go with Madeline's idle fidget.
+ *
+ * @type {string[]}
+ */
+const IDLE_SOUNDS = [SFX.idleScratch, SFX.idleKnuckles, SFX.idleSneeze];
+
+/**
  * Sound families for each surface material.
  *
  * @type {Record<string, { foot: string, land: string, grab: string }>}
@@ -122,6 +129,8 @@ export class Player extends Entity {
     #wallSlideSound = null;
     #surface = "snow";
     #respawnTimer = 0;
+    #idleTime = 0;
+    #autoJump = false;
 
     /**
      * @param {{ x: number, y: number }} [spawn] - Feet position to spawn at.
@@ -174,7 +183,8 @@ export class Player extends Entity {
      */
     #registerAnimations() {
         const clips = {
-            idle: { row: 11, startFrame: 4, frameCount: 6, fps: 7 },
+            idle: { row: 11, frames: [11, 11, 11, 12, 13, 13, 13, 12], startFrame: 11, frameCount: 8, fps: 6 },
+            fidget: { row: 11, startFrame: 4, frameCount: 6, fps: 8, loop: false, next: "idle" },
             run: { row: 0, startFrame: 1, frameCount: 8, fps: 13 },
             walk: { row: 3, startFrame: 0, frameCount: 8, fps: 11 },
             push: { row: 7, startFrame: 10, frameCount: 5, fps: 8 },
@@ -287,6 +297,7 @@ export class Player extends Entity {
      * @returns {void}
      */
     #consumeJump() {
+        this.#autoJump = false;
         this.script.jump = false;
         input.consume("jump");
     }
@@ -432,7 +443,7 @@ export class Player extends Entity {
         }
 
         if (this.#varJumpTimer > 0) {
-            if (this.#jumpHeld()) {
+            if (this.#jumpHeld() || this.#autoJump) {
                 this.velocity.y = Math.min(this.velocity.y, this.#varJumpSpeed);
             } else {
                 this.#varJumpTimer = 0;
@@ -777,7 +788,7 @@ export class Player extends Entity {
                 }
             }
         }
-        solid.onTouch?.(this, "side");
+        if (solid.onTouch?.(this, "side") === true) return;
         this.velocity.x = 0;
         if (this.state === PlayerState.DASH) this.#dashDir.x = 0;
     }
@@ -801,16 +812,16 @@ export class Player extends Entity {
                     }
                 }
             }
-            solid.onTouch?.(this, "bottom");
+            if (solid.onTouch?.(this, "bottom") === true) return;
             this.velocity.y = 0;
             this.#varJumpTimer = 0;
             if (this.state === PlayerState.DASH) this.#dashDir.y = 0;
             return;
         }
+        if (solid.onTouch?.(this, "top") === true) return;
         if (this.velocity.y > 0) {
             this.#land(this.velocity.y, solid);
         }
-        solid.onTouch?.(this, "top");
         this.velocity.y = 0;
         if (this.state === PlayerState.DASH && this.#dashDir.y > 0 && Math.abs(this.#dashDir.x) < 0.1) {
             this.#dashTimer = 0;
@@ -916,6 +927,49 @@ export class Player extends Entity {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Whether Madeline is in the middle of a dash.
+     *
+     * @returns {boolean} True while dashing or launched from a booster.
+     */
+    get dashing() {
+        return this.state === PlayerState.DASH;
+    }
+
+    /**
+     * Throws Madeline with a fixed speed, as springs and bounced snowballs
+     * do. The jump button has no say in the height, and the dash and stamina
+     * come back.
+     *
+     * @param {number|null} vx - New horizontal speed, or null to keep the current one.
+     * @param {number} vy - New vertical speed.
+     * @param {number} [forceTime=0] - Seconds the horizontal direction is locked for.
+     * @param {boolean} [carry=true] - Keep the upward speed for a moment as if jump were held, like Celeste's springs.
+     * @returns {void}
+     */
+    launch(vx, vy, forceTime = 0, carry = true) {
+        if (this.state === PlayerState.DEAD) return;
+        if (this.state === PlayerState.CLIMB) this.#updateWallSlideSound(false);
+        this.state = PlayerState.NORMAL;
+        if (vx !== null) this.velocity.x = vx;
+        this.velocity.y = vy;
+        this.#varJumpTimer = carry ? P.varJumpTime : 0;
+        this.#varJumpSpeed = vy;
+        this.#autoJump = carry;
+        this.#jumpGrace = 0;
+        this.#dashTimer = 0;
+        this.#dashRefillCooldown = 0.05;
+        if (forceTime > 0 && vx) {
+            this.#forceMoveX = Math.sign(vx);
+            this.#forceMoveTimer = forceTime;
+            this.components.movement.direction = Math.sign(vx);
+        }
+        this.refillDash(true);
+        this.refillStamina();
+        this.visual.scaleX = 0.65;
+        this.visual.scaleY = 1.35;
     }
 
     /**
@@ -1128,7 +1182,7 @@ export class Player extends Entity {
         this.visual.scaleX = approach(this.visual.scaleX, 1, 1.75 * dt);
         this.visual.scaleY = approach(this.visual.scaleY, 1, 1.75 * dt);
         this.#updateHairSheet();
-        this.#selectAnimation();
+        this.#selectAnimation(dt);
         this.#footsteps();
         const tired = this.state === PlayerState.CLIMB && this.stamina < 20;
         this.#tiredBlink = tired ? this.#tiredBlink + dt : 0;
@@ -1138,10 +1192,12 @@ export class Player extends Entity {
 
     /**
      * Picks the animation clip and playback speed for the current state.
+     * Standing still for a while plays one of Madeline's fidgets.
      *
+     * @param {number} dt - Step length in seconds.
      * @returns {void}
      */
-    #selectAnimation() {
+    #selectAnimation(dt) {
         const animation = this.components.animation;
         animation.speed = 1;
         if (this.forcedAnimation) {
@@ -1189,6 +1245,17 @@ export class Player extends Entity {
             } else if (this.#inputY() < 0 && !this.controlLocked) {
                 clip = "lookUp";
             }
+        }
+        if (clip === "idle" && !this.controlLocked && !this.noControl) {
+            if (current === "fidget") clip = "fidget";
+            this.#idleTime += dt;
+            if (this.#idleTime > 7 && clip === "idle") {
+                this.#idleTime = -Math.random() * 4;
+                clip = "fidget";
+                audio.play(IDLE_SOUNDS[Math.floor(Math.random() * IDLE_SOUNDS.length)], { volume: 0.35 });
+            }
+        } else {
+            this.#idleTime = 0;
         }
         playAnimation(this, clip, false, keepPhase);
     }
