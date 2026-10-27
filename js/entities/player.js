@@ -9,7 +9,7 @@ import { input } from "../systems/input.js";
 import { collideAt, moveX, moveY } from "../systems/physics.js";
 import { Entity } from "./entity.js";
 
-const SHEET_RED = "./assets/player3.png";
+const SHEET_RED = "./assets/generated/sprites/player_red.png";
 const SHEET_BLUE = "./assets/generated/sprites/player_blue.png";
 const SHEET_WHITE = "./assets/generated/sprites/player_white.png";
 const TRAIL_RED = "./assets/generated/sprites/player_trail_red.png";
@@ -114,7 +114,6 @@ export class Player extends Entity {
     #sheet = "";
     #wasOnGround = false;
     #lastFootFrame = -1;
-    #idleTime = 0;
     #deathTimer = 0;
     #boostTimer = 0;
     #boostTarget = null;
@@ -175,10 +174,9 @@ export class Player extends Entity {
      */
     #registerAnimations() {
         const clips = {
-            idle: { row: 11, startFrame: 4, frameCount: 6, fps: 6 },
-            idleFidget: { row: 14, startFrame: 0, frameCount: 8, fps: 8, loop: false, next: "idle" },
-            run: { row: 0, startFrame: 0, frameCount: 9, fps: 14 },
-            walk: { row: 3, startFrame: 0, frameCount: 8, fps: 10 },
+            idle: { row: 11, startFrame: 4, frameCount: 6, fps: 7 },
+            run: { row: 0, startFrame: 1, frameCount: 8, fps: 13 },
+            walk: { row: 3, startFrame: 0, frameCount: 8, fps: 11 },
             push: { row: 7, startFrame: 10, frameCount: 5, fps: 8 },
             lookUp: { row: 1, frames: [3, 4], startFrame: 3, frameCount: 2, fps: 6, loop: false },
             duck: { row: 1, startFrame: 0, frameCount: 1, fps: 1 },
@@ -186,8 +184,8 @@ export class Player extends Entity {
             jumpSlow: { row: 9, startFrame: 1, frameCount: 1, fps: 1 },
             fallSlow: { row: 9, startFrame: 2, frameCount: 2, fps: 10, loop: false },
             fall: { row: 9, startFrame: 4, frameCount: 8, fps: 12 },
-            climb: { row: 3, startFrame: 8, frameCount: 4, fps: 10 },
-            wallSlide: { row: 3, startFrame: 8, frameCount: 1, fps: 1 },
+            climb: { row: 3, startFrame: 8, frameCount: 4, fps: 9 },
+            wallSlide: { row: 3, startFrame: 11, frameCount: 1, fps: 1 },
             dash: { row: 0, startFrame: 10, frameCount: 2, fps: 16 },
             dashUp: { row: 4, startFrame: 7, frameCount: 1, fps: 1 },
             dashDiagUp: { row: 6, startFrame: 9, frameCount: 1, fps: 1 },
@@ -1127,7 +1125,7 @@ export class Player extends Entity {
         this.visual.scaleX = approach(this.visual.scaleX, 1, 1.75 * dt);
         this.visual.scaleY = approach(this.visual.scaleY, 1, 1.75 * dt);
         this.#updateHairSheet();
-        this.#selectAnimation(dt);
+        this.#selectAnimation();
         this.#footsteps();
         const tired = this.state === PlayerState.CLIMB && this.stamina < 20;
         this.#tiredBlink = tired ? this.#tiredBlink + dt : 0;
@@ -1136,54 +1134,60 @@ export class Player extends Entity {
     }
 
     /**
-     * Picks the animation clip for the current state.
+     * Picks the animation clip and playback speed for the current state.
      *
-     * @param {number} dt - Step length in seconds.
      * @returns {void}
      */
-    #selectAnimation(dt) {
+    #selectAnimation() {
+        const animation = this.components.animation;
+        animation.speed = 1;
         if (this.forcedAnimation) {
             playAnimation(this, this.forcedAnimation);
             return;
         }
         const v = this.velocity;
+        const current = animation.state.sprite;
         let clip = "idle";
+        let keepPhase = false;
         if (this.state === PlayerState.DASH || this.state === PlayerState.BOOST) {
             const d = this.#dashDir;
             if (Math.abs(d.x) < 0.1) clip = d.y < 0 ? "dashUp" : "dashDown";
             else if (d.y < -0.1) clip = "dashDiagUp";
             else clip = "dash";
         } else if (this.state === PlayerState.CLIMB) {
-            clip = Math.abs(v.y) > 10 && v.y < 0 ? "climb" : "wallSlide";
+            if (v.y < -10) {
+                clip = "climb";
+            } else if (v.y > 10 || current !== "climb") {
+                clip = "wallSlide";
+            } else {
+                clip = "climb";
+                animation.speed = 0;
+            }
         } else if (!this.onGround) {
             const moveX = this.#inputX();
             if (moveX !== 0 && v.y > 0 && this.#wallAt(moveX)) clip = "wallSlide";
             else if (v.y < -P.jumpSpeed * 0.6) clip = "jumpFast";
-            else if (v.y < 0) clip = "jumpSlow";
-            else if (v.y < P.maxFall * 0.5) clip = "fallSlow";
+            else if (v.y < -P.jumpSpeed * 0.15) clip = "jumpSlow";
+            else if (v.y < P.maxFall * 0.45 && current !== "fall") clip = "fallSlow";
             else clip = "fall";
         } else {
             const moveX = this.#inputX();
-            if (moveX !== 0 && this.#wallAt(moveX)) clip = "push";
-            else if (Math.abs(v.x) > P.maxRun * 0.75) clip = "run";
-            else if (Math.abs(v.x) > 10) clip = "walk";
-            else if (this.#inputY() > 0 && !this.controlLocked) clip = "duck";
-            else if (this.#inputY() < 0 && !this.controlLocked) clip = "lookUp";
-            else clip = "idle";
-        }
-        if (clip === "idle") {
-            this.#idleTime += dt;
-            const current = this.components.animation.state.sprite;
-            if (this.#idleTime > 5 && current === "idle") {
-                this.#idleTime = 0;
-                playAnimation(this, "idleFidget");
-                return;
+            const speed = Math.abs(v.x);
+            if (moveX !== 0 && this.#wallAt(moveX)) {
+                clip = "push";
+            } else if (speed > 12) {
+                const running = current === "run" ? speed > P.maxRun * 0.45 : speed > P.maxRun * 0.6;
+                clip = running ? "run" : "walk";
+                keepPhase = current === "run" || current === "walk";
+                const base = running ? P.maxRun : P.maxRun * 0.5;
+                animation.speed = Math.min(1.25, Math.max(0.55, speed / base));
+            } else if (this.#inputY() > 0 && !this.controlLocked) {
+                clip = "duck";
+            } else if (this.#inputY() < 0 && !this.controlLocked) {
+                clip = "lookUp";
             }
-            if (current === "idleFidget") return;
-        } else {
-            this.#idleTime = 0;
         }
-        playAnimation(this, clip);
+        playAnimation(this, clip, false, keepPhase);
     }
 
     /**
