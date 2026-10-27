@@ -238,7 +238,7 @@ export default {
     "credits.portraits": "Portraits extraits par AJ370 · Icônes de chapitre par Kirows · Sprites de mamie par PMR · Sprites de Theo par HugoMDM",
     "credits.icons": "Tuiles de l'hôtel, plans de décor et curseur dessinés pour ce remake",
     "credits.audio": "Audio",
-    "credits.audioBy": "Effets sonores et thème principal de Celeste (Lena Raine)",
+    "credits.audioBy": "Effets sonores, thème principal, Golden et Anxiety de Celeste, par Lena Raine",
     "credits.procedural": "Vent, ambiance de l'hôtel et percussions de la poursuite synthétisés dans le navigateur",
     "credits.font": "Police",
     "credits.fontBy": "Tiny5 par Gissio (SIL Open Font License)",

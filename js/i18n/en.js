@@ -238,7 +238,7 @@ export default {
     "credits.portraits": "Portrait rips by AJ370 · Chapter icons by Kirows · Granny sprites by PMR · Theo sprites by HugoMDM",
     "credits.icons": "Generated resort tiles, parallax layers and cursor drawn for this remake",
     "credits.audio": "Audio",
-    "credits.audioBy": "Sound effects and main theme from Celeste (Lena Raine)",
+    "credits.audioBy": "Sound effects, the main theme, Golden and Anxiety from Celeste by Lena Raine",
     "credits.procedural": "Wind, hotel ambience and chase percussion synthesised in the browser",
     "credits.font": "Font",
     "credits.fontBy": "Tiny5 by Gissio (SIL Open Font License)",

@@ -238,7 +238,7 @@ export default {
     "credits.portraits": "Портреты — AJ370 · Значки глав — Kirows · Спрайты бабушки — PMR · Спрайты Тео — HugoMDM",
     "credits.icons": "Тайлы отеля, слои фона и курсор нарисованы для этого ремейка",
     "credits.audio": "Звук",
-    "credits.audioBy": "Звуковые эффекты и главная тема из Celeste (Lena Raine)",
+    "credits.audioBy": "Звуковые эффекты, главная тема, Golden и Anxiety из Celeste, автор Лена Рейн",
     "credits.procedural": "Ветер, атмосфера отеля и ритм погони синтезируются в браузере",
     "credits.font": "Шрифт",
     "credits.fontBy": "Tiny5 от Gissio (SIL Open Font License)",
