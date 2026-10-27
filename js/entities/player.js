@@ -92,6 +92,8 @@ export class Player extends Entity {
     lives = 3;
     /** @type {boolean} */
     noControl = false;
+    /** @type {boolean} */
+    dashEnabled = true;
 
     #jumpGrace = 0;
     #varJumpTimer = 0;
@@ -637,7 +639,7 @@ export class Player extends Entity {
      * @returns {boolean} True when a dash started.
      */
     #tryDash() {
-        if (this.controlLocked) return false;
+        if (this.controlLocked || !this.dashEnabled) return false;
         if (!input.pressedWithin("dash", 0.08) || this.dashes <= 0 || this.#dashCooldown > 0) return false;
         input.consume("dash");
         this.#startDash();

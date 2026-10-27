@@ -101,6 +101,7 @@ export class Session {
         game.chapter = this.chapter;
         game.session = this;
         game.camera = new Camera(game.player);
+        game.player.dashEnabled = true;
         game.worldLayer.textContent = "";
         this.runtime = await this.chapter.build({ world: game.worldLayer, session: this, fresh: !resume && this.checkpoint === "start" });
         const level = this.runtime.level;
