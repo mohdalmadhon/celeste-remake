@@ -2,6 +2,7 @@ import { TILE } from "../core/constants.js";
 import { game } from "../core/game.js";
 import { t } from "../core/i18n.js";
 import { delay } from "../core/session.js";
+import { addDecor, DashBlock, KeyItem, LevelNpc, LockedDoor, Seeker, SnowballThrower, Spring, SwitchGate, SwitchHub, TouchSwitch } from "../entities/gadgets.js";
 import { DustBunny } from "../entities/hazards.js";
 import { PlayerState } from "../entities/player.js";
 import { Booster, CheckpointFlag, CrumbleBlock, DashCrystal, FallingBlock, Strawberry, ZipMover } from "../entities/props.js";
@@ -28,7 +29,65 @@ const AMBIENCE = { none: "none", snow: "wind", heavy: "wind", blizzard: "blizzar
  * @property {boolean} [custom=true] - Whether runs stay out of the story save.
  * @property {() => void} [onFinish] - Replaces the normal results screen, used by editor playtests.
  * @property {Partial<import("./levelFormat.js").LevelData["settings"]>} [settings] - Play settings to use before a level loaded from a URL is fetched.
+ * @property {{ path: string, surface: string }} [crumble] - Look and sound of crumbling blocks.
+ * @property {boolean} [goalFlag=true] - Whether the goal shows a flag.
+ * @property {(api: LevelScriptApi) => LevelScript} [script] - Chapter-specific scripting on top of the level file.
  */
+
+/**
+ * What a level script gets to work with.
+ *
+ * @typedef {object} LevelScriptApi
+ * @property {Level} level - The built level.
+ * @property {import("../core/session.js").ChapterContext} context - Build context.
+ * @property {{ x: number, y: number }|null} goal - Where the goal is, in pixels.
+ * @property {Record<string, { x: number, y: number }>} markers - Script markers by name: feet position in pixels.
+ * @property {(entity: *) => *} add - Adds an entity to the level, resetting it on respawn when it can.
+ * @property {string[]} checkpointOrder - Checkpoint ids in the order they are reached, starting with "start".
+ * @property {SwitchHub} switches - Touch switch and gate state.
+ * @property {SnowballThrower} snowballs - The level's snowball thrower.
+ */
+
+/**
+ * Hooks a chapter can add to a level file.
+ *
+ * @typedef {object} LevelScript
+ * @property {string[]} [preload] - Sounds to load before play.
+ * @property {(checkpoint: string, fresh: boolean) => void} [onStart] - Runs when play starts.
+ * @property {() => Promise<void>} [finale] - Replaces the flag-raising scene when the goal is reached.
+ * @property {() => void} [onRespawn] - Runs after the player respawns.
+ * @property {() => void} [step] - Runs every simulation step after the level's own checks.
+ * @property {() => void} [onExit] - Runs when the chapter is left.
+ */
+
+/**
+ * Draws the background wall layer: the same materials as the terrain, darker
+ * and never solid. Edges are only drawn where a wall meets open air, so walls
+ * blend into the terrain in front of them.
+ *
+ * @param {Level} level - Target level.
+ * @param {string[]} background - Background rows.
+ * @param {string[]} tiles - Terrain rows.
+ * @returns {void}
+ */
+function buildBackground(level, background, tiles) {
+    const covered = (c, r) => {
+        if (r < 0 || r >= background.length || c < 0 || c >= background[r].length) return true;
+        return background[r][c] !== "." || tiles[r][c] !== ".";
+    };
+    background.forEach((row, r) => {
+        [...row].forEach((ch, c) => {
+            if (ch === "." || tiles[r][c] !== "." || !TILE_TYPES[ch]) return;
+            const mask = (covered(c, r - 1) ? 0 : 1) | (covered(c + 1, r) ? 0 : 2) | (covered(c, r + 1) ? 0 : 4) | (covered(c - 1, r) ? 0 : 8);
+            level.addTile({
+                x: c * TILE, y: r * TILE, w: TILE, h: TILE, solid: false, layer: "back",
+                src: TILE_TYPES[ch].strip.replace("/auto_", "/bg_"),
+                backgroundSize: `${TILE * 16}px ${TILE}px`,
+                backgroundPosition: `${-mask * TILE}px 0px`
+            });
+        });
+    });
+}
 
 /**
  * Creates a chapter definition that plays a level file.
@@ -87,6 +146,7 @@ function buildLevelRuntime(data, context, chapter, options) {
     const materials = {};
     for (const [ch, tile] of Object.entries(TILE_TYPES)) materials[ch] = { strip: tile.strip, surface: tile.surface };
     buildFromAscii(level, data.tiles, materials, { edgeSolid: true });
+    if (data.background) buildBackground(level, data.background, data.tiles);
     level.cameraBounds = { left: 0, top: 0, right: width, bottom: height };
     level.killY = height + 40;
     level.voidDeath = true;
@@ -107,6 +167,9 @@ function buildLevelRuntime(data, context, chapter, options) {
     let berryIndex = 0;
     const sorted = [...data.entities].sort((a, b) => a.y === b.y ? a.x - b.x : b.y - a.y);
     const flags = data.entities.filter((entity) => entity.type === "checkpoint");
+    const markers = {};
+    const switches = new SwitchHub();
+    const snowballs = add(new SnowballThrower());
 
     for (const entity of sorted) {
         const x = entity.x * TILE;
@@ -130,13 +193,14 @@ function buildLevelRuntime(data, context, chapter, options) {
                 goal.body.active = false;
                 goal.visual.scaleX = 1.5;
                 goal.visual.scaleY = 1.5;
+                if (options.goalFlag === false) goal.elem.style.display = "none";
                 goal.spot = { x: cx, y: y + TILE };
                 break;
             case "spike":
                 addSpike(level, SPIKE_MARKER[entity.dir] ?? "^", x, y);
                 break;
             case "crumble":
-                add(new CrumbleBlock({ x, y, w: TILE, h: TILE, path: "./assets/tiles/celeste/blueIcePlain.png" }, "ice"));
+                add(new CrumbleBlock({ x, y, w: TILE, h: TILE, path: options.crumble?.path ?? "./assets/tiles/celeste/blueIcePlain.png" }, options.crumble?.surface ?? "ice"));
                 break;
             case "falling": {
                 const block = add(new FallingBlock({ x, y, w: TILE, h: TILE, path: "./assets/tiles/celeste/dirtPlate.png" }, {
@@ -165,11 +229,42 @@ function buildLevelRuntime(data, context, chapter, options) {
             case "zipMover":
                 add(new ZipMover(x, y + TILE - 64, entity.dx * TILE, entity.dy * TILE));
                 break;
+            case "spring":
+                add(new Spring(x, y, entity.dir));
+                break;
+            case "key":
+                add(new KeyItem(cx, cy));
+                break;
+            case "door":
+                add(new LockedDoor(x, y, TILE, entity.h * TILE));
+                break;
+            case "touchSwitch":
+                add(new TouchSwitch(cx, cy, entity.group, switches));
+                break;
+            case "gate":
+                add(new SwitchGate(x, y, entity.w * TILE, entity.h * TILE, entity.dx * TILE, entity.dy * TILE, entity.group, switches));
+                break;
+            case "dashBlock":
+                add(new DashBlock(x, y, entity.w * TILE, entity.h * TILE));
+                break;
+            case "seeker":
+                add(new Seeker(cx, cy, entity.speed));
+                break;
+            case "npc":
+                add(new LevelNpc(entity.look, cx, y + TILE, entity.facing === "right" ? 1 : -1));
+                break;
+            case "decor":
+                addDecor(level, entity.variant, x, y);
+                break;
+            case "marker":
+                if (entity.name) markers[entity.name] = { x: cx, y: y + TILE };
+                break;
             default:
                 break;
         }
     }
     if (!checkpoints.start) checkpoints.start = { x: TILE * 2, y: TILE * 2 };
+    const script = options.script?.({ level, context, goal: goal?.spot ?? null, markers, add, checkpointOrder, switches, snowballs }) ?? {};
 
     const director = game.ui.cutscenes;
     const state = { wind: 0, finishing: false, lastCheckpoint: context.session.checkpoint, deaths: 0 };
@@ -183,6 +278,11 @@ function buildLevelRuntime(data, context, chapter, options) {
     const finish = async () => {
         if (state.finishing) return;
         state.finishing = true;
+        if (script.finale) {
+            await script.finale();
+            context.session.ui.completeChapter();
+            return;
+        }
         await director.run(async (cs) => {
             if (goal) {
                 goal.activate(true);
@@ -254,6 +354,12 @@ function buildLevelRuntime(data, context, chapter, options) {
             case "kill":
                 if (player.state !== PlayerState.DEAD) player.die(0, 0);
                 break;
+            case "snowballs":
+                snowballs.set(action.on, action.interval, action.from === "left" ? 1 : -1);
+                break;
+            case "gates":
+                switches.open(action.group);
+                break;
             case "finish":
                 await finish();
                 break;
@@ -293,13 +399,17 @@ function buildLevelRuntime(data, context, chapter, options) {
     return {
         level,
         checkpoints,
+        preload: script.preload,
 
         /**
          * Applies the level's dash count and runs start events.
          *
+         * @param {string} checkpoint - Starting checkpoint.
+         * @param {boolean} fresh - Whether this is a new run.
          * @returns {void}
          */
-        onStart() {
+        onStart(checkpoint, fresh) {
+            script.onStart?.(checkpoint, fresh);
             game.player.maxDashes = Math.max(1, data.settings.dashes);
             game.player.dashEnabled = data.settings.dashes > 0;
             game.player.refillDash(false);
@@ -337,6 +447,7 @@ function buildLevelRuntime(data, context, chapter, options) {
                 state.deaths = context.session.deaths;
                 fireWhere("deaths", (trigger) => state.deaths >= trigger.count);
             }
+            script.step?.();
             if (goal && !director.running && player.onGround) {
                 const px = box.x + box.w / 2;
                 const py = box.y + box.h;
@@ -351,6 +462,7 @@ function buildLevelRuntime(data, context, chapter, options) {
          */
         onRespawn() {
             for (const entity of resettable) entity.reset();
+            script.onRespawn?.();
         },
 
         /**
@@ -359,6 +471,7 @@ function buildLevelRuntime(data, context, chapter, options) {
          * @returns {void}
          */
         onExit() {
+            script.onExit?.();
             if (game.player) {
                 game.player.maxDashes = 1;
                 game.player.dashEnabled = true;

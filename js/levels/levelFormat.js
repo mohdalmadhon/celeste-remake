@@ -94,7 +94,75 @@ export const ENTITY_TYPES = Object.freeze({
             { key: "dx", label: "Travels right (cells)", type: "number", value: 4, min: -30, max: 30, step: 1 },
             { key: "dy", label: "Travels down (cells)", type: "number", value: 0, min: -30, max: 30, step: 1 }
         ]
+    },
+    spring: {
+        name: "Spring", icon: "spring", fields: [
+            { key: "dir", label: "Throws", type: "select", value: "up", options: [["up", "Up"], ["left", "Left"], ["right", "Right"]] }
+        ]
+    },
+    key: { name: "Key", icon: "key", fields: [] },
+    door: {
+        name: "Locked door", icon: "door", fields: [
+            { key: "h", label: "Height (cells)", type: "number", value: 3, min: 1, max: 12, step: 1 }
+        ]
+    },
+    touchSwitch: {
+        name: "Touch switch", icon: "switch", fields: [
+            { key: "group", label: "Group", type: "number", value: 1, min: 1, max: 9, step: 1 }
+        ]
+    },
+    gate: {
+        name: "Switch gate", icon: "gate", fields: [
+            { key: "w", label: "Width (cells)", type: "number", value: 1, min: 1, max: 12, step: 1 },
+            { key: "h", label: "Height (cells)", type: "number", value: 3, min: 1, max: 12, step: 1 },
+            { key: "dx", label: "Slides right (cells)", type: "number", value: 0, min: -30, max: 30, step: 1 },
+            { key: "dy", label: "Slides down (cells)", type: "number", value: -3, min: -30, max: 30, step: 1 },
+            { key: "group", label: "Group", type: "number", value: 1, min: 1, max: 9, step: 1 }
+        ]
+    },
+    dashBlock: {
+        name: "Dash block", icon: "dashblock", fields: [
+            { key: "w", label: "Width (cells)", type: "number", value: 1, min: 1, max: 12, step: 1 },
+            { key: "h", label: "Height (cells)", type: "number", value: 2, min: 1, max: 12, step: 1 }
+        ]
+    },
+    seeker: {
+        name: "Seeker", icon: "seeker", fields: [
+            { key: "speed", label: "Speed", type: "number", value: 1, min: 0.4, max: 2, step: 0.1 }
+        ]
+    },
+    npc: {
+        name: "Character", icon: "npc", fields: [
+            { key: "look", label: "Who", type: "select", value: "granny", options: [["granny", "Granny"], ["theo", "Theo"]] },
+            { key: "facing", label: "Faces", type: "select", value: "left", options: [["left", "Left"], ["right", "Right"]] }
+        ]
+    },
+    decor: {
+        name: "Decoration", icon: "decor", fields: [
+            { key: "variant", label: "Kind", type: "select", value: "lamp", options: [
+                ["lamp", "Street lamp"], ["window", "Lit window"], ["windowDark", "Dark window"], ["crate", "Crate"], ["barrel", "Barrel"],
+                ["sign", "Sign post"], ["bench", "Bench"], ["pipe", "Pipe"], ["chain", "Chain"], ["banner", "Banner"], ["flags", "Prayer flags"],
+                ["bush", "Bush"], ["pine", "Pine tree"], ["rock", "Rock"], ["icicles", "Icicles"], ["memorial", "Memorial"], ["billboard", "Billboard"],
+                ["lantern", "Lantern"], ["snowman", "Snowman"], ["cairn", "Cairn"], ["antenna", "Antenna"], ["rail", "Railing"]
+            ] }
+        ]
+    },
+    marker: {
+        name: "Script marker", icon: "marker", fields: [
+            { key: "name", label: "Name", type: "text", value: "" }
+        ]
     }
+});
+
+/**
+ * Size in cells of each decoration, used by the editor preview.
+ *
+ * @type {Readonly<Record<string, [number, number]>>}
+ */
+export const DECOR_SIZES = Object.freeze({
+    lamp: [1, 3], window: [2, 2], windowDark: [2, 2], crate: [1, 1], barrel: [1, 1], sign: [1, 1], bench: [2, 1], pipe: [1, 3],
+    chain: [1, 2], banner: [1, 2], flags: [4, 1], bush: [1, 1], pine: [2, 3], rock: [1, 1], icicles: [1, 1], memorial: [1, 2],
+    billboard: [3, 2], lantern: [1, 1], snowman: [1, 2], cairn: [1, 1], antenna: [1, 3], rail: [2, 1]
 });
 
 /**
@@ -158,6 +226,14 @@ export const ACTION_TYPES = Object.freeze({
     },
     wait: { name: "Wait", fields: [{ key: "seconds", label: "Seconds", type: "number", value: 1, min: 0.1, max: 30, step: 0.1 }] },
     kill: { name: "Kill player", fields: [] },
+    snowballs: {
+        name: "Snowballs", fields: [
+            { key: "on", label: "Throwing", type: "checkbox", value: true },
+            { key: "interval", label: "Seconds between", type: "number", value: 1.6, min: 0.5, max: 10, step: 0.1 },
+            { key: "from", label: "Come from", type: "select", value: "right", options: [["right", "The right"], ["left", "The left"]] }
+        ]
+    },
+    gates: { name: "Open switch gates", fields: [{ key: "group", label: "Group", type: "number", value: 1, min: 1, max: 9, step: 1 }] },
     finish: { name: "Finish level", fields: [] }
 });
 
@@ -224,6 +300,7 @@ export function createLevel(width = 60, height = 24) {
         height,
         settings: { theme: "forest", weather: "snow", music: "theme", timeLimit: 300, lives: 5, dashes: 1 },
         tiles: rows,
+        background: rows.map((row) => ".".repeat(row.length)),
         entities: [
             { id: newId("e"), type: "spawn", x: 3, y: height - 4 },
             { id: newId("e"), type: "goal", x: width - 4, y: height - 4 }
@@ -245,6 +322,7 @@ export function createLevel(width = 60, height = 24) {
  * @property {number} height - Height in cells.
  * @property {{ theme: string, weather: string, music: string, timeLimit: number, lives: number, dashes: number }} settings - Play settings.
  * @property {string[]} tiles - One string per row; see {@link TILE_TYPES}, "." for air.
+ * @property {string[]} [background] - Walls drawn behind the player, same characters as tiles but never solid.
  * @property {Array<{ id: string, type: string, x: number, y: number } & Record<string, *>>} entities - Placed objects.
  * @property {Array<{ id: string, name: string, once: boolean, trigger: { type: string } & Record<string, *>, actions: Array<{ type: string } & Record<string, *>> }>} events - Scripted events.
  */
@@ -332,6 +410,16 @@ export function normalizeLevel(raw) {
         }
         tiles.push(row);
     }
+    const background = [];
+    for (let y = 0; y < height; y++) {
+        const source = Array.isArray(raw.background) && typeof raw.background[y] === "string" ? raw.background[y] : "";
+        let row = "";
+        for (let x = 0; x < width; x++) {
+            const ch = source[x];
+            row += ch && TILE_TYPES[ch] ? ch : ".";
+        }
+        background.push(row);
+    }
     const settings = raw.settings || {};
     const entities = [];
     const seen = new Set();
@@ -386,6 +474,7 @@ export function normalizeLevel(raw) {
             dashes: Math.round(clampNumber(settings.dashes, 0, 2, 1))
         },
         tiles,
+        background,
         entities,
         events
     };
