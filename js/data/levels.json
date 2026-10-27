@@ -1,0 +1,1638 @@
+{
+    "tutorial": {
+        "tiles": {
+            "house": {
+                "path": "./assets/tiles/celeste/house.png",
+                "class": [
+                    "none-collision"
+                ],
+                "dimensions": {
+                    "height": 350,
+                    "width": 500
+                },
+                "positions": [
+                    {
+                        "x": 4080,
+                        "y": 210
+                    }
+                ]
+            },
+            "dirtPlain": {
+                "path": "./assets/tiles/celeste/dirtPlain.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 1149,
+                        "y": 650
+                    },
+                    {
+                        "x": 1149,
+                        "y": 601
+                    },
+                    {
+                        "x": 1149,
+                        "y": 552
+                    },
+                    {
+                        "x": 1600,
+                        "y": 550
+                    },
+                    {
+                        "x": 1550,
+                        "y": 600
+                    },
+                    {
+                        "x": 1550,
+                        "y": 649
+                    },
+                    {
+                        "x": 1550,
+                        "y": 698
+                    },
+                    {
+                        "x": 1594,
+                        "y": 600
+                    },
+                    {
+                        "x": 1594,
+                        "y": 649
+                    },
+                    {
+                        "x": 1594,
+                        "y": 698
+                    },
+                    {
+                        "x": 1600,
+                        "y": 600
+                    },
+                    {
+                        "x": 1600,
+                        "y": 649
+                    },
+                    {
+                        "x": 1600,
+                        "y": 698
+                    },
+                    {
+                        "x": 1698,
+                        "y": 600
+                    },
+                    {
+                        "x": 1698,
+                        "y": 649
+                    },
+                    {
+                        "x": 1698,
+                        "y": 698
+                    },
+                    {
+                        "x": 3149,
+                        "y": 601
+                    },
+                    {
+                        "x": 3149,
+                        "y": 650
+                    },
+                    {
+                        "x": 3198,
+                        "y": 650
+                    }
+                ]
+            },
+            "dirt": {
+                "path": "assets/tiles/celeste/dirt.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 0,
+                        "y": 550
+                    },
+                    {
+                        "x": 49,
+                        "y": 550
+                    },
+                    {
+                        "x": 98,
+                        "y": 550
+                    },
+                    {
+                        "x": 147,
+                        "y": 550
+                    },
+                    {
+                        "x": 196,
+                        "y": 550
+                    },
+                    {
+                        "x": 245,
+                        "y": 550
+                    },
+                    {
+                        "x": 1149,
+                        "y": 503
+                    },
+                    {
+                        "x": 3849,
+                        "y": 650
+                    },
+                    {
+                        "x": 7049,
+                        "y": 530
+                    }
+                ]
+            },
+            "snow": {
+                "path": "assets/tiles/celeste/snow.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 294,
+                        "y": 550
+                    },
+                    {
+                        "x": 1550,
+                        "y": 550
+                    },
+                    {
+                        "x": 1570,
+                        "y": 550
+                    },
+                    {
+                        "x": 1600,
+                        "y": 550
+                    },
+                    {
+                        "x": 1649,
+                        "y": 550
+                    },
+                    {
+                        "x": 1649,
+                        "y": 451
+                    },
+                    {
+                        "x": 1698,
+                        "y": 451
+                    },
+                    {
+                        "x": 2251,
+                        "y": 600
+                    },
+                    {
+                        "x": 2800,
+                        "y": 532
+                    },
+                    {
+                        "x": 3898,
+                        "y": 650
+                    },
+                    {
+                        "x": 4091,
+                        "y": 510
+                    },
+                    {
+                        "x": 4140,
+                        "y": 510
+                    },
+                    {
+                        "x": 4140,
+                        "y": 510
+                    },
+                    {
+                        "x": 4189,
+                        "y": 510
+                    },
+                    {
+                        "x": 4238,
+                        "y": 510
+                    },
+                    {
+                        "x": 4287,
+                        "y": 510
+                    },
+                    {
+                        "x": 4336,
+                        "y": 510
+                    },
+                    {
+                        "x": 4385,
+                        "y": 510
+                    },
+                    {
+                        "x": 4434,
+                        "y": 510
+                    },
+                    {
+                        "x": 4483,
+                        "y": 510
+                    },
+                    {
+                        "x": 4532,
+                        "y": 510
+                    },
+                    {
+                        "x": 4581,
+                        "y": 510
+                    },
+                    {
+                        "x": 4630,
+                        "y": 510
+                    },
+                    {
+                        "x": 4679,
+                        "y": 510
+                    },
+                    {
+                        "x": 7098,
+                        "y": 481
+                    }
+                ]
+            },
+            "snowEdgeRight": {
+                "path": "assets/tiles/celeste/snowEdgeRight.png",
+                "class": [
+                    "no-render",
+                    "FlippedRight"
+                ],
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 392,
+                        "y": 501
+                    },
+                    {
+                        "x": 1698,
+                        "y": 550
+                    },
+                    {
+                        "x": 1747,
+                        "y": 451
+                    },
+                    {
+                        "x": 2849,
+                        "y": 532
+                    }
+                ]
+            },
+            "snowEdgeLeft": {
+                "path": "assets/tiles/celeste/snowEdgeLeft.png",
+                "class": [
+                    "no-render",
+                    "FlippedLeft"
+                ],
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 343,
+                        "y": 501
+                    },
+                    {
+                        "x": 1600,
+                        "y": 451
+                    },
+                    {
+                        "x": 2751,
+                        "y": 532
+                    },
+                    {
+                        "x": 3944,
+                        "y": 630
+                    },
+                    {
+                        "x": 3993,
+                        "y": 551
+                    },
+                    {
+                        "x": 4042,
+                        "y": 510
+                    }
+                ]
+            },
+            "snowEdgeBottomLeft": {
+                "path": "assets/tiles/celeste/snowEdgeBottomLeft.png",
+                "class": [
+                    "edgeBottomLeft"
+                ],
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 1002,
+                        "y": 152
+                    },
+                    {
+                        "x": 953,
+                        "y": 201
+                    }
+                ]
+            },
+            "snowEdgeBottomRight": {
+                "path": "assets/tiles/celeste/snowEdgeBottomRight.png",
+                "class": [
+                    "edgeBottomRight"
+                ],
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 1002,
+                        "y": 201
+                    },
+                    {
+                        "x": 1247,
+                        "y": 152
+                    },
+                    {
+                        "x": 1747,
+                        "y": 549
+                    },
+                    {
+                        "x": 2849,
+                        "y": 581
+                    }
+                ]
+            },
+            "snowFlippedRight": {
+                "path": "assets/tiles/celeste/snowFlipped.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 392,
+                        "y": 550
+                    },
+                    {
+                        "x": 392,
+                        "y": 599
+                    },
+                    {
+                        "x": 392,
+                        "y": 648
+                    },
+                    {
+                        "x": 1002,
+                        "y": 152
+                    },
+                    {
+                        "x": 1698,
+                        "y": 594
+                    },
+                    {
+                        "x": 1698,
+                        "y": 643
+                    },
+                    {
+                        "x": 1747,
+                        "y": 500
+                    }
+                ]
+            },
+            "snowPlain": {
+                "path": "assets/tiles/celeste/snowPlain.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 1649,
+                        "y": 600
+                    },
+                    {
+                        "x": 1649,
+                        "y": 649
+                    },
+                    {
+                        "x": 1649,
+                        "y": 698
+                    },
+                    {
+                        "x": 1600,
+                        "y": 600
+                    },
+                    {
+                        "x": 1698,
+                        "y": 549
+                    },
+                    {
+                        "x": 1698,
+                        "y": 500
+                    },
+                    {
+                        "x": 1649,
+                        "y": 500
+                    },
+                    {
+                        "x": 1649,
+                        "y": 549
+                    },
+                    {
+                        "x": 4042,
+                        "y": 559
+                    },
+                    {
+                        "x": 4091,
+                        "y": 559
+                    },
+                    {
+                        "x": 4140,
+                        "y": 559
+                    },
+                    {
+                        "x": 4140,
+                        "y": 559
+                    },
+                    {
+                        "x": 4189,
+                        "y": 559
+                    },
+                    {
+                        "x": 4238,
+                        "y": 559
+                    },
+                    {
+                        "x": 4287,
+                        "y": 559
+                    },
+                    {
+                        "x": 4336,
+                        "y": 559
+                    },
+                    {
+                        "x": 4385,
+                        "y": 559
+                    },
+                    {
+                        "x": 4434,
+                        "y": 559
+                    },
+                    {
+                        "x": 4483,
+                        "y": 559
+                    },
+                    {
+                        "x": 4532,
+                        "y": 559
+                    },
+                    {
+                        "x": 4581,
+                        "y": 559
+                    },
+                    {
+                        "x": 4630,
+                        "y": 559
+                    },
+                    {
+                        "x": 4679,
+                        "y": 559
+                    },
+                    {
+                        "x": 4042,
+                        "y": 608
+                    },
+                    {
+                        "x": 4091,
+                        "y": 608
+                    },
+                    {
+                        "x": 4140,
+                        "y": 608
+                    },
+                    {
+                        "x": 4140,
+                        "y": 608
+                    },
+                    {
+                        "x": 4189,
+                        "y": 608
+                    },
+                    {
+                        "x": 4238,
+                        "y": 608
+                    },
+                    {
+                        "x": 4287,
+                        "y": 608
+                    },
+                    {
+                        "x": 4336,
+                        "y": 608
+                    },
+                    {
+                        "x": 4385,
+                        "y": 608
+                    },
+                    {
+                        "x": 4434,
+                        "y": 608
+                    },
+                    {
+                        "x": 4483,
+                        "y": 608
+                    },
+                    {
+                        "x": 4532,
+                        "y": 608
+                    },
+                    {
+                        "x": 4581,
+                        "y": 608
+                    },
+                    {
+                        "x": 4630,
+                        "y": 608
+                    },
+                    {
+                        "x": 4679,
+                        "y": 608
+                    },
+                    {
+                        "x": 4042,
+                        "y": 657
+                    },
+                    {
+                        "x": 4091,
+                        "y": 657
+                    },
+                    {
+                        "x": 4140,
+                        "y": 657
+                    },
+                    {
+                        "x": 4140,
+                        "y": 657
+                    },
+                    {
+                        "x": 4189,
+                        "y": 657
+                    },
+                    {
+                        "x": 4238,
+                        "y": 657
+                    },
+                    {
+                        "x": 4287,
+                        "y": 657
+                    },
+                    {
+                        "x": 4336,
+                        "y": 657
+                    },
+                    {
+                        "x": 4385,
+                        "y": 657
+                    },
+                    {
+                        "x": 4434,
+                        "y": 657
+                    },
+                    {
+                        "x": 4483,
+                        "y": 657
+                    },
+                    {
+                        "x": 4532,
+                        "y": 657
+                    },
+                    {
+                        "x": 4581,
+                        "y": 657
+                    },
+                    {
+                        "x": 4630,
+                        "y": 657
+                    },
+                    {
+                        "x": 4679,
+                        "y": 657
+                    },
+                    {
+                        "x": 3944,
+                        "y": 679
+                    },
+                    {
+                        "x": 3993,
+                        "y": 679
+                    },
+                    {
+                        "x": 3993,
+                        "y": 630
+                    },
+                    {
+                        "x": 4679,
+                        "y": 510
+                    },
+                    {
+                        "x": 4728,
+                        "y": 510
+                    },
+                    {
+                        "x": 4728,
+                        "y": 559
+                    },
+                    {
+                        "x": 4777,
+                        "y": 559
+                    },
+                    {
+                        "x": 4777,
+                        "y": 608
+                    },
+                    {
+                        "x": 4777,
+                        "y": 657
+                    },
+                    {
+                        "x": 4728,
+                        "y": 608
+                    },
+                    {
+                        "x": 4728,
+                        "y": 657
+                    },
+                    {
+                        "x": 7098,
+                        "y": 530
+                    },
+                    {
+                        "x": 7147,
+                        "y": 530
+                    },
+                    {
+                        "x": 7147,
+                        "y": 481
+                    },
+                    {
+                        "x": 7147,
+                        "y": 579
+                    },
+                    {
+                        "x": 7098,
+                        "y": 579
+                    },
+                    {
+                        "x": 7049,
+                        "y": 579
+                    },
+                    {
+                        "x": 7147,
+                        "y": 628
+                    },
+                    {
+                        "x": 7098,
+                        "y": 628
+                    },
+                    {
+                        "x": 7049,
+                        "y": 628
+                    },
+                    {
+                        "x": 7147,
+                        "y": 677
+                    },
+                    {
+                        "x": 7098,
+                        "y": 677
+                    },
+                    {
+                        "x": 7049,
+                        "y": 677
+                    }
+                ]
+            },
+            "snowFlippedLeft": {
+                "path": "assets/tiles/celeste/snowFlippedLeft.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 344,
+                        "y": 550
+                    },
+                    {
+                        "x": 344,
+                        "y": 599
+                    },
+                    {
+                        "x": 344,
+                        "y": 648
+                    },
+                    {
+                        "x": 953,
+                        "y": 152
+                    },
+                    {
+                        "x": 1600,
+                        "y": 500
+                    },
+                    {
+                        "x": 2300,
+                        "y": 551
+                    },
+                    {
+                        "x": 3993,
+                        "y": 600
+                    }
+                ]
+            },
+            "snowDown": {
+                "path": "./assets/tiles/celeste/snowDown.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 1149,
+                        "y": 152
+                    },
+                    {
+                        "x": 1100,
+                        "y": 152
+                    },
+                    {
+                        "x": 1198,
+                        "y": 152
+                    },
+                    {
+                        "x": 1051,
+                        "y": 152
+                    }
+                ]
+            },
+            "hardSnowBottom": {
+                "path": "./assets/tiles/celeste/hardIceBottom.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": []
+            },
+            "dirtEdgeLeft": {
+                "path": "./assets/tiles/celeste/dirtEdgeLeft.png",
+                "class": [
+                    "FlippedLeft"
+                ],
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 700,
+                        "y": 650
+                    },
+                    {
+                        "x": 730,
+                        "y": 530
+                    },
+                    {
+                        "x": 1100,
+                        "y": 503
+                    },
+                    {
+                        "x": 800,
+                        "y": 230
+                    },
+                    {
+                        "x": 1500,
+                        "y": 550
+                    },
+                    {
+                        "x": 3100,
+                        "y": 601
+                    },
+                    {
+                        "x": 3800,
+                        "y": 650
+                    },
+                    {
+                        "x": 7000,
+                        "y": 530
+                    }
+                ]
+            },
+            "dirtFlippedLeft": {
+                "path": "./assets/tiles/celeste/dirtFlippedLeft.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 730,
+                        "y": 650
+                    },
+                    {
+                        "x": 730,
+                        "y": 601
+                    },
+                    {
+                        "x": 730,
+                        "y": 552
+                    },
+                    {
+                        "x": 779,
+                        "y": 552
+                    },
+                    {
+                        "x": 1100,
+                        "y": 650
+                    },
+                    {
+                        "x": 1100,
+                        "y": 601
+                    },
+                    {
+                        "x": 1100,
+                        "y": 552
+                    },
+                    {
+                        "x": 1500,
+                        "y": 600
+                    },
+                    {
+                        "x": 1500,
+                        "y": 600
+                    },
+                    {
+                        "x": 1500,
+                        "y": 650
+                    },
+                    {
+                        "x": 1500,
+                        "y": 700
+                    },
+                    {
+                        "x": 1500,
+                        "y": 750
+                    },
+                    {
+                        "x": 1500,
+                        "y": 800
+                    },
+                    {
+                        "x": 3100,
+                        "y": 650
+                    },
+                    {
+                        "x": 7000,
+                        "y": 579
+                    },
+                    {
+                        "x": 7000,
+                        "y": 628
+                    },
+                    {
+                        "x": 7000,
+                        "y": 677
+                    }
+                ]
+            },
+            "dirtFlippedRight": {
+                "path": "./assets/tiles/celeste/dirtFlippedRight.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 778,
+                        "y": 552
+                    },
+                    {
+                        "x": 814,
+                        "y": 641
+                    },
+                    {
+                        "x": 814,
+                        "y": 680
+                    },
+                    {
+                        "x": 1198,
+                        "y": 552
+                    },
+                    {
+                        "x": 1198,
+                        "y": 601
+                    },
+                    {
+                        "x": 1198,
+                        "y": 650
+                    }
+                ]
+            },
+            "dirtEdgeRight": {
+                "path": "./assets/tiles/celeste/dirtEdgeRight.png",
+                "class": [
+                    "FlippedRight"
+                ],
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 779,
+                        "y": 503
+                    },
+                    {
+                        "x": 814,
+                        "y": 592
+                    },
+                    {
+                        "x": 1198,
+                        "y": 503
+                    },
+                    {
+                        "x": 849,
+                        "y": 230
+                    }
+                ]
+            },
+            "dirtEdgeBottomLeft": {
+                "path": "./assets/tiles/celeste/dirtEdgeBottomLeft.png",
+                "class": [
+                    "edgeBottomLeft"
+                ],
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 800,
+                        "y": 279
+                    }
+                ]
+            },
+            "dirtEdgeBottomRight": {
+                "path": "./assets/tiles/celeste/dirtEdgeBottomRight.png",
+                "class": [
+                    "edgeBottomRight"
+                ],
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 849,
+                        "y": 279
+                    }
+                ]
+            },
+            "dirtPlate": {
+                "path": "./assets/tiles/celeste/dirtPlate.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2202,
+                        "y": 600
+                    },
+                    {
+                        "x": 3051,
+                        "y": 601
+                    }
+                ]
+            },
+            "blueIcedFlippedLeft": {
+                "path": "./assets/tiles/celeste/blueIceFlippedLeft.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2300,
+                        "y": 551
+                    },
+                    {
+                        "x": 2300,
+                        "y": 502
+                    },
+                    {
+                        "x": 2300,
+                        "y": 453
+                    },
+                    {
+                        "x": 2300,
+                        "y": 404
+                    },
+                    {
+                        "x": 2300,
+                        "y": 355
+                    },
+                    {
+                        "x": 2300,
+                        "y": 600
+                    },
+                    {
+                        "x": 2300,
+                        "y": 649
+                    },
+                    {
+                        "x": 2300,
+                        "y": 698
+                    },
+                    {
+                        "x": 2251,
+                        "y": 708
+                    },
+                    {
+                        "x": 3100,
+                        "y": 552
+                    },
+                    {
+                        "x": 3100,
+                        "y": 503
+                    },
+                    {
+                        "x": 3051,
+                        "y": 454
+                    },
+                    {
+                        "x": 3051,
+                        "y": 405
+                    },
+                    {
+                        "x": 3547,
+                        "y": 679
+                    },
+                    {
+                        "x": 3480,
+                        "y": 351
+                    },
+                    {
+                        "x": 3480,
+                        "y": 302
+                    }
+                ]
+            },
+            "blueIcedFlippedRight": {
+                "path": "./assets/tiles/celeste/blueIceFlippedRight.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2398,
+                        "y": 551
+                    },
+                    {
+                        "x": 2398,
+                        "y": 502
+                    },
+                    {
+                        "x": 2398,
+                        "y": 453
+                    },
+                    {
+                        "x": 2398,
+                        "y": 404
+                    },
+                    {
+                        "x": 2398,
+                        "y": 600
+                    },
+                    {
+                        "x": 2398,
+                        "y": 649
+                    },
+                    {
+                        "x": 2398,
+                        "y": 698
+                    },
+                    {
+                        "x": 3100,
+                        "y": 405
+                    },
+                    {
+                        "x": 3247,
+                        "y": 552
+                    },
+                    {
+                        "x": 3247,
+                        "y": 601
+                    },
+                    {
+                        "x": 3247,
+                        "y": 650
+                    },
+                    {
+                        "x": 3529,
+                        "y": 351
+                    },
+                    {
+                        "x": 3529,
+                        "y": 302
+                    }
+                ]
+            },
+            "blueIceEdgeLeft": {
+                "path": "./assets/tiles/celeste/blueIceEdgeLeft.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2300,
+                        "y": 355
+                    },
+                    {
+                        "x": 2251,
+                        "y": 659
+                    },
+                    {
+                        "x": 3051,
+                        "y": 356
+                    },
+                    {
+                        "x": 3498,
+                        "y": 650
+                    },
+                    {
+                        "x": 3547,
+                        "y": 630
+                    },
+                    {
+                        "x": 3480,
+                        "y": 253
+                    }
+                ]
+            },
+            "blueIceEdgeRight": {
+                "path": "./assets/tiles/celeste/blueIceEdgeRight.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2398,
+                        "y": 355
+                    },
+                    {
+                        "x": 3100,
+                        "y": 356
+                    },
+                    {
+                        "x": 3149,
+                        "y": 454
+                    },
+                    {
+                        "x": 3247,
+                        "y": 503
+                    },
+                    {
+                        "x": 3529,
+                        "y": 253
+                    }
+                ]
+            },
+            "blueIceEdgeRightBototm": {
+                "path": "./assets/tiles/celeste/blueIceEdgeRightBototm.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 3529,
+                        "y": 400
+                    }
+                ]
+            },
+            "blueIceEdgeLeftBottom": {
+                "path": "./assets/tiles/celeste/blueIceEdgeLeftBottom.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 3480,
+                        "y": 400
+                    }
+                ]
+            },
+            "blueIce": {
+                "path": "./assets/tiles/celeste/blueIce.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2348,
+                        "y": 355
+                    },
+                    {
+                        "x": 3198,
+                        "y": 503
+                    },
+                    {
+                        "x": 3449,
+                        "y": 670
+                    },
+                    {
+                        "x": 3596,
+                        "y": 630
+                    }
+                ]
+            },
+            "blueIcePlain": {
+                "path": "./assets/tiles/celeste/blueIcePlain.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2348,
+                        "y": 404
+                    },
+                    {
+                        "x": 2348,
+                        "y": 453
+                    },
+                    {
+                        "x": 2348,
+                        "y": 502
+                    },
+                    {
+                        "x": 2348,
+                        "y": 551
+                    },
+                    {
+                        "x": 2348,
+                        "y": 600
+                    },
+                    {
+                        "x": 2348,
+                        "y": 649
+                    },
+                    {
+                        "x": 2348,
+                        "y": 698
+                    },
+                    {
+                        "x": 3100,
+                        "y": 454
+                    },
+                    {
+                        "x": 3198,
+                        "y": 552
+                    },
+                    {
+                        "x": 3149,
+                        "y": 552
+                    },
+                    {
+                        "x": 3149,
+                        "y": 503
+                    },
+                    {
+                        "x": 3198,
+                        "y": 601
+                    },
+                    {
+                        "x": 3596,
+                        "y": 679
+                    }
+                ]
+            },
+            "dirtSided": {
+                "path": "./assets/tiles/celeste/dirtSided.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2800,
+                        "y": 649
+                    }
+                ]
+            },
+            "dirtSnowSided": {
+                "path": "./assets/tiles/celeste/dirtSnowSided.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2800,
+                        "y": 600
+                    }
+                ]
+            },
+            "snowSided": {
+                "path": "./assets/tiles/celeste/snowSided.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 2800,
+                        "y": 551
+                    }
+                ]
+            },
+            "spikeDown": {
+                "path": "./assets/tiles/celeste/spikeDown.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 3051,
+                        "y": 503
+                    }
+                ]
+            },
+            "blueIcePlate": {
+                "path": "./assets/tiles/celeste/blueIcePlate.png",
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 3400,
+                        "y": 670
+                    },
+                    {
+                        "x": 3645,
+                        "y": 630
+                    }
+                ]
+            },
+            "stone": {
+                "path": "./assets/tiles/celeste/stone.png",
+                "class": [
+                    "fall",
+                    "fallingBreak"
+                ],
+                "dimensions": {
+                    "height": 50,
+                    "width": 50
+                },
+                "positions": [
+                    {
+                        "x": 4810,
+                        "y": 550
+                    },
+                    {
+                        "x": 4867,
+                        "y": 550
+                    },
+                    {
+                        "x": 4900,
+                        "y": 550
+                    },
+                    {
+                        "x": 5110,
+                        "y": 550
+                    },
+                    {
+                        "x": 5167,
+                        "y": 550
+                    },
+                    {
+                        "x": 5200,
+                        "y": 550
+                    },
+                    {
+                        "x": 5410,
+                        "y": 550
+                    },
+                    {
+                        "x": 5467,
+                        "y": 550
+                    },
+                    {
+                        "x": 5500,
+                        "y": 550
+                    },
+                    {
+                        "x": 5710,
+                        "y": 550
+                    },
+                    {
+                        "x": 5767,
+                        "y": 550
+                    },
+                    {
+                        "x": 5800,
+                        "y": 550
+                    },
+                    {
+                        "x": 6010,
+                        "y": 550
+                    },
+                    {
+                        "x": 6067,
+                        "y": 550
+                    },
+                    {
+                        "x": 6100,
+                        "y": 550
+                    },
+                    {
+                        "x": 6310,
+                        "y": 550
+                    },
+                    {
+                        "x": 6367,
+                        "y": 550
+                    },
+                    {
+                        "x": 6400,
+                        "y": 550
+                    },
+                    {
+                        "x": 6610,
+                        "y": 550
+                    },
+                    {
+                        "x": 6667,
+                        "y": 550
+                    },
+                    {
+                        "x": 6700,
+                        "y": 550
+                    }
+                ]
+            },
+            "stoneThin": {
+                "path": "./assets/tiles/celeste/stoneThin.png",
+                "class": [
+                    "fall",
+                    "fallingBreak"
+                ],
+                "dimensions": {
+                    "height": 40,
+                    "width": 30
+                },
+                "positions": [
+                    {
+                        "x": 4850,
+                        "y": 550
+                    },
+                    {
+                        "x": 4943,
+                        "y": 550
+                    },
+                    {
+                        "x": 4965,
+                        "y": 550
+                    },
+                    {
+                        "x": 5150,
+                        "y": 550
+                    },
+                    {
+                        "x": 5243,
+                        "y": 550
+                    },
+                    {
+                        "x": 5265,
+                        "y": 550
+                    },
+                    {
+                        "x": 5450,
+                        "y": 550
+                    },
+                    {
+                        "x": 5543,
+                        "y": 550
+                    },
+                    {
+                        "x": 5565,
+                        "y": 550
+                    },
+                    {
+                        "x": 5750,
+                        "y": 550
+                    },
+                    {
+                        "x": 5843,
+                        "y": 550
+                    },
+                    {
+                        "x": 5865,
+                        "y": 550
+                    },
+                    {
+                        "x": 6050,
+                        "y": 550
+                    },
+                    {
+                        "x": 6143,
+                        "y": 550
+                    },
+                    {
+                        "x": 6165,
+                        "y": 550
+                    },
+                    {
+                        "x": 6350,
+                        "y": 550
+                    },
+                    {
+                        "x": 6443,
+                        "y": 550
+                    },
+                    {
+                        "x": 6465,
+                        "y": 550
+                    },
+                    {
+                        "x": 6650,
+                        "y": 550
+                    },
+                    {
+                        "x": 6743,
+                        "y": 550
+                    },
+                    {
+                        "x": 6765,
+                        "y": 550
+                    }
+                ]
+            },
+            "woodStick": {
+                "path": "./assets/tiles/celeste/stick.png",
+                "class": [
+                    "fallingBreak",
+                    "fall"
+                ],
+                "dimensions": {
+                    "height": 200,
+                    "width": 30
+                },
+                "positions": [
+                    {
+                        "x": 4887,
+                        "y": 595
+                    },
+                    {
+                        "x": 5187,
+                        "y": 595
+                    },
+                    {
+                        "x": 5487,
+                        "y": 595
+                    },
+                    {
+                        "x": 5787,
+                        "y": 595
+                    },
+                    {
+                        "x": 6087,
+                        "y": 595
+                    },
+                    {
+                        "x": 6387,
+                        "y": 595
+                    },
+                    {
+                        "x": 6687,
+                        "y": 595
+                    }
+                ]
+            }
+        }
+    }
+}
