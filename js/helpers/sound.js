@@ -36,7 +36,9 @@ export const SFX = Object.freeze({
     screenEntry: "assets/soundTrack/all_sounds/Madeline/screenentry_gran.wav",
     hairCharged: "assets/soundTrack/all_sounds/Madeline/core_haircharged.wav",
     mirrorLanding: "assets/soundTrack/all_sounds/Madeline/mirrortemple_landing.wav",
-    theme: "assets/soundTrack/main theme.mp3"
+    theme: "assets/soundTrack/main theme.mp3",
+    musicGolden: "assets/soundTrack/music/golden.mp3",
+    musicAnxiety: "assets/soundTrack/music/anxiety.mp3"
 });
 
 /**
