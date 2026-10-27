@@ -130,6 +130,14 @@ def build_player():
             light = (r * 0.3 + g * 0.5 + b * 0.2)
             echo_px[x, y] = (int(150 + light * 0.4), int(200 + light * 0.2), 255, int(a * 0.85))
     echo.save(out_path("sprites", "player_echo.png"))
+    for name, colour in (("player_trail_red.png", (172, 50, 50)), ("player_trail_blue.png", (68, 183, 255))):
+        trail = Image.new("RGBA", sheet.size, (0, 0, 0, 0))
+        trail_px = trail.load()
+        for y in range(sheet.height):
+            for x in range(sheet.width):
+                if pixels[x, y][3]:
+                    trail_px[x, y] = colour + (255,)
+        trail.save(out_path("sprites", name))
     print("player variants", sheet.size)
 
 
