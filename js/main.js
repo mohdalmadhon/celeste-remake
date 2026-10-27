@@ -22,11 +22,18 @@ import { PerfOverlay } from "./ui/perf.js";
 import { Screens } from "./ui/screens.js";
 import { Transition } from "./ui/transition.js";
 import { t } from "./core/i18n.js";
+import { LevelEditor } from "./editor/editor.js";
+import { chapterFromLevel } from "./levels/customLevel.js";
+import { normalizeLevel } from "./levels/levelFormat.js";
 
 /** @type {Session|null} */
 let session = null;
 /** @type {number} */
 let chapterIndex = 0;
+/** @type {import("./core/session.js").ChapterDefinition|null} */
+let currentChapter = null;
+/** @type {"playtest"|"play"|null} */
+let developerRun = null;
 /** @type {number} */
 let flashTime = 0;
 /** @type {number} */
@@ -95,21 +102,36 @@ function applyMenuEnvironment() {
 }
 
 /**
- * Starts a chapter, optionally resuming the saved run.
+ * Starts a story chapter, optionally resuming the saved run.
  *
  * @param {number} index - Chapter index.
  * @param {{ resume?: boolean, checkpoint?: string }} [options] - Start options.
  * @returns {Promise<void>} Resolves once playable.
  */
 async function startChapter(index, options = {}) {
-    if (game.state === "transition") return;
     const chapter = CHAPTERS[index];
     if (!chapter) return;
+    developerRun = null;
+    await launch(chapter, index, options);
+}
+
+/**
+ * Builds and starts any chapter, story or custom.
+ *
+ * @param {import("./core/session.js").ChapterDefinition} chapter - Chapter to play.
+ * @param {number} index - Story index, or -1 for levels from developer mode.
+ * @param {{ resume?: boolean, checkpoint?: string }} [options] - Start options.
+ * @returns {Promise<void>} Resolves once playable.
+ */
+async function launch(chapter, index, options = {}) {
+    if (game.state === "transition") return;
     game.state = "transition";
     await game.ui.transition.cover("fade", 0.45);
     ui.screens.close();
     closeSession();
+    editor.hide();
     chapterIndex = index;
+    currentChapter = chapter;
     loop.simulate = false;
     game.player.visible = true;
     game.player.controlLocked = false;
@@ -124,6 +146,54 @@ async function startChapter(index, options = {}) {
     loop.simulate = true;
     input.clear();
     await game.ui.transition.reveal("fade", 0.6);
+}
+
+/**
+ * Opens developer mode.
+ *
+ * @param {{ manager?: boolean, note?: string }} [options] - Show the level list first, and a message to show.
+ * @returns {Promise<void>} Resolves once the editor shows.
+ */
+async function openEditor(options = {}) {
+    if (game.state === "transition") return;
+    const wasPlaying = Boolean(session);
+    game.state = "transition";
+    if (wasPlaying) await game.ui.transition.cover("fade", 0.35);
+    closeSession();
+    ui.screens.close();
+    loop.simulate = false;
+    developerRun = null;
+    game.weather.set({ type: "none" });
+    game.state = "editor";
+    editor.open({ manager: options.manager });
+    if (options.note) editor.flash(options.note);
+    if (wasPlaying) await game.ui.transition.reveal("fade", 0.2);
+}
+
+/**
+ * Turns a level from the editor into a playable chapter.
+ *
+ * @param {import("./levels/levelFormat.js").LevelData} level - Level to play.
+ * @param {"playtest"|"play"} mode - Whether to come straight back to the editor when it ends.
+ * @param {{ x: number, y: number }} [from] - Cell to start on instead of the player start.
+ * @returns {void}
+ */
+function playLevel(level, mode, from) {
+    const copy = structuredClone(level);
+    if (from) {
+        const spawn = copy.entities.find((entity) => entity.type === "spawn");
+        if (spawn) {
+            spawn.x = from.x;
+            spawn.y = from.y;
+        }
+    }
+    const chapter = chapterFromLevel(copy, {
+        id: `custom:${copy.id}`,
+        art: "./assets/generated/checkpoints/custom.png",
+        onFinish: mode === "playtest" ? () => openEditor({ note: "Level finished!" }) : undefined
+    });
+    developerRun = mode;
+    launch(chapter, -1);
 }
 
 /**
@@ -177,6 +247,11 @@ function resume() {
  * @returns {Promise<void>} Resolves once the menu shows.
  */
 async function quitToMenu(screen = "main") {
+    if (developerRun) {
+        const manager = developerRun === "play";
+        await openEditor({ manager });
+        return;
+    }
     game.state = "transition";
     await game.ui.transition.cover("fade", 0.35);
     session?.persist();
@@ -200,7 +275,7 @@ function completeChapter() {
     const result = session.complete(chapterIndex);
     game.state = "over";
     loop.simulate = true;
-    const hasNext = chapterIndex + 1 < CHAPTERS.length;
+    const hasNext = chapterIndex >= 0 && chapterIndex + 1 < CHAPTERS.length;
     audio.play(SFX.summitSit, { volume: 0.5 });
     ui.screens.show("complete", {
         chapter: session.chapter,
@@ -320,9 +395,14 @@ ui.screens = new Screens(document.getElementById("screens"), {
     resume,
     retry,
     restartChapter: () => {
+        if (chapterIndex < 0 && currentChapter) {
+            launch(currentChapter, -1);
+            return;
+        }
         save.session = null;
         startChapter(chapterIndex);
     },
+    openEditor: () => openEditor({ manager: true }),
     skipCutscene: () => {
         ui.cutscenes.skip();
         resume();
@@ -334,6 +414,17 @@ ui.screens = new Screens(document.getElementById("screens"), {
     history: () => ui.dialogue.history
 });
 game.ui = ui;
+const editor = new LevelEditor(document.getElementById("editor"), {
+    playtest: (level, from) => playLevel(level, "playtest", from),
+    play: (level) => playLevel(level, "play"),
+    exit: () => {
+        editor.hide();
+        game.state = "menu";
+        applyMenuEnvironment();
+        ui.screens.show("main");
+    },
+    example: async () => normalizeLevel(await (await fetch("./js/data/levels/shattered-spire.json")).json())
+});
 const perf = new PerfOverlay(document.getElementById("perf"), loop.stats);
 
 events.on("fx:flash", ({ strength, duration }) => {

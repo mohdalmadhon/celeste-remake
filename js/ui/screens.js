@@ -21,6 +21,7 @@ import { revealTitle } from "../helpers/sign.js";
  * @property {() => void} restartChapter - Restarts the current chapter.
  * @property {() => void} skipCutscene - Skips the running cutscene.
  * @property {() => void} quitToMenu - Leaves the chapter.
+ * @property {() => void} openEditor - Opens developer mode.
  * @property {() => void} applyDisplay - Re-applies display settings.
  * @property {() => import("../core/session.js").ChapterDefinition[]} chapters - Chapter list.
  * @property {() => boolean} inCutscene - Whether a skippable cutscene runs.
@@ -283,7 +284,8 @@ export class Screens {
             { id: "chapters", label: "menu.chapters", icon: "strawberry", action: () => this.show("chapters"), disabled: () => !hasSave() },
             { id: "settings", label: "menu.settings", icon: "clock", action: () => this.show("settings") },
             { id: "language", label: "menu.language", icon: "bird", action: () => this.show("language") },
-            { id: "credits", label: "menu.credits", icon: "heart", action: () => this.show("credits") }
+            { id: "credits", label: "menu.credits", icon: "heart", action: () => this.show("credits") },
+            { id: "developer", label: "menu.developer", icon: "tape", action: () => this.actions.openEditor() }
         );
         if (canQuit) items.push({ id: "quit", label: "menu.quit", icon: "skull", action: () => window.close() });
         this.#menu(screen, panel, items, { onBack: () => this.show("title", null, { replace: true }) });
