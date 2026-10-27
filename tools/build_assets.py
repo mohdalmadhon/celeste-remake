@@ -119,6 +119,15 @@ def build_player():
                 light = (r + g + b) / 3
                 blue_px[x, y] = (int(40 + light * 0.25), int(90 + light * 0.55), int(150 + light * 0.8), a)
     blue.save(out_path("sprites", "player_blue.png"))
+    pink = sheet.copy()
+    pink_px = pink.load()
+    for y in range(64 * 12):
+        for x in range(sheet.width):
+            r, g, b, a = pixels[x, y]
+            if a and is_hair(r, g, b):
+                light = (r + g + b) / 3
+                pink_px[x, y] = (min(255, int(170 + light * 0.6)), int(60 + light * 0.45), min(255, int(150 + light * 0.7)), a)
+    pink.save(out_path("sprites", "player_pink.png"))
     white.save(out_path("sprites", "player_white.png"))
     echo = sheet.copy()
     echo_px = echo.load()
@@ -130,7 +139,7 @@ def build_player():
             light = (r * 0.3 + g * 0.5 + b * 0.2)
             echo_px[x, y] = (int(150 + light * 0.4), int(200 + light * 0.2), 255, int(a * 0.85))
     echo.save(out_path("sprites", "player_echo.png"))
-    for name, colour in (("player_trail_red.png", (172, 50, 50)), ("player_trail_blue.png", (68, 183, 255))):
+    for name, colour in (("player_trail_red.png", (172, 50, 50)), ("player_trail_blue.png", (68, 183, 255)), ("player_trail_pink.png", (255, 109, 239))):
         trail = Image.new("RGBA", sheet.size, (0, 0, 0, 0))
         trail_px = trail.load()
         for y in range(sheet.height):
@@ -624,6 +633,29 @@ def build_npcs():
             out.paste(sheet.crop(box), (col * cell, row * cell))
     out.save(out_path("sprites", "granny.png"))
     print("granny", {k: (i, len(v)) for i, (k, v) in enumerate(layout.items())})
+
+    theo = Image.open(os.path.join(ASSETS, "characters/theo.png")).convert("RGBA")
+    keys = {(255, 0, 195), (33, 255, 0)}
+    tp = theo.load()
+    rows = {"walk": 1, "idle": 2, "selfie": 15, "seated": 19, "sleeping": 21}
+    counts = {}
+    for name, row in rows.items():
+        count = 0
+        while count * 32 < theo.width and tp[count * 32 + 1, row * 32 + 1][:3] in keys:
+            count += 1
+        counts[name] = count
+    sheet = Image.new("RGBA", (32 * max(counts.values()), 32 * len(rows)), (0, 0, 0, 0))
+    for out_row, (name, row) in enumerate(rows.items()):
+        for col in range(counts[name]):
+            cell = theo.crop((col * 32, row * 32, col * 32 + 32, row * 32 + 32))
+            cp = cell.load()
+            for y in range(32):
+                for x in range(32):
+                    if cp[x, y][:3] in keys:
+                        cp[x, y] = (0, 0, 0, 0)
+            sheet.paste(cell, (col * 32, out_row * 32))
+    sheet.save(out_path("sprites", "theo.png"))
+    print("theo", {name: (i, counts[name]) for i, name in enumerate(rows)}, sheet.size)
 
 
 GROUPS = {
