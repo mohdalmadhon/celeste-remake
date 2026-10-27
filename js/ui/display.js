@@ -1,5 +1,6 @@
 import { VIEW_HEIGHT, VIEW_WIDTH } from "../core/constants.js";
 import { settings } from "../core/settings.js";
+import { setPixelScale } from "../core/pixels.js";
 
 /**
  * Scales the 1200x500 game stage to the window according to the display
@@ -21,5 +22,6 @@ export function applyDisplayScale() {
     stage.style.width = `${Math.round(VIEW_WIDTH * scale)}px`;
     stage.style.height = `${Math.round(VIEW_HEIGHT * scale)}px`;
     gameElem.style.transform = scale === 1 ? "" : `scale(${scale})`;
+    setPixelScale(scale);
     return scale;
 }

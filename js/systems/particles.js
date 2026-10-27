@@ -1,4 +1,5 @@
 import { settings } from "../core/settings.js";
+import { snapPixel } from "../core/pixels.js";
 
 /**
  * Parameters for a particle burst.
@@ -165,8 +166,8 @@ export class ParticleSystem {
                 p.elem.style.display = "";
             }
             const t = p.life / p.max;
-            const x = Math.round(p.px + (p.x - p.px) * alpha);
-            const y = Math.round(p.py + (p.y - p.py) * alpha);
+            const x = snapPixel(p.px + (p.x - p.px) * alpha);
+            const y = snapPixel(p.py + (p.y - p.py) * alpha);
             const scale = p.shrink ? Math.max(0.2, t) : 1;
             p.elem.style.transform = `translate3d(${x}px,${y}px,0) scale(${scale.toFixed(2)})`;
             p.elem.style.opacity = Math.min(1, t * 1.6).toFixed(2);
@@ -226,7 +227,7 @@ export class AfterimagePool {
         style.transformOrigin = entity.elem.style.transformOrigin || "";
         const flip = entity.components.movement?.direction ?? entity.facing;
         const v = entity.visual;
-        style.transform = `translate3d(${Math.round(entity.position.x + v.offsetX)}px,${Math.round(entity.position.y + v.offsetY)}px,0) scale(${flip * v.scaleX},${v.scaleY})`;
+        style.transform = `translate3d(${snapPixel(entity.position.x + v.offsetX)}px,${snapPixel(entity.position.y + v.offsetY)}px,0) scale(${flip * v.scaleX},${v.scaleY})`;
         style.display = "";
         style.opacity = "0.6";
         item.life = life;

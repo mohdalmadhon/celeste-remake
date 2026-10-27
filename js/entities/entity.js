@@ -1,3 +1,5 @@
+import { snapPixel } from "../core/pixels.js";
+
 /**
  * Sprite sheet description used to compute background positions.
  *
@@ -191,8 +193,8 @@ export class Entity {
         }
         if (!shown) return;
         const v = this.visual;
-        const x = Math.round(this.previous.x + (this.position.x - this.previous.x) * alpha + v.offsetX);
-        const y = Math.round(this.previous.y + (this.position.y - this.previous.y) * alpha + v.offsetY);
+        const x = snapPixel(this.previous.x + (this.position.x - this.previous.x) * alpha + v.offsetX);
+        const y = snapPixel(this.previous.y + (this.position.y - this.previous.y) * alpha + v.offsetY);
         const sx = (this.components.movement?.direction ?? this.facing) * v.scaleX;
         let transform = `translate3d(${x}px,${y}px,0)`;
         if (sx !== 1 || v.scaleY !== 1) transform += ` scale(${sx.toFixed(3)},${v.scaleY.toFixed(3)})`;

@@ -1,6 +1,7 @@
 import { RENDER_CHUNK, VIEW_HEIGHT, VIEW_WIDTH } from "./core/constants.js";
 import { Entity } from "./entities/entity.js";
 import { CollisionWorld, createBody } from "./systems/physics.js";
+import { snapPixel } from "./core/pixels.js";
 
 /**
  * Description of a static tile.
@@ -261,8 +262,8 @@ export class Level {
     render(alpha, camera) {
         const pos = camera.renderPosition(alpha);
         const zoom = camera.zoom;
-        const x = Math.round(pos.x * zoom);
-        const y = Math.round(pos.y * zoom);
+        const x = snapPixel(pos.x * zoom);
+        const y = snapPixel(pos.y * zoom);
         const transform = zoom === 1
             ? `translate3d(${-x}px,${-y}px,0)`
             : `translate3d(${-x}px,${-y}px,0) scale(${zoom.toFixed(4)})`;

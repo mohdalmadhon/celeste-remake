@@ -1,4 +1,5 @@
 import { VIEW_HEIGHT, VIEW_WIDTH } from "../core/constants.js";
+import { snapPixel } from "../core/pixels.js";
 
 /**
  * One background layer.
@@ -92,7 +93,7 @@ export class Parallax {
             if (config.cover) {
                 const x = -Math.max(-80, Math.min(80, camera.x * (config.factorX ?? 0) % 160));
                 const y = -Math.max(-60, Math.min(60, camera.y * (config.factorY ?? 0)));
-                const transform = `translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`;
+                const transform = `translate3d(${snapPixel(x)}px,${snapPixel(y)}px,0)`;
                 if (transform !== layer.last) {
                     layer.last = transform;
                     layer.elem.style.transform = transform;
@@ -102,7 +103,7 @@ export class Parallax {
             const raw = camera.x * (config.factorX ?? 0) - layer.offset;
             const x = -(((raw % layer.tileWidth) + layer.tileWidth) % layer.tileWidth);
             const y = -camera.y * (config.factorY ?? 0);
-            const transform = `translate3d(${Math.round(x)}px,${Math.round(y)}px,0)`;
+            const transform = `translate3d(${snapPixel(x)}px,${snapPixel(y)}px,0)`;
             if (transform !== layer.last) {
                 layer.last = transform;
                 layer.elem.style.transform = transform;
