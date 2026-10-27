@@ -57,6 +57,9 @@ export class Input {
     /** @type {boolean} */
     enabled = true;
 
+    /**
+     * Starts listening to keyboard events on the window.
+     */
     constructor() {
         for (const action of ACTIONS) {
             this.#pressAge[action] = Infinity;

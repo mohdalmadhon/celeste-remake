@@ -39,6 +39,9 @@ export class AudioSystem {
     /** @type {AudioBuffer|null} */
     #noise = null;
 
+    /**
+     * Registers the user gesture listeners that unlock audio playback.
+     */
     constructor() {
         const unlock = () => this.unlock();
         window.addEventListener("pointerdown", unlock);

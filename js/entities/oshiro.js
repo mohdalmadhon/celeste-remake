@@ -133,6 +133,9 @@ export class OshiroBoss extends Entity {
     /** @type {{ x: number, speed: number, resolve: Function }|null} */
     #scripted = null;
 
+    /**
+     * Creates the boss hidden off screen with an inactive hazard body.
+     */
     constructor() {
         super({ x: -500, y: 0 }, { width: 288, height: 288 }, "oshiro-boss");
         this.elem.classList.add("oshiro-boss");

@@ -240,13 +240,32 @@ function retry() {
 }
 
 const loop = new GameLoop({
+    /**
+     * Polls input devices and schedules audio once per display frame.
+     *
+     * @param {number} dt - Frame time in seconds.
+     * @returns {void}
+     */
     frame(dt) {
         input.poll(dt);
         audio.update();
     },
+    /**
+     * Advances the running chapter by one fixed step.
+     *
+     * @param {number} dt - Step length in seconds.
+     * @returns {void}
+     */
     step(dt) {
         if (session && game.state === "playing") session.step(dt);
     },
+    /**
+     * Draws the chapter or menu backdrop and updates overlays.
+     *
+     * @param {number} alpha - Interpolation factor between steps.
+     * @param {number} frameDt - Frame time in seconds.
+     * @returns {void}
+     */
     render(alpha, frameDt) {
         if (session) {
             session.render(alpha, frameDt);

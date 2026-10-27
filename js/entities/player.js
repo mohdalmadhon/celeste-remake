@@ -138,6 +138,12 @@ export class Player extends Entity {
         const player = this;
         this.box = {
             x: 0, y: 0, w: HITBOX.w, h: HITBOX.h, remX: 0, remY: 0,
+            /**
+             * Whether the hitbox stands on, or clings to, a solid.
+             *
+             * @param {import("../systems/physics.js").Body} solid - Solid to test.
+             * @returns {boolean} True when the player moves with the solid.
+             */
             isRiding(solid) {
                 const horizontal = this.x < solid.x + solid.w && this.x + this.w > solid.x;
                 const vertical = this.y < solid.y + solid.h && this.y + this.h > solid.y;
@@ -148,6 +154,11 @@ export class Player extends Entity {
                 }
                 return false;
             },
+            /**
+             * Kills the player when a moving solid crushes them.
+             *
+             * @returns {void}
+             */
             squish() {
                 player.die(0, 0);
             }
