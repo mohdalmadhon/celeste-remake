@@ -7,7 +7,7 @@ import { SFX } from "../helpers/sound.js";
 import { Level } from "../level.js";
 import { audio } from "../systems/audio.js";
 import { input } from "../systems/input.js";
-import { buildFromAscii, buildFromJson, groundAt, MATERIALS } from "./builder.js";
+import { buildFill, buildFromAscii, buildFromJson, groundAt, MATERIALS } from "./builder.js";
 
 /**
  * Creates the bird that teaches climbing and dashing.
@@ -85,6 +85,8 @@ export const prologue = {
         const data = await (await fetch("./js/data/levels.json")).json();
         const level = new Level({ width: 7200, height: 700 }, context.world, "prologue");
         const special = buildFromJson(level, data.tutorial.tiles);
+        const fills = await (await fetch("./js/data/fills.json")).json();
+        buildFill(level, fills["prologue"]);
         level.cameraBounds = { left: 0, top: -150, right: 7240, bottom: 640 };
         level.killY = 720;
         const world = level.world;
