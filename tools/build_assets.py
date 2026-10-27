@@ -677,6 +677,8 @@ def build_extract():
         "7 - The Summit 6 - 2500 M.png": "summit.png",
         "7 - The Summit 7 - 3000 M.png": "summit_2.png",
         "4 - Golden Ridge 1 - Start.png": "prologue.png",
+        "7 - The Summit B-Side 7 - 3000 M.png": "spire.png",
+        "4 - Golden Ridge B-Side 3 - Gusty Canyon.png": "custom.png",
     }
     with zipfile.ZipFile(os.path.join(ASSETS, "tiles/celeste/checkpoints.zip")) as archive:
         for name in archive.namelist():
