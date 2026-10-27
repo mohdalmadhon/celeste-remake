@@ -120,12 +120,18 @@ export class Level {
     /**
      * Adds a static tile and its collision body.
      *
+     * Tiles larger than a render chunk skip chunk culling so they never
+     * disappear while partly on screen.
+     *
      * @param {TileOptions} options - Tile description.
      * @returns {{ elem: HTMLDivElement, body: import("./systems/physics.js").Body|null }} Created element and body.
      */
     addTile(options) {
         const layer = options.layer || "tiles";
-        const chunk = this.#chunk(layer, options.x, options.y);
+        const oversized = options.w > RENDER_CHUNK.width || options.h > RENDER_CHUNK.height;
+        const chunk = oversized
+            ? { elem: this.layers[layer], x: 0, y: 0 }
+            : this.#chunk(layer, options.x, options.y);
         const elem = document.createElement("div");
         elem.className = "tile";
         if (options.classes) elem.classList.add(...options.classes);
