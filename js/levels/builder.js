@@ -102,6 +102,40 @@ export function buildFromJson(level, groups, options = {}) {
 }
 
 /**
+ * Spike placement for each spike marker of an ASCII map: image, direction
+ * and the rectangle inside the 50 pixel cell it occupies.
+ *
+ * @type {Readonly<Record<string, { src: string, direction: string, x: number, y: number, w: number, h: number }>>}
+ */
+const SPIKE_MARKERS = Object.freeze({
+    "^": { src: "./assets/tiles/celeste/spikes.png", direction: "up", x: 0, y: 26, w: 50, h: 24 },
+    "v": { src: "./assets/tiles/celeste/spikeDown.png", direction: "down", x: 0, y: 0, w: 50, h: 50 },
+    "<": { src: "./assets/tiles/celeste/spikesFlippedLeft.png", direction: "left", x: 26, y: 0, w: 24, h: 50 },
+    ">": { src: "./assets/tiles/celeste/spikesFlippedRight.png", direction: "right", x: 0, y: 0, w: 24, h: 50 }
+});
+
+/**
+ * Adds a row of spikes for a spike marker, pressed against the side of its
+ * cell that faces the wall or floor it grows from.
+ *
+ * @param {import("../level.js").Level} level - Target level.
+ * @param {string} marker - One of ^ v < >.
+ * @param {number} x - Left edge of the cell.
+ * @param {number} y - Top edge of the cell.
+ * @returns {boolean} True when the marker was a spike.
+ */
+export function addSpike(level, marker, x, y) {
+    const spec = SPIKE_MARKERS[marker];
+    if (!spec) return false;
+    const spike = spikeData(spec.src, spec.w, spec.h);
+    level.addTile({
+        x: x + spec.x, y: y + spec.y, w: spec.w, h: spec.h, src: spec.src, kind: "hazard",
+        backgroundSize: "100% 100%", hitbox: spike.hitbox, body: { direction: spec.direction }, classes: ["spike"]
+    });
+    return true;
+}
+
+/**
  * Material description for ASCII maps.
  *
  * @typedef {object} Material
@@ -197,7 +231,9 @@ export const MATERIALS = Object.freeze({
     dirt: { strip: "./assets/generated/tiles/auto_dirt.png", surface: "dirt" },
     snow: { strip: "./assets/generated/tiles/auto_snow.png", surface: "snow" },
     ice: { strip: "./assets/generated/tiles/auto_ice.png", surface: "ice" },
-    resort: { strip: "./assets/generated/tiles/auto_resort.png", surface: "wood" }
+    resort: { strip: "./assets/generated/tiles/auto_resort.png", surface: "wood" },
+    girder: { strip: "./assets/generated/tiles/auto_girder.png", surface: "metal" },
+    brick: { strip: "./assets/generated/tiles/auto_brick.png", surface: "wood" }
 });
 
 /**
