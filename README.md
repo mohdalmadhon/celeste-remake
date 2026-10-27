@@ -6,9 +6,15 @@ It started as a school project (a platformer built from scratch with DOM renderi
 
 This is a learning project. Celeste and its characters, art and music belong to Maddy Makes Games / EXOK. Full credits are in the game's Credits screen.
 
-## Running it
+## Playing it
 
-You need a local web server, because the levels are loaded with `fetch`. Opening `game.html` straight from the file system won't work.
+Once GitHub Pages is switched on for the repository (see [Publishing on GitHub Pages](#publishing-on-github-pages)), the game is playable at:
+
+**https://mohdalmadhon.github.io/celeste-remake/**
+
+## Running it locally
+
+You need a local web server, because the levels are loaded with `fetch`. Opening `index.html` straight from the file system won't work.
 
 Any static server is fine. Two easy ones:
 
@@ -16,7 +22,7 @@ Any static server is fine. Two easy ones:
 python3 -m http.server 8000
 ```
 
-or the Live Server extension in VS Code. Then open `http://localhost:8000/game.html`.
+or the Live Server extension in VS Code. Then open `http://localhost:8000/`.
 
 There's nothing to install or build. The `tools/` folder has scripts for regenerating assets and checking levels, but you only need those if you're changing things.
 
@@ -39,8 +45,10 @@ Every key can be rebound in Settings → Controls, and the bar under the game al
 | 0 | Prologue | The original tutorial layout on a clean grid, the snow block that drops on you, the climbing bird, Granny, the collapsing bridge and the dash lesson |
 | 1 | Forsaken City | The original girder level, aligned to the grid and sitting on solid rock, with zip movers and crumbling girders |
 | 2 | Celestial Resort | A new chapter: Oshiro chases you through the hotel, down a service shaft, across a collapsing ballroom and over the roof |
-| 3 | The Summit's Forgotten Echoes | The finale, with wind, echoes of people you met, a chase with your own doubt and a two-dash climb at the end |
+| 3 | The Summit's Forgotten Echoes | The finale, with wind, echoes of people you met, a chase with your own doubt and a two-dash climb at the end. It's tuned to be a fun climb rather than a hard one |
 | 4 | The Shattered Spire | Optional and hard. Unlocks after the summit |
+
+Each chapter has its own music: the main theme on the menu and in the Prologue, Golden in Forsaken City and on the summit, and Anxiety whenever something is chasing you and in the Spire. Music streams instead of loading up front, so a chapter starts playing right away.
 
 Each chapter has a timer, lives, strawberries and checkpoints. Your best time and score are saved per chapter. If you fall off the bottom of the screen you die, same as in Celeste.
 
@@ -57,7 +65,7 @@ When you open it you get your list of levels. From there you can make a new one,
 - **Blocks.** Pick a material on the left and paint with the left mouse button. Right-click erases. "Fill box" (R) lets you drag out a rectangle, and right-dragging clears one. Edges and corners fill in automatically, the same way they do in the game.
 - **Objects.** Choose one from the Objects list and click on the map. You get: the player start, checkpoints, the goal flag, spikes (in four directions), crumbling blocks, falling blocks, dash crystals, boosters, strawberries, dust bunnies and zip movers. Select an object (V) to change its settings on the right, like which way spikes point, how far a dust bunny drifts, or where a zip mover travels. You can drag objects around with the Select tool.
 - **Events.** Use the "Event area" tool (T) to drag an area. When the player walks into it, the event runs its actions in order. Events can also start when the level starts, at a checkpoint, after a number of strawberries or after a number of deaths. Actions include dialogue (pick the speaker, portrait and text), messages, title cards, screen shake, flashes, changing the wind or weather, changing the number of dashes, refilling the dash, moving the camera to look at something, waiting, dropping a falling block, killing the player and finishing the level.
-- **Level settings.** The Level tab has the name, author, background theme, weather, time limit, lives and dash count. You can also resize the level there, keeping either the top or the bottom in place.
+- **Level settings.** The Level tab has the name, author, background theme, weather, music, time limit, lives and dash count. You can also resize the level there, keeping either the top or the bottom in place.
 
 ### Shortcuts
 
@@ -88,7 +96,7 @@ Exported levels are plain JSON, so you can edit them by hand too. A small one lo
   "author": "Mohammed",
   "width": 30,
   "height": 12,
-  "settings": { "theme": "forest", "weather": "snow", "timeLimit": 300, "lives": 5, "dashes": 1 },
+  "settings": { "theme": "forest", "weather": "snow", "music": "theme", "timeLimit": 300, "lives": 5, "dashes": 1 },
   "tiles": ["..............................", "...", "ssssssssssssssssssssssssssssss"],
   "entities": [
     { "id": "e1", "type": "spawn", "x": 2, "y": 10 },
@@ -150,11 +158,32 @@ These are only for working on the game itself:
 
 ### Debugging
 
-- `game.html?chapter=<id>` jumps straight into a chapter. The ids are `prologue`, `forsaken-city`, `celestial-resort`, `summit-echoes` and `shattered-spire`.
+- `index.html?chapter=<id>` jumps straight into a chapter. The ids are `prologue`, `forsaken-city`, `celestial-resort`, `summit-echoes` and `shattered-spire`.
 - Add `&checkpoint=<id>` to start at a checkpoint.
 - Add `&debug` to get `window.game` and `window.gameLoop` in the console.
 - F3 shows frame times while you play.
 - Settings → Assist mode gives you infinite lives and time if you just want to look around.
+
+## Publishing on GitHub Pages
+
+Everything the game needs is static files, so GitHub Pages can host it as-is. The repository includes a workflow (`.github/workflows/pages.yml`) that publishes the game every time you push to `main`.
+
+To turn it on:
+
+1. Push the repository to GitHub. On a free account the repository has to be public for Pages to work.
+2. Open the repository's **Settings → Pages**.
+3. Under **Build and deployment**, set **Source** to **GitHub Actions**.
+4. Push any commit to `main`, or run the "Deploy to GitHub Pages" workflow from the **Actions** tab.
+
+After a minute or so the game is live at `https://<your-username>.github.io/<repository-name>/`.
+
+If you'd rather not use Actions, setting the source to **Deploy from a branch** with `main` and `/ (root)` works too. The `.nojekyll` file makes sure GitHub serves the files untouched.
+
+A few things that matter when publishing:
+
+- Every path in the game is relative, so it works from a sub-folder like `/celeste-remake/`.
+- GitHub Pages cares about upper and lower case in file names even though Windows doesn't. If you add an asset, reference it with exactly the same case as the file.
+- `game.html` just forwards to `index.html`, so old links and bookmarks still work.
 
 ## Known limits
 
