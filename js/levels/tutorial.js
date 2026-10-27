@@ -45,7 +45,7 @@ export function createGranny(x, y) {
     granny.elem.style.transformOrigin = "50% 100%";
     addAnimation(granny, "idle", { row: 0, startFrame: 0, frameCount: 7, fps: 7 });
     addAnimation(granny, "laugh", { row: 1, startFrame: 0, frameCount: 9, fps: 10 });
-    addAnimation(granny, "talk", { row: 2, startFrame: 0, frameCount: 28, fps: 12 });
+    addAnimation(granny, "talk", { row: 2, startFrame: 0, frameCount: 13, fps: 11 });
     addAnimation(granny, "walk", { row: 3, startFrame: 0, frameCount: 7, fps: 9 });
     playAnimation(granny, "idle");
     granny.facing = -1;
