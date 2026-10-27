@@ -267,7 +267,7 @@ export const prologue = {
                     iceTrap.trigger();
                     iceTrap.position.y = 254 - 99;
                 }
-                if (["granny", "bridge"].includes(checkpoint)) state.grannyTalked = true;
+                if (checkpoint === "bridge") state.grannyTalked = true;
                 if (checkpoint !== "start") state.birdSquawked = true;
                 if (fresh) {
                     director.run(async (cs) => {
