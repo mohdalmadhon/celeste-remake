@@ -173,8 +173,7 @@ export const oshiroChase = {
             state.chasing = true;
             boss.phase = PHASES[checkpoint] || PHASES.hall;
             boss.start();
-            audio.startPercussion(156);
-            audio.intensity = 0.3;
+            audio.playMusic(SFX.musicAnxiety, { fade: 1, volume: 0.75 });
             vignette.classList.add("danger");
         };
 
@@ -243,7 +242,7 @@ export const oshiroChase = {
                 audio.play(SFX.quack, { volume: 0.7, rate: 0.6 });
                 game.camera.shake(9, 0.5);
                 game.flash(0.6, 0.35);
-                audio.stopPercussion();
+                audio.playMusic(SFX.theme, { fade: 2.5, volume: 0.6 });
                 vignette.classList.remove("danger");
                 await cs.wait(1.2);
                 boss.visible = false;
@@ -270,7 +269,6 @@ export const oshiroChase = {
                 keepCamera: true,
                 onEnd: () => {
                     boss.stop();
-                    audio.stopPercussion();
                     vignette.classList.remove("danger");
                 }
             });
@@ -306,8 +304,6 @@ export const oshiroChase = {
                 const player = game.player;
                 if (!player || state.ending) return;
                 if (state.chasing) {
-                    const target = 0.3 + boss.proximity * 0.7;
-                    audio.intensity += (target - audio.intensity) * 0.02;
                     vignette.style.setProperty("--danger", (0.15 + boss.proximity * 0.5).toFixed(2));
                     game.camera.offset.x += (140 - game.camera.offset.x) * 0.02;
                 }
@@ -332,7 +328,6 @@ export const oshiroChase = {
              * @returns {void}
              */
             onExit() {
-                audio.stopPercussion();
                 vignette.classList.remove("danger");
                 vignette.style.removeProperty("--danger");
                 if (game.camera) game.camera.offset.x = 0;

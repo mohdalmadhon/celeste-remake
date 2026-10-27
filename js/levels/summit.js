@@ -34,7 +34,7 @@ export const summit = {
     timeLimit: 600,
     lives: 10,
     strawberries: 2,
-    music: SFX.theme,
+    music: SFX.musicGolden,
     musicVolume: 0.55,
     ambience: "blizzard",
     weather: { type: "blizzard", density: 1, wind: 120, gusts: 1.2 },
@@ -184,8 +184,7 @@ export const summit = {
             }, {
                 onEnd: () => {
                     badeline.reset();
-                    audio.startPercussion(132);
-                    audio.intensity = 0.5;
+                    audio.playMusic(SFX.musicAnxiety, { fade: 0.8, volume: 0.75 });
                     document.getElementById("vignette").classList.add("danger");
                 }
             });
@@ -199,7 +198,7 @@ export const summit = {
         const peaceScene = async () => {
             state.reconciled = true;
             badeline.stop();
-            audio.stopPercussion();
+            audio.playMusic(SFX.musicGolden, { fade: 2.5, volume: 0.55 });
             document.getElementById("vignette").classList.remove("danger");
             await director.run(async (cs) => {
                 await cs.walk(peaceSpot.x, 0.4);
@@ -283,7 +282,7 @@ export const summit = {
                     state.chasing = true;
                     badeline.start(doubtSpot.x - 140, doubtSpot.y - 64);
                     badeline.reset();
-                    audio.startPercussion(132);
+                    audio.playMusic(SFX.musicAnxiety, { fade: 0.8, volume: 0.75 });
                     document.getElementById("vignette").classList.add("danger");
                 }
                 if (checkpoint === "peak") {
@@ -341,7 +340,6 @@ export const summit = {
             onExit() {
                 sky.classList.remove("sunrise");
                 document.getElementById("vignette").classList.remove("danger");
-                audio.stopPercussion();
                 if (game.player) {
                     game.player.maxDashes = 1;
                     game.player.wind = 0;
