@@ -365,50 +365,62 @@ def lerp(a, b, t):
     return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(len(a)))
 
 
-def ridge(width, height, seed, base, rough, peaks):
-    """Return a list of heights describing a jagged mountain silhouette."""
+def ridge(width, seed, base, rough, roughness=0.55):
+    """Return a tileable list of heights made with midpoint displacement."""
     rng = noise_rng(seed)
-    points = []
-    anchors = [(0, base)]
-    step = width // peaks
-    for i in range(1, peaks + 1):
-        anchors.append((i * step, base - rng.randint(rough // 2, rough)))
-        anchors.append((i * step + step // 2, base - rng.randint(0, rough // 3)))
-    anchors.append((width, anchors[0][1]))
-    anchors.sort()
-    for x in range(width):
-        for j in range(len(anchors) - 1):
-            x0, y0 = anchors[j]
-            x1, y1 = anchors[j + 1]
-            if x0 <= x <= x1:
-                t = (x - x0) / max(1, x1 - x0)
-                points.append(int(y0 + (y1 - y0) * t + rng.randint(-1, 1)))
-                break
-        else:
-            points.append(base)
-    return points
+    size = 1
+    while size < width:
+        size *= 2
+    heights = [0.0] * (size + 1)
+    heights[0] = heights[size] = base
+    step = size
+    amplitude = rough
+    while step > 1:
+        half = step // 2
+        if step == size:
+            amplitude *= 1
+        for x in range(half, size, step):
+            heights[x] = (heights[x - half] + heights[x + half]) / 2 + rng.uniform(-amplitude, amplitude)
+        amplitude *= roughness
+        step = half
+    return [int(heights[int(x * size / width)]) for x in range(width)]
 
 
-def build_mountain_layer(name, width, height, seed, base, rough, peaks, color, snow):
-    """Draw a tileable pixel mountain silhouette layer at low resolution."""
+def build_mountain_layer(name, width, height, seed, base, rough, colour, snow, light):
+    """Draw a tileable pixel mountain layer with lit slopes and snow caps.
+
+    The image is cropped to its painted rows to keep the composited layer
+    small; the crop offset is returned so the theme can position it.
+    """
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     px = image.load()
-    heights = ridge(width, height, seed, base, rough, peaks)
-    heights[-1] = heights[0]
+    heights = ridge(width, seed, base, rough)
+    peak = min(heights)
+    shade = tuple(max(0, c - 22) for c in colour)
+    lit = tuple(min(255, c + light) for c in colour)
     for x, top in enumerate(heights):
-        for y in range(max(0, top), height):
+        top = max(0, top)
+        slope = sum(heights[(x + d) % width] for d in range(1, 7)) - sum(heights[x - d] for d in range(1, 7))
+        for y in range(top, height):
             depth = (y - top) / max(1, height - top)
-            px[x, y] = lerp(color, tuple(max(0, c - 25) for c in color), depth) + (255,)
-            if snow and y - top < 2 + (x * 7 % 3):
-                px[x, y] = snow + (255,)
-    image.save(out_path("parallax", name))
+            base_colour = lit if slope > 0 and depth < 0.6 else colour
+            pixel = lerp(base_colour, shade, depth)
+            if snow and y - top < 3 + (top - peak < (base - peak) * 0.45) * 5 and ((x + y) % 2 == 0 or y - top < 2):
+                pixel = snow if slope > 0 else lerp(snow, colour, 0.35)
+            px[x, y] = pixel + (255,)
+    crop_top = max(0, min(heights) - 2)
+    image.crop((0, crop_top, width, height)).save(out_path("parallax", name))
+    return crop_top
 
 
 def build_parallax():
     """Create layered parallax backgrounds for every chapter theme."""
-    build_mountain_layer("mountains_far.png", 480, 200, 11, 120, 70, 5, (52, 66, 112), (150, 170, 220))
-    build_mountain_layer("mountains_mid.png", 480, 200, 23, 150, 60, 7, (34, 46, 82), (110, 130, 190))
-    build_mountain_layer("hills_near.png", 480, 200, 37, 175, 30, 9, (20, 28, 52), None)
+    offsets = {
+        "mountains_far": build_mountain_layer("mountains_far.png", 480, 200, 11, 140, 130, (52, 66, 112), (176, 194, 236), 14),
+        "mountains_mid": build_mountain_layer("mountains_mid.png", 480, 200, 23, 160, 100, (34, 46, 82), (124, 146, 204), 12),
+        "hills_near": build_mountain_layer("hills_near.png", 480, 200, 37, 176, 40, (20, 28, 52), None, 8),
+    }
+    print("parallax crop offsets", offsets)
 
     sky = Image.new("RGBA", (4, 200))
     for y in range(200):
@@ -434,7 +446,9 @@ def build_parallax():
         w = rng.randrange(60, 160)
         draw.ellipse((x, y, x + w, y + w // 4), fill=(200, 215, 255, 26))
     fog = fog.filter(ImageFilter.GaussianBlur(3))
+    fog = fog.crop(fog.getbbox() or (0, 0, 480, 120))
     fog.save(out_path("parallax", "fog.png"))
+    print("fog size", fog.size)
 
     aurora = Image.new("RGBA", (480, 200), (0, 0, 0, 0))
     ap = aurora.load()
