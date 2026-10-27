@@ -221,7 +221,7 @@ export default {
     "credits.originalTeam": "This fan remake is made for learning. All characters belong to their creators.",
     "credits.art": "Art",
     "credits.artBy": "Sprites and tiles from Celeste (EXOK)",
-    "credits.portraits": "Portrait rips by AJ370 · Chapter icons by Kirows · Granny sprites by PMR",
+    "credits.portraits": "Portrait rips by AJ370 · Chapter icons by Kirows · Granny sprites by PMR · Theo sprites by HugoMDM",
     "credits.icons": "Generated resort tiles, parallax layers and cursor drawn for this remake",
     "credits.audio": "Audio",
     "credits.audioBy": "Sound effects and main theme from Celeste (Lena Raine)",
