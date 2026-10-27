@@ -120,6 +120,16 @@ export default {
     "chapter.prologue.ending": "Celeste Mountain",
     "chapter.prologue.endingSub": "This is it, Madeline. Just breathe.",
 
+    "chapter.city.name": "Forsaken City",
+    "chapter.city.subtitle": "Chapter 1 · Girders, zip movers and a long way up",
+    "chapter.city.complete": "The city is behind you.",
+    "checkpoint.city.crossing": "Crossing",
+    "checkpoint.city.chasm": "Chasm",
+    "checkpoint.city.heights": "City Heights",
+    "city.end.1": "Ugh… I'm exhausted.",
+    "city.end.2": "Hey, little guy. You followed me all the way up here?",
+    "city.end.3": "Okay. Just a short break. Then we keep climbing.",
+
     "checkpoint.prologue.climb": "The Bird's Wall",
     "checkpoint.prologue.granny": "Granny's House",
     "checkpoint.prologue.bridge": "The Old Bridge",

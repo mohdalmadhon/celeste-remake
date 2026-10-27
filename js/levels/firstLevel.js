@@ -1,369 +1,199 @@
 import { addAnimation, playAnimation } from "../components/animation.js";
-import { Entity } from "../entities/entity.js";
-import { deathCount } from "../entities/player.js";
-import { gameState, resumeGame } from "../helpers/gameState.js";
-import { fadeFromBlack, showEndDialogue, stopGame } from "../helpers/mainMenu.js";
-import { showDialogue, wait } from "../helpers/scene.js";
-import { createSnow } from "../helpers/snow.js";
-import { playSound } from "../helpers/sound.js";
+import { game } from "../core/game.js";
+import { PlayerState } from "../entities/player.js";
+import { CheckpointFlag, CrumbleBlock, DashCrystal, Strawberry, ZipMover } from "../entities/props.js";
+import { SFX } from "../helpers/sound.js";
 import { Level } from "../level.js";
-import { camera, gameContainer, gameTimeRemaining, isStrawberryCollected, lastDisplayedStrawberries, lastDisplayedTime, main, mainLevel, player, strawCount } from "../main.js";
-import { animationSystem } from "../systems/animationSystem.js";
-import { detectInput, initInputs, inputs, removeKey } from "../systems/input.js";
-import { gravity } from "../systems/physics.js";
-import { getTimeScore } from "./tutorial.js";
+import { audio } from "../systems/audio.js";
+import { createBody } from "../systems/physics.js";
+import { buildFromJson, groundAt } from "./builder.js";
+import { createBird } from "./tutorial.js";
 
-let level;
-let carts;
-let bird;
-let snow;
-let death = false;
-let first = false;
+/**
+ * Dash crystals that keep the long girder and ice climbs fair with the
+ * stamina-limited climbing, placed where the reachability check found
+ * walls taller than one full stamina bar.
+ *
+ * @type {Array<[number, number]>}
+ */
+const CRYSTALS = [];
 
-export let endScene = false;
+/**
+ * Chapter 1: Forsaken City. The original girder and ice level with zip
+ * movers, crumbling girders and spikes, ending with Madeline resting as the
+ * bird lands beside her.
+ *
+ * @type {import("../core/session.js").ChapterDefinition}
+ */
+export const forsakenCity = {
+    id: "forsaken-city",
+    number: 1,
+    nameKey: "chapter.city.name",
+    subtitleKey: "chapter.city.subtitle",
+    art: "./assets/generated/checkpoints/forsaken_city.png",
+    timeLimit: 480,
+    lives: 6,
+    strawberries: 3,
+    music: SFX.theme,
+    musicVolume: 0.7,
+    ambience: "wind",
+    weather: { type: "snow", density: 1.2, wind: -60, gusts: 1.4 },
+    parallax: "city",
+    checkpointNames: { crossing: "checkpoint.city.crossing", chasm: "checkpoint.city.chasm", heights: "checkpoint.city.heights" },
 
-export async function firstLevel(reset = true) {
-    fadeFromBlack(7000);
-    if (mainLevel != null) {
-        if (reset == true) {
-            mainLevel.removeEntities();
-        }
-    }
-    resumeGame();
-    initInputs();
+    /**
+     * Builds Forsaken City.
+     *
+     * @param {import("../core/session.js").ChapterContext} context - Build context.
+     * @returns {Promise<import("../core/session.js").ChapterRuntime>} The live chapter.
+     */
+    async build(context) {
+        const data = await (await fetch("./js/data/firstLevel.json")).json();
+        const level = new Level({ width: 3800, height: 3500 }, context.world, "forsaken-city");
+        const special = buildFromJson(level, data.firstLevel.tiles);
+        const world = level.world;
+        const b = level.contentBounds;
+        level.cameraBounds = { left: b.left - 20, top: b.top - 120, right: b.right + 20, bottom: b.bottom + 40 };
+        level.killY = b.bottom + 160;
+        world.add(createBody(b.left - 60, b.top - 600, 60, b.bottom - b.top + 1200, "solid", { climbable: false }));
+        world.add(createBody(b.right, b.top - 600, 60, b.bottom - b.top + 1200, "solid", { climbable: false }));
 
-    player.alive = true;
-    first = false;
-    gameState.isGameOver = false;
-    player.alive = true;
-    death = false;
-    camera.target = player;
-    player.freeze = false;
-    snow = createSnow(gameContainer);
-    if (reset) {
-        player.lives = 3;
-        document.getElementById('live-count').textContent = `Lives: ${player.lives}`;
-    }
-
-    player.position = {
-        x: 10,
-        y: 150
-    }
-    const response = await fetch("./js/data/firstLevel.json");
-    const levelData = await response.json();
-
-    level = new Level({ height: 550, width: 1200 }, gameContainer);
-    level.addSystem(animationSystem);
-    level.addSystem(gravity);
-
-    Object.values(levelData.firstLevel.tiles).forEach(tileData => {
-        tileData.positions.forEach(position => {
-            const tile = new Entity(
-                {
-                    x: position.x,
-                    y: position.y - 200
-                },
-                {
-                    height: tileData.dimensions.height,
-                    width: tileData.dimensions.width
-                },
-            );
-            if (tileData.class) {
-                tileData.class.forEach((c) => {
-                    tile.elem.classList.add(c);
-                })
-                tile.elem.classList.add("no-render");
-            }
-            tile.elem.style.backgroundSize = 'cover';
-            tile.setSpriteSheet(tileData.path);
-            level.addEntity(tile);
-        });
-    });
-    level.setConditions(conditions);
-    level.addEntity(player);
-
-    makeStrawBerry();
-
-    carts = createCarts();
-
-
-    initInputs();
-
-    createParrot();
-    return level;
-}
-
-function createParrot() {
-    bird = new Entity({ x: 2300, y: -2900 }, { height: 56, width: 64 }, "bird");
-    bird.setSpriteSheet("./assets/bird.png");
-    bird.elem.classList.add('none-collision');
-    bird.components.movement = {
-        direction: -1
-    }
-    bird.birdLanded = false;
-    bird.components.movement.direction = 1;
-    level.addEntity(bird)
-    level.mountEntities();
-
-    addAnimation(bird, "idle", {
-        row: 0,
-        startFrame: 0,
-        frameCount: 1,
-        fps: 12
-    });
-    addAnimation(bird, "fly", {
-        row: 0,
-        startFrame: 32,
-        frameCount: 5,
-        fps: 8
-    });
-
-    addAnimation(bird, "sound", {
-        row: 0,
-        startFrame: 7,
-        frameCount: 7,
-        fps: 12
-    });
-
-    playAnimation(bird, "fly");
-
-}
-
-function birdUpdate(bird, dt) {
-    const landing = {
-        x: 2750,
-        y: -2630
-    };
-
-    const speed = 180;
-    const dx = landing.x - bird.position.x;
-    const dy = landing.y - bird.position.y;
-
-    const distance = Math.hypot(dx, dy);
-    let birdLanded = bird.birdLanded;
-    if (distance > 2) {
-        bird.position.x += (dx / distance) * speed * dt;
-        bird.position.y += (dy / distance) * speed * dt;
-    } else {
-        bird.position.x = landing.x;
-        bird.position.y = landing.y;
-
-        if (!birdLanded) {
-            birdLanded = true;
-
-            playAnimation(bird, "idle");
-
-            wait(1000);
-
-        }
-    }
-
-    const animation = bird.components.animation;
-    if (!animation) return;
-
-    const sprite = animation.sprites[animation.state.sprite];
-    if (!sprite) return;
-
-    const frame = sprite.startFrame + animation.state.frame;
-
-    bird.elem.style.backgroundPosition =
-        `-${frame * bird.dimensions.width}px -${sprite.row * bird.dimensions.height}px`;
-}
-
-
-async function conditions(dt) {
-    if (player.alive == false && !first) {
-        first = true;
-        stopGame();
-        await wait(1000);
-
-        mainLevel.removeEntities();
-        let newLevel = await firstLevel(false);
-        main(newLevel);
-        deathCount()
-    }
-
-    if (player.position.y >= 500) {
-        if (player.alive) playSound("./assets/soundTrack/player/death.wav");
-
-        player.alive = false;
-
-        if (!death) {
-            death = true;
-        }
-    }
-
-    carts.forEach(cart => {
-        if (!cart.active) return;
-        if (cart.distanceTraveled >= cart.maxDistance) return;
-
-        if (!cart.played) {
-            const sound = playSound("./assets/soundTrack/cart.wav");
-            cart.played = true;
-            setTimeout(() => {
-                sound.pause();
-            }, 700);
+        const crumbles = [];
+        for (const tile of special) {
+            if (tile.type !== "cracked") continue;
+            const block = new CrumbleBlock(tile, "metal");
+            level.addEntity(block);
+            world.add(block.body);
+            crumbles.push(block);
         }
 
-        const speed = 300;
-        const move = speed * dt;
-
-        if (cart.direction === 1 || cart.direction === -1) {
-            cart.position.x += move * cart.direction;
-
-            if (cart.withPlayer) {
-                player.position.x += move * cart.direction;
-            }
-        } else if (cart.direction === "up") {
-            cart.position.y -= move;
-
-            if (cart.withPlayer) {
-                player.position.y -= move;
-            }
-        } else if (cart.direction === "down") {
-            cart.position.y += move;
-
-            if (cart.withPlayer) {
-                player.position.y += move;
-            }
+        const zips = [new ZipMover(2700, -700, 200, 0), new ZipMover(2700, -1550, 0, -200)];
+        for (const zip of zips) {
+            level.addEntity(zip);
+            world.add(zip.body);
         }
 
-        cart.distanceTraveled += move;
-
-        if (cart.distanceTraveled >= cart.maxDistance) {
-            cart.active = false;
-        }
-    });
-    snow.update();
-
-    if (player.position.x <= 3277 && player.position.y <= -2609 && !endScene) {
-        endScene = true;
-        end();
-        await wait(7000);
-        const gameHud = document.getElementById("game-hud").classList.add("hidden");
-        showEndDialogue((Math.round( (getCollectableScore(lastDisplayedStrawberries) + getTimeScore(lastDisplayedTime) ) / 2)));
-    }
-    // 3277 2-609
-
-}
-
-
-function makeStrawBerry() {
-    const positions = [
-        { x: 1450, y: -400, id: "first-level-strawberry-1" },
-        { x: 3430, y: -1400, id: "first-level-strawberry-2" },
-        { x: 2430, y: -2400, id: "first-level-strawberry-3" }
-    ];
-
-    for (let i = 0; i < positions.length; i++) {
-        if (isStrawberryCollected(positions[i].id)) {
-            continue;
+        const crystals = CRYSTALS.map(([x, y]) => new DashCrystal(x, y));
+        for (const crystal of crystals) {
+            level.addEntity(crystal);
+            world.add(crystal.body);
         }
 
-        const berry = new Entity({ x: positions[i].x, y: positions[i].y }, { height: 64, width: 64 }, positions[i].id);
-        berry.elem.classList.add("strawBerry");
-        berry.elem.classList.add("none-collision");
-        berry.setSpriteSheet("./assets/player3.png");
-
-        addAnimation(berry, "idle", {
-            row: 13,
-            frameCount: 5,
-            startFrame: 0,
-            fps: 8
-        });
-
-        berry.setUpdate(berryUpdate);
-        playAnimation(berry, "idle")
-        level.addEntity(berry);
-    }
-}
-
-function createCarts() {
-    let positions = [
-        { x: 2700, y: -700, id: "first-cart", distance: 200, direction: 1 },
-        { x: 2700, y: -1550, id: "first-cart", distance: 200, direction: "up" }
-    ];
-    let arr = [];
-    for (let i = 0; i < positions.length; i++) {
-        const cart = new Entity({ x: positions[i].x, y: positions[i].y }, { height: 64, width: 98 }, positions[i].id);
-        cart.setSpriteSheet("./assets/tiles/celeste/cart.png");
-        cart.elem.style.backgroundSize = 'cover';
-        cart.elem.classList.add("cart");
-        cart.active = false;
-        cart.distance = positions[i].distance;
-        cart.direction = positions[i].direction;
-        cart.distanceTraveled = 0;
-        cart.maxDistance = positions[i].distance;
-        cart.played = false;
-        level.addEntity(cart);
-
-        arr.push(cart);
-    }
-
-    return arr;
-}
-
-function berryUpdate(berry) {
-    const animation = berry.components.animation;
-
-    if (!animation) return;
-
-    const sprite =
-        animation.sprites[
-        animation.state.sprite
+        const berries = [
+            new Strawberry("city-berry-1", 1482, -368),
+            new Strawberry("city-berry-2", 3462, -1368),
+            new Strawberry("city-berry-3", 2462, -2368)
         ];
+        for (const berry of berries) {
+            if (context.session.strawberries.has(berry.id)) continue;
+            level.addEntity(berry);
+            world.add(berry.body);
+        }
 
-    if (!sprite) return;
+        const checkpoints = {
+            start: { x: 54, y: groundAt(world, 54, 100) },
+            crossing: { x: 2350, y: groundAt(world, 2350, -700) },
+            chasm: { x: 2860, y: groundAt(world, 2860, -1200) },
+            heights: { x: 2620, y: groundAt(world, 2620, -1900) }
+        };
+        const order = Object.keys(checkpoints);
+        for (const id of order.slice(1)) {
+            const point = checkpoints[id];
+            const flag = new CheckpointFlag(id, point.x, point.y, (reached) => context.session.reachCheckpoint(reached));
+            if (order.indexOf(id) <= order.indexOf(context.session.checkpoint)) flag.activate();
+            level.addEntity(flag);
+            world.add(flag.body);
+        }
 
-    const frame =
-        sprite.startFrame +
-        animation.state.frame;
+        const bird = createBird(2300, -2900);
+        bird.facing = 1;
+        addAnimation(bird, "glide", { row: 1, startFrame: 0, frameCount: 4, fps: 8 });
+        level.addEntity(bird);
 
-    const frameWidth =
-        berry.dimensions.width;
+        const director = game.ui.cutscenes;
+        const state = { ending: false };
 
-    const frameHeight =
-        berry.dimensions.height;
+        /**
+         * Ending: Madeline sits down, exhausted, and the bird lands beside her.
+         *
+         * @returns {Promise<void>} Resolves when the chapter completes.
+         */
+        const endingScene = async () => {
+            state.ending = true;
+            await director.run(async (cs) => {
+                await cs.wait(0.3);
+                cs.pose("talk");
+                await cs.say([{ speaker: "madeline", emotion: "sad", key: "city.end.1" }]);
+                cs.pose(null);
+                const player = game.player;
+                await cs.walk(player.box.x + player.box.w / 2 - 60, 0.35);
+                cs.face(1);
+                cs.pose("sitDown");
+                audio.play(SFX.sit, { volume: 0.5 });
+                await cs.wait(0.8);
+                playAnimation(bird, "fly");
+                audio.play(SFX.squawk, { volume: 0.4 });
+                await cs.move(bird, player.box.x + 50, player.box.y - 6, 220);
+                playAnimation(bird, "peck", true);
+                await cs.wait(0.8);
+                await cs.say([
+                    { speaker: "madeline", emotion: "peaceful", key: "city.end.2" },
+                    { speaker: "madeline", emotion: "determined", key: "city.end.3" }
+                ]);
+                game.ui.chapterCard?.("chapter.city.name", "chapter.city.complete");
+                await cs.wait(2.5);
+            }, { keepCamera: true, onEnd: () => game.player.forcedAnimation = "sit" });
+            context.session.ui.completeChapter();
+        };
 
-    berry.elem.style.backgroundPosition =
-        `-${frame * frameWidth}px -${sprite.row * frameHeight}px`;
+        return {
+            level,
+            checkpoints,
+            preload: [SFX.cart, SFX.crack, SFX.breakBridge, SFX.squawk, SFX.sit],
+
+            /**
+             * Shows the chapter title on a fresh start.
+             *
+             * @param {string} checkpoint - Starting checkpoint.
+             * @param {boolean} fresh - Whether this is a new run.
+             * @returns {void}
+             */
+            onStart(checkpoint, fresh) {
+                if (fresh) game.ui.chapterCard?.("chapter.city.name", "chapter.city.subtitle");
+            },
+
+            /**
+             * Level script: detects the summit ledge.
+             *
+             * @returns {void}
+             */
+            step() {
+                const player = game.player;
+                if (!player || player.state === PlayerState.DEAD || state.ending) return;
+                const px = player.box.x + player.box.w / 2;
+                const py = player.box.y + player.box.h;
+                if (px <= 3290 && py <= -2540 && player.onGround) endingScene();
+            },
+
+            /**
+             * Resets moving and breakable props after a death.
+             *
+             * @returns {void}
+             */
+            onRespawn() {
+                for (const zip of zips) zip.reset();
+                for (const block of crumbles) block.reset();
+                for (const crystal of crystals) crystal.reset();
+            }
+        };
+    }
+};
+
+/**
+ * Kept for compatibility with the original module interface.
+ *
+ * @returns {typeof forsakenCity} The chapter definition.
+ */
+export function firstLevel() {
+    return forsakenCity;
 }
-
-async function end() {
-
-
-    window.removeEventListener("keydown", detectInput);
-    window.addEventListener("keyup", removeKey);
-    inputs.length = 0;
-    await wait(400);
-
-    player.noControl = true;
-    playAnimation(player, "talk");
-
-    await showDialogue(
-        "Ugh, I'm exhausted.",
-        "./assets/faces/madline.png"
-    );
-
-    inputs.push("ArrowLeft");
-
-    await wait(1500);
-
-    inputs.length = 0;
-    playAnimation(player, "talk");
-    await wait(1000);
-
-
-    playAnimation(player, "sit");
-
-    bird.setUpdate(birdUpdate);
-}
-
-function getCollectableScore(collected) {
-    const totalCollectables = 3;
-
-    collected = Math.max(0, Math.min(collected, totalCollectables));
-
-    return Math.round((collected / totalCollectables) * 100);
-}
-
