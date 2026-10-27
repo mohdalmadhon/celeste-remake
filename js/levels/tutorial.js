@@ -33,21 +33,21 @@ export function createBird(x, y) {
 }
 
 /**
- * Creates Granny with her idle, laugh and walk clips.
+ * Creates Granny with her idle, laugh, talk and walk clips.
  *
- * @param {number} x - Left edge.
- * @param {number} y - Top edge.
+ * @param {number} x - Her feet x.
+ * @param {number} y - The ground she stands on.
  * @returns {Npc} Granny.
  */
 export function createGranny(x, y) {
-    const granny = new Npc("granny", { x, y }, { width: 132, height: 132 }, "./assets/generated/sprites/granny.png", {
-        frameWidth: 66, frameHeight: 66, scale: 2, sheetWidth: 1848, sheetHeight: 264
+    const granny = new Npc("granny", { x: x - 48, y: y - 96 }, { width: 96, height: 96 }, "./assets/generated/sprites/granny.png", {
+        frameWidth: 96, frameHeight: 96, scale: 1, sheetWidth: 2784, sheetHeight: 384
     });
     granny.elem.style.transformOrigin = "50% 100%";
-    addAnimation(granny, "idle", { row: 0, startFrame: 0, frameCount: 7, fps: 7 });
-    addAnimation(granny, "laugh", { row: 1, startFrame: 0, frameCount: 9, fps: 10 });
-    addAnimation(granny, "talk", { row: 2, startFrame: 0, frameCount: 13, fps: 11 });
-    addAnimation(granny, "walk", { row: 3, startFrame: 0, frameCount: 7, fps: 9 });
+    addAnimation(granny, "idle", { row: 0, startFrame: 0, frameCount: 12, fps: 8 });
+    addAnimation(granny, "laugh", { row: 1, startFrame: 0, frameCount: 4, fps: 8 });
+    addAnimation(granny, "talk", { row: 2, startFrame: 0, frameCount: 29, fps: 11 });
+    addAnimation(granny, "walk", { row: 3, startFrame: 0, frameCount: 8, fps: 9 });
     playAnimation(granny, "idle");
     granny.facing = -1;
     return granny;
@@ -132,7 +132,7 @@ export const prologue = {
         level.addEntity(climbBird);
         const dashBird = createBird(7300, -120);
         level.addEntity(dashBird);
-        const granny = createGranny(4270, 182);
+        const granny = createGranny(4336, 314);
         level.addEntity(granny);
 
         const climbSign = new PromptSign(2380, 60, () => [

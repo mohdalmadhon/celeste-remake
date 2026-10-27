@@ -137,6 +137,30 @@ def clean_player_sheet(sheet):
     return result
 
 
+IDLE_BASE = (8, 0)
+IDLE_CELLS = (11, 12, 13)
+
+
+def add_idle_frames(sheet):
+    """Draw Madeline's breathing idle into free cells of row 11.
+
+    The standing pose from the talk row is copied three times: as is, with
+    the head and hair one pixel lower, and two pixels lower, so the loop
+    reads as slow breathing instead of the old fidget.
+    """
+    frame = 64
+    base = sheet.crop((IDLE_BASE[1] * frame, IDLE_BASE[0] * frame, (IDLE_BASE[1] + 1) * frame, (IDLE_BASE[0] + 1) * frame))
+    split = 36
+    for drop, column in zip((0, 1, 2), IDLE_CELLS):
+        cell = Image.new("RGBA", (frame, frame), (0, 0, 0, 0))
+        body = base.crop((0, split, frame, frame))
+        head = base.crop((0, 0, frame, split))
+        cell.paste(body, (0, split), body)
+        cell.paste(head, (0, drop), head)
+        sheet.paste(cell, (column * frame, 11 * frame))
+    return sheet
+
+
 def build_player():
     """Create recoloured copies of the Madeline sheet.
 
@@ -145,7 +169,7 @@ def build_player():
     player_white.png is a flat white silhouette used for refill flashes,
     player_badeline.png is the purple variant used for echoes.
     """
-    sheet = clean_player_sheet(Image.open(os.path.join(ASSETS, "player3.png")).convert("RGBA"))
+    sheet = add_idle_frames(clean_player_sheet(Image.open(os.path.join(ASSETS, "player3.png")).convert("RGBA")))
     sheet.save(out_path("sprites", "player_red.png"))
     blue = sheet.copy()
     white = sheet.copy()
@@ -769,22 +793,77 @@ def build_portraits():
     }, 7)
 
 
+GRANNY_KEYS = {(255, 0, 255), (173, 0, 255), (0, 255, 255), (0, 173, 255)}
+GRANNY_LAYOUT = {
+    "idle": [(0, c) for c in range(7)] + [(1, c) for c in range(5)],
+    "laugh": [(2, c) for c in range(4)],
+    "talk": [(r, c) for r in range(3, 7) for c in range(7)] + [(7, 0)],
+    "walk": [(8, c) for c in range(7)] + [(9, 0)],
+}
+
+
+def scale3x(image):
+    """Scale pixel art three times with the Scale3x rule.
+
+    Edges that run diagonally come out as smooth slopes instead of
+    staircases, while flat areas keep their exact colours.
+    """
+    w, h = image.size
+    src = image.load()
+    out = Image.new("RGBA", (w * 3, h * 3), (0, 0, 0, 0))
+    dst = out.load()
+
+    def at(x, y):
+        return src[min(w - 1, max(0, x)), min(h - 1, max(0, y))]
+
+    for y in range(h):
+        for x in range(w):
+            a, b, c = at(x - 1, y - 1), at(x, y - 1), at(x + 1, y - 1)
+            d, e, f = at(x - 1, y), at(x, y), at(x + 1, y)
+            g, hh, i = at(x - 1, y + 1), at(x, y + 1), at(x + 1, y + 1)
+            block = [e] * 9
+            if b != hh and d != f:
+                block[0] = d if d == b else e
+                block[1] = b if (d == b and e != c) or (b == f and e != a) else e
+                block[2] = f if b == f else e
+                block[3] = d if (d == b and e != g) or (d == hh and e != a) else e
+                block[5] = f if (b == f and e != i) or (hh == f and e != c) else e
+                block[6] = d if d == hh else e
+                block[7] = hh if (d == hh and e != i) or (hh == f and e != g) else e
+                block[8] = f if hh == f else e
+            for k, colour in enumerate(block):
+                dst[x * 3 + k % 3, y * 3 + k // 3] = colour
+    return out
+
+
 def build_npcs():
-    """Re-cut the granny sheet, whose frames sit on a fractional 66.5 pixel grid, into whole pixel cells."""
-    sheet = Image.open(os.path.join(ASSETS, "tiles/grany.png")).convert("RGBA")
-    step = sheet.width / 12
-    layout = {"idle": [(0, c) for c in range(7)],
-              "laugh": [(1, c) for c in range(5)] + [(2, c) for c in range(4)],
-              "quotes": [(r, c) for r in range(3, 7) for c in range(7)],
-              "walk": [(8, c) for c in range(7)]}
-    cell = 66
-    out = Image.new("RGBA", (cell * 28, cell * len(layout)), (0, 0, 0, 0))
-    for row, frames in enumerate(layout.values()):
+    """Rebuild Granny's sheet from the clean 32 pixel original.
+
+    The coloured cell backgrounds are keyed out, every frame is scaled three
+    times with Scale3x so she has the same pixel size as Madeline but
+    smoother outlines, and the clips are laid out one per row: idle, laugh,
+    talk and walk. Frames are aligned on her feet.
+    """
+    source = Image.open(os.path.join(ASSETS, "characters/granny.png")).convert("RGBA")
+    native = 32
+    cell = native * 3
+    columns = max(len(frames) for frames in GRANNY_LAYOUT.values())
+    out = Image.new("RGBA", (cell * columns, cell * len(GRANNY_LAYOUT)), (0, 0, 0, 0))
+    for row, frames in enumerate(GRANNY_LAYOUT.values()):
         for col, (r, c) in enumerate(frames):
-            box = (round(c * step), round(r * step), round(c * step) + cell, round(r * step) + cell)
-            out.paste(sheet.crop(box), (col * cell, row * cell))
+            frame = source.crop((c * native, r * native, (c + 1) * native, (r + 1) * native))
+            px = frame.load()
+            for y in range(native):
+                for x in range(native):
+                    if px[x, y][:3] in GRANNY_KEYS:
+                        px[x, y] = (0, 0, 0, 0)
+            bounds = frame.getbbox()
+            shift = native - bounds[3] if bounds else 0
+            aligned = Image.new("RGBA", (native, native), (0, 0, 0, 0))
+            aligned.paste(frame, (0, shift), frame)
+            out.paste(scale3x(aligned), (col * cell, row * cell))
     out.save(out_path("sprites", "granny.png"))
-    print("granny", {k: (i, len(v)) for i, (k, v) in enumerate(layout.items())})
+    print("granny", out.size, {name: (index, len(frames)) for index, (name, frames) in enumerate(GRANNY_LAYOUT.items())})
 
     theo = Image.open(os.path.join(ASSETS, "characters/theo.png")).convert("RGBA")
     keys = {(255, 0, 195), (33, 255, 0)}

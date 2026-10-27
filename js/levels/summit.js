@@ -116,7 +116,7 @@ export const summit = {
                     checkpoints.start = { x: cx, y: y + TILE };
                     break;
                 case "G":
-                    echoes.granny = add(new Echo("granny-echo", cx, y + TILE, { sheet: "./assets/generated/sprites/granny.png", frameWidth: 66, frameHeight: 66, scale: 2, sheetWidth: 1848, sheetHeight: 264, row: 0, frames: 7, fps: 7 }));
+                    echoes.granny = add(new Echo("granny-echo", cx, y + TILE, { sheet: "./assets/generated/sprites/granny.png", frameWidth: 96, frameHeight: 96, scale: 1, sheetWidth: 2784, sheetHeight: 384, row: 0, frames: 12, fps: 8 }));
                     break;
                 case "T":
                     echoes.theo = add(new Echo("theo-echo", cx, y + TILE, { sheet: "./assets/generated/sprites/theo.png", frameWidth: 32, frameHeight: 32, scale: 2, sheetWidth: 512, sheetHeight: 160, row: 1, frames: 11, fps: 8 }));
