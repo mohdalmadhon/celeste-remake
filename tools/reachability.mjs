@@ -144,7 +144,10 @@ function arc(vx, vy, hold, force = 0, dash = null) {
             vy = Math.min(MAX_FALL, vy + GRAVITY * half * STEP);
             if (force > 0) {
                 force -= STEP;
-            } else if (!dash) {
+            } else if (dash) {
+                const cap = dash[0] ? Math.sign(dash[0]) * MAX_RUN : 0;
+                if (Math.abs(speedX) > Math.abs(cap)) speedX += Math.max(-1040 * STEP, Math.min(1040 * STEP, cap - speedX));
+            } else {
                 const target = vx ? Math.sign(vx) * MAX_RUN : 0;
                 speedX += Math.max(-2600 * STEP, Math.min(2600 * STEP, target - speedX));
             }
@@ -195,11 +198,12 @@ export function search(grid, start, options) {
     let sx = Math.floor(start[0] / CELL) - grid.x0;
     let sy = Math.floor(start[1] / CELL) - grid.y0;
     while (sy < grid.h && !grid.blocked(sx, sy)) sy++;
-    const queue = [[sx, sy, 0, CLIMB_CELLS, 1]];
+    const queue = [[sx, sy, 0, CLIMB_CELLS, options.dash ? 1 : 0]];
     let head = 0;
     const modeKey = { ground: 0, left: 1, right: 2, air: 3 };
     const push = (x, y, mode, stamina, dash) => {
         if (x < 0 || x >= grid.w || y < 0 || y >= grid.h + 2) return;
+        if (grid.deadly(x, y)) return;
         const key = ((((y * grid.w + x) * 4 + mode) * 5 + (stamina >> 2)) * 2) + dash;
         if (seen.has(key)) return;
         seen.add(key);
