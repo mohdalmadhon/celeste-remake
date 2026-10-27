@@ -20,6 +20,7 @@ import { AfterimagePool, ParticleSystem } from "../systems/particles.js";
  * @property {number} lives - Lives per attempt.
  * @property {number} strawberries - Number of strawberries in the chapter.
  * @property {(context: ChapterContext) => Promise<ChapterRuntime>} build - Creates the level.
+ * @property {boolean} [custom] - Levels made in the editor; they never touch the story save.
  */
 
 /**
@@ -284,6 +285,7 @@ export class Session {
     complete(chapterIndex) {
         this.finished = true;
         const result = this.score();
+        if (this.chapter.custom) return result;
         const record = chapterRecord(this.chapter.id);
         record.completed = true;
         record.bestTime = record.bestTime === null ? this.elapsed : Math.min(record.bestTime, this.elapsed);
@@ -300,7 +302,7 @@ export class Session {
      * @returns {void}
      */
     persist() {
-        if (this.finished) return;
+        if (this.finished || this.chapter.custom) return;
         save.started = true;
         save.session = {
             chapter: this.chapter.id,
