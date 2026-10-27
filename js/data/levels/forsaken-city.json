@@ -1,0 +1,1258 @@
+{
+ "format": "celeste-remake-level",
+ "version": 1,
+ "id": "forsaken-city",
+ "name": "Forsaken City",
+ "author": "Celeste Remake",
+ "settings": {
+  "theme": "city",
+  "weather": "snow",
+  "music": "golden",
+  "timeLimit": 600,
+  "lives": 15,
+  "dashes": 1
+ },
+ "width": 160,
+ "height": 40,
+ "tiles": [
+  "......................................................bbbbbbbbbbbbbb......................bbbbbbbbgggggggggggggggggggggggggg....................................",
+  "......................................................bbbbbbbbbbbbbb......................bbbbbbbbgggggggggggggggggggggggggg....................................",
+  "......................................................bbbbbbbbbbbbbb......................bbbbbbbb..............................................................",
+  "......................................................bbbbbbbbbbbbbb......................bbbbbbbb..............................................................",
+  "......................................................bbbbbbbbbbbbbb......................bbbbbbbb..............................................................",
+  "......................................................bbbbbbbbbbbbbb......................bbbbbbbb..............................................................",
+  "......................................................bb..........bb......................bbbbbbbb......................g.......................................",
+  "......................................................bb..........bb......................bbbbbbbb......................g.........................ss............",
+  "......................................................bb................................................................g.........................s...ssssssssss",
+  "......................................................bb.......ggg......................................................g.........................s...ssssssssss",
+  "......................................................bb........................................................gg......g................ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb..............................................g................ss.......s...ssssssssss",
+  "......................................................bbggg.......bbbbbbbb.............bbbbbbbbbbbggg...................g..gsssss........ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb......................g..gsssss........ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb...................gggg..gsssss........ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb......gg..............g..gsssss........ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb......................g..gsssss........ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb......................g..gsssss........ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb......................g..gsssss........ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb......................g..gsssss........ss.......s...ssssssssss",
+  "......................................................bb.......gggbbbbbbbb....bbbbb....bbbbbbbbbbb......................ggggsssss........ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb......................ggggsssss........ss.......s...ssssssssss",
+  "......................................ggggggggggggg...bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb......................ggggsssss........ss.......s...ssssssssss",
+  "......................................ggggggggggggg...bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "......................................................bb..........bbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "..............................................................ggggbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "..................................................................bbbbbbbb....bbbbb....bbbbbbbbbbb....ggggg..............gggsssss........ss.......s...ssssssssss",
+  "..................................................................bbbbbbbb....bbbbb....bbbbbbbbbbb.........ggg...........gggsssss........ss.......s...ssssssssss",
+  "..............................gg..................................bbbbbbbb....bbbbbg...bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "....................bbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "....................bbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "....................bbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "....................bbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "....................bbbbbbb...............gg......bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "....................bbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "....................bbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbbggggbbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "sssssssssssss...ssssbbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "sssssssssssss...ssssbbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "sssssssssssss...ssssbbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss",
+  "sssssssssssss...ssssbbbbbbb.......................bbbbbbbbbbbbbbbbbbbbbbbb....bbbbb....bbbbbbbbbbb.......................gggsssss........ss.......s...ssssssssss"
+ ],
+ "background": [
+  "................................................................................................................................................................",
+  "................................................................................................................................................................",
+  "................................................................................................................................................................",
+  "................................................................................................................................................................",
+  "...................................................................................................gggggggggggggggggggggg.......................................",
+  "...................................................................................................g......g......g......g.......................................",
+  "........................................................bbbbbbbbbb.................................g......g......g......g.......................................",
+  "........................................................bbbbbbbbbb.................................g......g......g......g.......................................",
+  "........................................................bbbbbbbbbb.................................g......g......g......g.......................................",
+  "........................................................bbbbbbbbbb.................................g......g......g......g.......................................",
+  "........................................................bbbbbbbbbb.................................gggggggggggggggggggggg.......................................",
+  "........................................................bbbbbbbbbb.................................g......g......g......g.......................................",
+  "........................................................bbbbbbbbbb.................................g......g......g......g.......................................",
+  "........................................................bbbbbbbbbb.................................g......g......g......g.......................................",
+  "........................................................bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  "........................................................bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  ".............................gggggggggggggggggggggg.....bbbbbbbbbb.................bbbb............gggggggggggggggggggggg.......................................",
+  ".............................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  ".............................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  ".............................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  ".............................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  ".............................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................gggggggggggggggggggggg.....bbbbbbbbbb.................bbbb............gggggggggggggggggggggg.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g.....bbbbbbbbbb.................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................gggggggggggggggggggggg.....bbbbbbbbbb.................bbbb............gggggggggggggggggggggg.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g................................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g................................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g................................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g................................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g................................bbbb............g......g......g......g.......................................",
+  "bbbbbbbbbbbbb................gggggggggggggggggggggg................................bbbb............gggggggggggggggggggggg.......................................",
+  "bbbbbbbbbbbbb................g......g......g......g................................bbbb............g......g......g......g.......................................",
+  ".............................g......g......g......g................................bbbb............g......g......g......g.......................................",
+  ".............................g......g......g......g................................bbbb............g......g......g......g.......................................",
+  ".............................g......g......g......g................................bbbb............g......g......g......g.......................................",
+  ".............................g......g......g......g................................bbbb............g......g......g......g......................................."
+ ],
+ "entities": [
+  {
+   "id": "decor-1",
+   "type": "decor",
+   "x": 1,
+   "y": 24,
+   "variant": "window"
+  },
+  {
+   "id": "decor-2",
+   "type": "decor",
+   "x": 4,
+   "y": 24,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-3",
+   "type": "decor",
+   "x": 7,
+   "y": 24,
+   "variant": "window"
+  },
+  {
+   "id": "decor-4",
+   "type": "decor",
+   "x": 10,
+   "y": 24,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-5",
+   "type": "decor",
+   "x": 1,
+   "y": 27,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-6",
+   "type": "decor",
+   "x": 4,
+   "y": 27,
+   "variant": "window"
+  },
+  {
+   "id": "decor-7",
+   "type": "decor",
+   "x": 7,
+   "y": 27,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-8",
+   "type": "decor",
+   "x": 10,
+   "y": 27,
+   "variant": "window"
+  },
+  {
+   "id": "decor-9",
+   "type": "decor",
+   "x": 1,
+   "y": 30,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-10",
+   "type": "decor",
+   "x": 4,
+   "y": 30,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-11",
+   "type": "decor",
+   "x": 7,
+   "y": 30,
+   "variant": "window"
+  },
+  {
+   "id": "decor-12",
+   "type": "decor",
+   "x": 10,
+   "y": 30,
+   "variant": "windowDark"
+  },
+  {
+   "id": "spawn-13",
+   "type": "spawn",
+   "x": 2,
+   "y": 35
+  },
+  {
+   "id": "decor-14",
+   "type": "decor",
+   "x": 6,
+   "y": 33,
+   "variant": "lamp"
+  },
+  {
+   "id": "decor-15",
+   "type": "decor",
+   "x": 9,
+   "y": 35,
+   "variant": "bench"
+  },
+  {
+   "id": "decor-16",
+   "type": "decor",
+   "x": 11,
+   "y": 35,
+   "variant": "sign"
+  },
+  {
+   "id": "decor-17",
+   "type": "decor",
+   "x": 16,
+   "y": 35,
+   "variant": "barrel"
+  },
+  {
+   "id": "spring-18",
+   "type": "spring",
+   "x": 18,
+   "y": 35,
+   "dir": "up"
+  },
+  {
+   "id": "spike-19",
+   "type": "spike",
+   "x": 19,
+   "y": 33,
+   "dir": "left"
+  },
+  {
+   "id": "spike-20",
+   "type": "spike",
+   "x": 19,
+   "y": 34,
+   "dir": "left"
+  },
+  {
+   "id": "spike-21",
+   "type": "spike",
+   "x": 19,
+   "y": 35,
+   "dir": "left"
+  },
+  {
+   "id": "decor-22",
+   "type": "decor",
+   "x": 24,
+   "y": 26,
+   "variant": "antenna"
+  },
+  {
+   "id": "decor-23",
+   "type": "decor",
+   "x": 21,
+   "y": 28,
+   "variant": "crate"
+  },
+  {
+   "id": "strawberry-24",
+   "type": "strawberry",
+   "x": 14,
+   "y": 30
+  },
+  {
+   "id": "decor-25",
+   "type": "decor",
+   "x": 9,
+   "y": 21,
+   "variant": "flags"
+  },
+  {
+   "id": "crumble-26",
+   "type": "crumble",
+   "x": 34,
+   "y": 27
+  },
+  {
+   "id": "crumble-27",
+   "type": "crumble",
+   "x": 36,
+   "y": 27
+  },
+  {
+   "id": "zipMover-28",
+   "type": "zipMover",
+   "x": 38,
+   "y": 28,
+   "dx": 9,
+   "dy": 0
+  },
+  {
+   "id": "spike-29",
+   "type": "spike",
+   "x": 38,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-30",
+   "type": "spike",
+   "x": 39,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-31",
+   "type": "spike",
+   "x": 40,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-32",
+   "type": "spike",
+   "x": 41,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-33",
+   "type": "spike",
+   "x": 42,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-34",
+   "type": "spike",
+   "x": 43,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-35",
+   "type": "spike",
+   "x": 44,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-36",
+   "type": "spike",
+   "x": 45,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-37",
+   "type": "spike",
+   "x": 46,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-38",
+   "type": "spike",
+   "x": 47,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-39",
+   "type": "spike",
+   "x": 48,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-40",
+   "type": "spike",
+   "x": 49,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-41",
+   "type": "spike",
+   "x": 50,
+   "y": 24,
+   "dir": "down"
+  },
+  {
+   "id": "spike-42",
+   "type": "spike",
+   "x": 41,
+   "y": 33,
+   "dir": "left"
+  },
+  {
+   "id": "spike-43",
+   "type": "spike",
+   "x": 44,
+   "y": 33,
+   "dir": "right"
+  },
+  {
+   "id": "strawberry-44",
+   "type": "strawberry",
+   "x": 42,
+   "y": 32
+  },
+  {
+   "id": "decor-45",
+   "type": "decor",
+   "x": 40,
+   "y": 24,
+   "variant": "chain"
+  },
+  {
+   "id": "decor-46",
+   "type": "decor",
+   "x": 48,
+   "y": 24,
+   "variant": "chain"
+  },
+  {
+   "id": "checkpoint-47",
+   "type": "checkpoint",
+   "x": 52,
+   "y": 28
+  },
+  {
+   "id": "decor-48",
+   "type": "decor",
+   "x": 50,
+   "y": 26,
+   "variant": "lamp"
+  },
+  {
+   "id": "decor-49",
+   "type": "decor",
+   "x": 57,
+   "y": 7,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-50",
+   "type": "decor",
+   "x": 60,
+   "y": 7,
+   "variant": "window"
+  },
+  {
+   "id": "decor-51",
+   "type": "decor",
+   "x": 63,
+   "y": 7,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-52",
+   "type": "decor",
+   "x": 57,
+   "y": 10,
+   "variant": "window"
+  },
+  {
+   "id": "decor-53",
+   "type": "decor",
+   "x": 60,
+   "y": 10,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-54",
+   "type": "decor",
+   "x": 63,
+   "y": 10,
+   "variant": "window"
+  },
+  {
+   "id": "decor-55",
+   "type": "decor",
+   "x": 57,
+   "y": 13,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-56",
+   "type": "decor",
+   "x": 60,
+   "y": 13,
+   "variant": "window"
+  },
+  {
+   "id": "decor-57",
+   "type": "decor",
+   "x": 63,
+   "y": 13,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-58",
+   "type": "decor",
+   "x": 57,
+   "y": 16,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-59",
+   "type": "decor",
+   "x": 60,
+   "y": 16,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-60",
+   "type": "decor",
+   "x": 63,
+   "y": 16,
+   "variant": "window"
+  },
+  {
+   "id": "decor-61",
+   "type": "decor",
+   "x": 57,
+   "y": 19,
+   "variant": "window"
+  },
+  {
+   "id": "decor-62",
+   "type": "decor",
+   "x": 60,
+   "y": 19,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-63",
+   "type": "decor",
+   "x": 63,
+   "y": 19,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-64",
+   "type": "decor",
+   "x": 57,
+   "y": 22,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-65",
+   "type": "decor",
+   "x": 60,
+   "y": 22,
+   "variant": "window"
+  },
+  {
+   "id": "decor-66",
+   "type": "decor",
+   "x": 63,
+   "y": 22,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-67",
+   "type": "decor",
+   "x": 57,
+   "y": 25,
+   "variant": "window"
+  },
+  {
+   "id": "decor-68",
+   "type": "decor",
+   "x": 60,
+   "y": 25,
+   "variant": "windowDark"
+  },
+  {
+   "id": "decor-69",
+   "type": "decor",
+   "x": 63,
+   "y": 25,
+   "variant": "window"
+  },
+  {
+   "id": "checkpoint-70",
+   "type": "checkpoint",
+   "x": 58,
+   "y": 28
+  },
+  {
+   "id": "spike-71",
+   "type": "spike",
+   "x": 56,
+   "y": 19,
+   "dir": "right"
+  },
+  {
+   "id": "spike-72",
+   "type": "spike",
+   "x": 56,
+   "y": 20,
+   "dir": "right"
+  },
+  {
+   "id": "spike-73",
+   "type": "spike",
+   "x": 56,
+   "y": 21,
+   "dir": "right"
+  },
+  {
+   "id": "spike-74",
+   "type": "spike",
+   "x": 56,
+   "y": 22,
+   "dir": "right"
+  },
+  {
+   "id": "spike-75",
+   "type": "spike",
+   "x": 56,
+   "y": 23,
+   "dir": "right"
+  },
+  {
+   "id": "spike-76",
+   "type": "spike",
+   "x": 56,
+   "y": 24,
+   "dir": "right"
+  },
+  {
+   "id": "spike-77",
+   "type": "spike",
+   "x": 65,
+   "y": 13,
+   "dir": "left"
+  },
+  {
+   "id": "spike-78",
+   "type": "spike",
+   "x": 65,
+   "y": 14,
+   "dir": "left"
+  },
+  {
+   "id": "spike-79",
+   "type": "spike",
+   "x": 65,
+   "y": 15,
+   "dir": "left"
+  },
+  {
+   "id": "spike-80",
+   "type": "spike",
+   "x": 65,
+   "y": 16,
+   "dir": "left"
+  },
+  {
+   "id": "spike-81",
+   "type": "spike",
+   "x": 65,
+   "y": 17,
+   "dir": "left"
+  },
+  {
+   "id": "falling-82",
+   "type": "falling",
+   "x": 57,
+   "y": 23,
+   "trigger": "touch",
+   "lands": false
+  },
+  {
+   "id": "dashBlock-83",
+   "type": "dashBlock",
+   "x": 56,
+   "y": 17,
+   "w": 10,
+   "h": 1
+  },
+  {
+   "id": "crystal-84",
+   "type": "crystal",
+   "x": 60,
+   "y": 14
+  },
+  {
+   "id": "falling-85",
+   "type": "falling",
+   "x": 61,
+   "y": 10,
+   "trigger": "touch",
+   "lands": false
+  },
+  {
+   "id": "decor-86",
+   "type": "decor",
+   "x": 59,
+   "y": 6,
+   "variant": "lantern"
+  },
+  {
+   "id": "decor-87",
+   "type": "decor",
+   "x": 64,
+   "y": 21,
+   "variant": "pipe"
+  },
+  {
+   "id": "checkpoint-88",
+   "type": "checkpoint",
+   "x": 70,
+   "y": 10
+  },
+  {
+   "id": "decor-89",
+   "type": "decor",
+   "x": 72,
+   "y": 7,
+   "variant": "antenna"
+  },
+  {
+   "id": "decor-90",
+   "type": "decor",
+   "x": 79,
+   "y": 12,
+   "variant": "crate"
+  },
+  {
+   "id": "decor-91",
+   "type": "decor",
+   "x": 80,
+   "y": 12,
+   "variant": "rail"
+  },
+  {
+   "id": "spike-92",
+   "type": "spike",
+   "x": 83,
+   "y": 16,
+   "dir": "right"
+  },
+  {
+   "id": "spike-93",
+   "type": "spike",
+   "x": 83,
+   "y": 17,
+   "dir": "right"
+  },
+  {
+   "id": "spike-94",
+   "type": "spike",
+   "x": 83,
+   "y": 18,
+   "dir": "right"
+  },
+  {
+   "id": "spike-95",
+   "type": "spike",
+   "x": 83,
+   "y": 19,
+   "dir": "right"
+  },
+  {
+   "id": "spike-96",
+   "type": "spike",
+   "x": 83,
+   "y": 20,
+   "dir": "right"
+  },
+  {
+   "id": "spike-97",
+   "type": "spike",
+   "x": 83,
+   "y": 21,
+   "dir": "right"
+  },
+  {
+   "id": "spike-98",
+   "type": "spike",
+   "x": 86,
+   "y": 22,
+   "dir": "left"
+  },
+  {
+   "id": "spike-99",
+   "type": "spike",
+   "x": 86,
+   "y": 23,
+   "dir": "left"
+  },
+  {
+   "id": "spike-100",
+   "type": "spike",
+   "x": 86,
+   "y": 24,
+   "dir": "left"
+  },
+  {
+   "id": "spike-101",
+   "type": "spike",
+   "x": 86,
+   "y": 25,
+   "dir": "left"
+  },
+  {
+   "id": "spike-102",
+   "type": "spike",
+   "x": 86,
+   "y": 26,
+   "dir": "left"
+  },
+  {
+   "id": "spike-103",
+   "type": "spike",
+   "x": 86,
+   "y": 27,
+   "dir": "left"
+  },
+  {
+   "id": "spike-104",
+   "type": "spike",
+   "x": 86,
+   "y": 28,
+   "dir": "left"
+  },
+  {
+   "id": "spike-105",
+   "type": "spike",
+   "x": 83,
+   "y": 31,
+   "dir": "right"
+  },
+  {
+   "id": "spike-106",
+   "type": "spike",
+   "x": 83,
+   "y": 32,
+   "dir": "right"
+  },
+  {
+   "id": "spike-107",
+   "type": "spike",
+   "x": 83,
+   "y": 33,
+   "dir": "right"
+  },
+  {
+   "id": "spike-108",
+   "type": "spike",
+   "x": 83,
+   "y": 34,
+   "dir": "right"
+  },
+  {
+   "id": "key-109",
+   "type": "key",
+   "x": 85,
+   "y": 34
+  },
+  {
+   "id": "strawberry-110",
+   "type": "strawberry",
+   "x": 84,
+   "y": 27
+  },
+  {
+   "id": "decor-111",
+   "type": "decor",
+   "x": 84,
+   "y": 17,
+   "variant": "pipe"
+  },
+  {
+   "id": "door-112",
+   "type": "door",
+   "x": 93,
+   "y": 8,
+   "h": 4
+  },
+  {
+   "id": "decor-113",
+   "type": "decor",
+   "x": 88,
+   "y": 9,
+   "variant": "billboard"
+  },
+  {
+   "id": "decor-114",
+   "type": "decor",
+   "x": 96,
+   "y": 9,
+   "variant": "lamp"
+  },
+  {
+   "id": "checkpoint-115",
+   "type": "checkpoint",
+   "x": 99,
+   "y": 11
+  },
+  {
+   "id": "npc-116",
+   "type": "npc",
+   "x": 96,
+   "y": 11,
+   "look": "theo",
+   "facing": "right"
+  },
+  {
+   "id": "falling-117",
+   "type": "falling",
+   "x": 107,
+   "y": 18,
+   "trigger": "touch",
+   "lands": false
+  },
+  {
+   "id": "touchSwitch-118",
+   "type": "touchSwitch",
+   "x": 104,
+   "y": 23,
+   "group": 1
+  },
+  {
+   "id": "spike-119",
+   "type": "spike",
+   "x": 102,
+   "y": 25,
+   "dir": "up"
+  },
+  {
+   "id": "spike-120",
+   "type": "spike",
+   "x": 103,
+   "y": 25,
+   "dir": "up"
+  },
+  {
+   "id": "spike-121",
+   "type": "spike",
+   "x": 104,
+   "y": 25,
+   "dir": "up"
+  },
+  {
+   "id": "spike-122",
+   "type": "spike",
+   "x": 105,
+   "y": 25,
+   "dir": "up"
+  },
+  {
+   "id": "spike-123",
+   "type": "spike",
+   "x": 106,
+   "y": 25,
+   "dir": "up"
+  },
+  {
+   "id": "spring-124",
+   "type": "spring",
+   "x": 108,
+   "y": 26,
+   "dir": "up"
+  },
+  {
+   "id": "crystal-125",
+   "type": "crystal",
+   "x": 111,
+   "y": 20
+  },
+  {
+   "id": "touchSwitch-126",
+   "type": "touchSwitch",
+   "x": 113,
+   "y": 4,
+   "group": 1
+  },
+  {
+   "id": "crumble-127",
+   "type": "crumble",
+   "x": 115,
+   "y": 8
+  },
+  {
+   "id": "spring-128",
+   "type": "spring",
+   "x": 119,
+   "y": 13,
+   "dir": "left"
+  },
+  {
+   "id": "touchSwitch-129",
+   "type": "touchSwitch",
+   "x": 118,
+   "y": 19,
+   "group": 1
+  },
+  {
+   "id": "crystal-130",
+   "type": "crystal",
+   "x": 116,
+   "y": 22
+  },
+  {
+   "id": "spike-131",
+   "type": "spike",
+   "x": 105,
+   "y": 2,
+   "dir": "down"
+  },
+  {
+   "id": "spike-132",
+   "type": "spike",
+   "x": 106,
+   "y": 2,
+   "dir": "down"
+  },
+  {
+   "id": "spike-133",
+   "type": "spike",
+   "x": 107,
+   "y": 2,
+   "dir": "down"
+  },
+  {
+   "id": "spike-134",
+   "type": "spike",
+   "x": 108,
+   "y": 2,
+   "dir": "down"
+  },
+  {
+   "id": "spike-135",
+   "type": "spike",
+   "x": 109,
+   "y": 2,
+   "dir": "down"
+  },
+  {
+   "id": "spike-136",
+   "type": "spike",
+   "x": 110,
+   "y": 2,
+   "dir": "down"
+  },
+  {
+   "id": "gate-137",
+   "type": "gate",
+   "x": 121,
+   "y": 2,
+   "w": 2,
+   "h": 10,
+   "dx": 0,
+   "dy": 8,
+   "group": 1
+  },
+  {
+   "id": "strawberry-138",
+   "type": "strawberry",
+   "x": 101,
+   "y": 20
+  },
+  {
+   "id": "checkpoint-139",
+   "type": "checkpoint",
+   "x": 126,
+   "y": 11
+  },
+  {
+   "id": "decor-140",
+   "type": "decor",
+   "x": 127,
+   "y": 11,
+   "variant": "cairn"
+  },
+  {
+   "id": "crumble-141",
+   "type": "crumble",
+   "x": 131,
+   "y": 11
+  },
+  {
+   "id": "crumble-142",
+   "type": "crumble",
+   "x": 134,
+   "y": 10
+  },
+  {
+   "id": "spike-143",
+   "type": "spike",
+   "x": 137,
+   "y": 9,
+   "dir": "up"
+  },
+  {
+   "id": "spike-144",
+   "type": "spike",
+   "x": 138,
+   "y": 9,
+   "dir": "up"
+  },
+  {
+   "id": "crumble-145",
+   "type": "crumble",
+   "x": 140,
+   "y": 8
+  },
+  {
+   "id": "falling-146",
+   "type": "falling",
+   "x": 143,
+   "y": 9,
+   "trigger": "touch",
+   "lands": false
+  },
+  {
+   "id": "decor-147",
+   "type": "decor",
+   "x": 140,
+   "y": 3,
+   "variant": "flags"
+  },
+  {
+   "id": "strawberry-148",
+   "type": "strawberry",
+   "x": 135,
+   "y": 5
+  },
+  {
+   "id": "decor-149",
+   "type": "decor",
+   "x": 152,
+   "y": 6,
+   "variant": "memorial"
+  },
+  {
+   "id": "decor-150",
+   "type": "decor",
+   "x": 157,
+   "y": 5,
+   "variant": "pine"
+  },
+  {
+   "id": "decor-151",
+   "type": "decor",
+   "x": 150,
+   "y": 7,
+   "variant": "bush"
+  },
+  {
+   "id": "goal-152",
+   "type": "goal",
+   "x": 155,
+   "y": 7
+  }
+ ],
+ "events": [
+  {
+   "id": "ev-theo",
+   "name": "Theo on the roof",
+   "once": true,
+   "trigger": {
+    "type": "enter",
+    "x": 98,
+    "y": 8,
+    "w": 1,
+    "h": 4
+   },
+   "actions": [
+    {
+     "type": "dialogue",
+     "lines": [
+      {
+       "speaker": "theo",
+       "emotion": "excited",
+       "text": "city.theo.1"
+      },
+      {
+       "speaker": "madeline",
+       "emotion": "normal",
+       "text": "city.theo.2"
+      },
+      {
+       "speaker": "theo",
+       "emotion": "yolo",
+       "text": "city.theo.3"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ev-ridge",
+   "name": "Wind on the ridge",
+   "once": false,
+   "trigger": {
+    "type": "enter",
+    "x": 129,
+    "y": 2,
+    "w": 1,
+    "h": 10
+   },
+   "actions": [
+    {
+     "type": "weather",
+     "preset": "heavy"
+    },
+    {
+     "type": "wind",
+     "strength": -110
+    }
+   ]
+  },
+  {
+   "id": "ev-calm",
+   "name": "Calm before the ridge",
+   "once": false,
+   "trigger": {
+    "type": "enter",
+    "x": 125,
+    "y": 2,
+    "w": 1,
+    "h": 10
+   },
+   "actions": [
+    {
+     "type": "wind",
+     "strength": 0
+    },
+    {
+     "type": "weather",
+     "preset": "snow"
+    }
+   ]
+  },
+  {
+   "id": "ev-lookout",
+   "name": "Calm at the lookout",
+   "once": false,
+   "trigger": {
+    "type": "enter",
+    "x": 149,
+    "y": 0,
+    "w": 1,
+    "h": 8
+   },
+   "actions": [
+    {
+     "type": "wind",
+     "strength": 0
+    },
+    {
+     "type": "weather",
+     "preset": "snow"
+    }
+   ]
+  }
+ ]
+}

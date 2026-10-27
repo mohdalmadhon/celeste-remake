@@ -1,136 +1,45 @@
 import { addAnimation, playAnimation } from "../components/animation.js";
 import { game } from "../core/game.js";
-import { PlayerState } from "../entities/player.js";
-import { CheckpointFlag, CrumbleBlock, DashCrystal, Strawberry, ZipMover } from "../entities/props.js";
 import { SFX } from "../helpers/sound.js";
-import { Level } from "../level.js";
 import { audio } from "../systems/audio.js";
-import { createBody } from "../systems/physics.js";
-import { addSpike, buildFromAscii, buildFromJson, groundAt, MATERIALS } from "./builder.js";
-import { buildCityMap, CITY_CRUMBLES, CITY_ORIGIN_X, CITY_ORIGIN_Y } from "./maps/cityMap.js";
+import { chapterFromLevel } from "./customLevel.js";
 import { createBird } from "./tutorial.js";
 
 /**
- * Dash crystals that keep the long girder and ice climbs fair with the
- * stamina-limited climbing, placed where the reachability check found
- * walls taller than one full stamina bar.
+ * Adds the bird that waits at the lookout and the scene where Madeline
+ * finally sits down next to it.
  *
- * @type {Array<[number, number]>}
+ * @param {import("./customLevel.js").LevelScriptApi} api - Level script access.
+ * @returns {import("./customLevel.js").LevelScript} The chapter script.
  */
-const CRYSTALS = [];
+function cityScript({ level, goal }) {
+    const spot = goal ?? { x: 3725, y: 400 };
+    const bird = createBird(spot.x - 120, spot.y - 170);
+    bird.facing = 1;
+    addAnimation(bird, "glide", { row: 1, startFrame: 0, frameCount: 4, fps: 8 });
+    level.addEntity(bird);
+    const director = game.ui.cutscenes;
 
-/**
- * Chapter 1: Forsaken City. The original girder and ice level with zip
- * movers, crumbling girders and spikes, ending with Madeline resting as the
- * bird lands beside her.
- *
- * @type {import("../core/session.js").ChapterDefinition}
- */
-export const forsakenCity = {
-    id: "forsaken-city",
-    number: 1,
-    nameKey: "chapter.city.name",
-    subtitleKey: "chapter.city.subtitle",
-    art: "./assets/generated/checkpoints/forsaken_city.png",
-    timeLimit: 480,
-    lives: 6,
-    strawberries: 3,
-    music: SFX.musicGolden,
-    musicVolume: 0.6,
-    ambience: "wind",
-    weather: { type: "snow", density: 1.2, wind: -60, gusts: 1.4 },
-    parallax: "city",
-    checkpointNames: { crossing: "checkpoint.city.crossing", chasm: "checkpoint.city.chasm", heights: "checkpoint.city.heights" },
-
-    /**
-     * Builds Forsaken City.
-     *
-     * @param {import("../core/session.js").ChapterContext} context - Build context.
-     * @returns {Promise<import("../core/session.js").ChapterRuntime>} The live chapter.
-     */
-    async build(context) {
-        const data = await (await fetch("./js/data/firstLevel.json")).json();
-        const level = new Level({ width: 3800, height: 3500 }, context.world, "forsaken-city");
-        buildFromJson(level, data.firstLevel.tiles, {
-            skip: (name, group) => !(group.class || []).includes("none-collision")
-        });
-        buildFromAscii(level, buildCityMap(), {
-            i: MATERIALS.ice, d: MATERIALS.dirt, s: MATERIALS.snow, g: MATERIALS.girder, b: MATERIALS.brick
-        }, {
-            x: CITY_ORIGIN_X,
-            y: CITY_ORIGIN_Y,
-            edgeSolid: false,
-            onMarker: (marker, x, y) => addSpike(level, marker, x, y)
-        });
-        const world = level.world;
-        const b = { left: 0, top: -2950, right: 3850, bottom: 550 };
-        level.cameraBounds = { left: b.left - 20, top: b.top - 120, right: b.right + 20, bottom: b.bottom + 40 };
-        level.killY = b.bottom + 160;
-        level.voidDeath = true;
-        world.add(createBody(b.left - 60, b.top - 600, 60, b.bottom - b.top + 1200, "solid", { climbable: false }));
-        world.add(createBody(b.right, b.top - 600, 60, b.bottom - b.top + 1200, "solid", { climbable: false }));
-
-        const crumbles = [];
-        for (const [x, y] of CITY_CRUMBLES) {
-            const block = new CrumbleBlock({ x, y, w: 100, h: 30, path: "./assets/tiles/celeste/breakCracked.png" }, "metal");
-            level.addEntity(block);
-            world.add(block.body);
-            crumbles.push(block);
-        }
-
-        const zips = [new ZipMover(2700, -700, 200, 0), new ZipMover(2700, -1550, 0, -200)];
-        for (const zip of zips) {
-            level.addEntity(zip);
-            world.add(zip.body);
-        }
-
-        const crystals = CRYSTALS.map(([x, y]) => new DashCrystal(x, y));
-        for (const crystal of crystals) {
-            level.addEntity(crystal);
-            world.add(crystal.body);
-        }
-
-        const berries = [
-            new Strawberry("city-berry-1", 1482, -368),
-            new Strawberry("city-berry-2", 3462, -1368),
-            new Strawberry("city-berry-3", 2462, -2368)
-        ];
-        for (const berry of berries) {
-            if (context.session.strawberries.has(berry.id)) continue;
-            level.addEntity(berry);
-            world.add(berry.body);
-        }
-
-        const checkpoints = {
-            start: { x: 85, y: groundAt(world, 85, 100) },
-            crossing: { x: 2350, y: groundAt(world, 2350, -700) },
-            chasm: { x: 2800, y: groundAt(world, 2800, -1200) },
-            heights: { x: 2620, y: groundAt(world, 2620, -1900) }
-        };
-        const order = Object.keys(checkpoints);
-        for (const id of order.slice(1)) {
-            const point = checkpoints[id];
-            const flag = new CheckpointFlag(id, point.x, point.y, (reached) => context.session.reachCheckpoint(reached));
-            if (order.indexOf(id) <= order.indexOf(context.session.checkpoint)) flag.activate();
-            level.addEntity(flag);
-            world.add(flag.body);
-        }
-
-        const bird = createBird(2300, -2900);
-        bird.facing = 1;
-        addAnimation(bird, "glide", { row: 1, startFrame: 0, frameCount: 4, fps: 8 });
-        level.addEntity(bird);
-
-        const director = game.ui.cutscenes;
-        const state = { ending: false };
+    return {
+        preload: [SFX.cart, SFX.crack, SFX.breakBridge, SFX.squawk, SFX.sit],
 
         /**
-         * Ending: Madeline sits down, exhausted, and the bird lands beside her.
+         * Shows the chapter title on a fresh start.
          *
-         * @returns {Promise<void>} Resolves when the chapter completes.
+         * @param {string} checkpoint - Starting checkpoint.
+         * @param {boolean} fresh - Whether this is a new run.
+         * @returns {void}
          */
-        const endingScene = async () => {
-            state.ending = true;
+        onStart(checkpoint, fresh) {
+            if (fresh) game.ui.chapterCard?.("chapter.city.name", "chapter.city.subtitle");
+        },
+
+        /**
+         * Madeline sits down, exhausted, and the bird lands beside her.
+         *
+         * @returns {Promise<void>} Resolves when the scene is over.
+         */
+        async finale() {
             await director.run(async (cs) => {
                 await cs.wait(0.3);
                 cs.pose("talk");
@@ -154,51 +63,38 @@ export const forsakenCity = {
                 game.ui.chapterCard?.("chapter.city.name", "chapter.city.complete");
                 await cs.wait(2.5);
             }, { keepCamera: true, onEnd: () => game.player.forcedAnimation = "sit" });
-            context.session.ui.completeChapter();
-        };
+        }
+    };
+}
 
-        return {
-            level,
-            checkpoints,
-            preload: [SFX.cart, SFX.crack, SFX.breakBridge, SFX.squawk, SFX.sit],
-
-            /**
-             * Shows the chapter title on a fresh start.
-             *
-             * @param {string} checkpoint - Starting checkpoint.
-             * @param {boolean} fresh - Whether this is a new run.
-             * @returns {void}
-             */
-            onStart(checkpoint, fresh) {
-                if (fresh) game.ui.chapterCard?.("chapter.city.name", "chapter.city.subtitle");
-            },
-
-            /**
-             * Level script: detects the summit ledge.
-             *
-             * @returns {void}
-             */
-            step() {
-                const player = game.player;
-                if (!player || player.state === PlayerState.DEAD || state.ending) return;
-                const px = player.box.x + player.box.w / 2;
-                const py = player.box.y + player.box.h;
-                if (px <= 3290 && py <= -2540 && player.onGround) endingScene();
-            },
-
-            /**
-             * Resets moving and breakable props after a death.
-             *
-             * @returns {void}
-             */
-            onRespawn() {
-                for (const zip of zips) zip.reset();
-                for (const block of crumbles) block.reset();
-                for (const crystal of crystals) crystal.reset();
-            }
-        };
-    }
-};
+/**
+ * Chapter 1: Forsaken City. A snowed-in street, a building site, a tower,
+ * the rooftops, a scaffold chimney and a windy ridge up to the lookout. The
+ * layout lives in a level file made by tools/build_city.mjs, so it can be
+ * opened in developer mode too.
+ *
+ * @type {import("../core/session.js").ChapterDefinition}
+ */
+export const forsakenCity = chapterFromLevel("./js/data/levels/forsaken-city.json", {
+    id: "forsaken-city",
+    number: 1,
+    nameKey: "chapter.city.name",
+    subtitleKey: "chapter.city.subtitle",
+    art: "./assets/generated/checkpoints/forsaken_city.png",
+    strawberries: 5,
+    custom: false,
+    goalFlag: false,
+    crumble: { path: "./assets/tiles/celeste/breakCracked.png", surface: "metal" },
+    settings: { theme: "city", weather: "snow", music: "golden", timeLimit: 600, lives: 15 },
+    checkpointNames: {
+        cp1: "checkpoint.city.crossing",
+        cp2: "checkpoint.city.tower",
+        cp3: "checkpoint.city.rooftops",
+        cp4: "checkpoint.city.scaffold",
+        cp5: "checkpoint.city.heights"
+    },
+    script: cityScript
+});
 
 /**
  * Kept for compatibility with the original module interface.
