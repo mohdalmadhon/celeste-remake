@@ -43,7 +43,7 @@ export class CutsceneDirector {
      * Runs a script with player control locked.
      *
      * @param {(director: CutsceneDirector) => Promise<void>} script - Scene body.
-     * @param {{ letterbox?: boolean, skippable?: boolean, onEnd?: () => void }} [options] - Scene options.
+     * @param {{ letterbox?: boolean, skippable?: boolean, keepCamera?: boolean, onEnd?: () => void }} [options] - Scene options.
      * @returns {Promise<boolean>} Resolves true when skipped.
      */
     async run(script, options = {}) {
@@ -74,8 +74,10 @@ export class CutsceneDirector {
                 player.forcedAnimation = null;
                 player.script.x = 0;
             }
-            game.camera?.release();
-            game.camera?.setZoom(1, 3);
+            if (!options.keepCamera) {
+                game.camera?.release();
+                game.camera?.setZoom(1, 3);
+            }
             game.cutscene = false;
             this.running = false;
             this.skipping = false;

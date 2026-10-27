@@ -245,7 +245,7 @@ export const prologue = {
                 await cs.wait(0.5);
                 game.ui.chapterCard?.("chapter.prologue.ending", "chapter.prologue.endingSub");
                 await cs.wait(2.8);
-            });
+            }, { keepCamera: true });
             context.session.ui.completeChapter();
         };
 
