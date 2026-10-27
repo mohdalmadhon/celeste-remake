@@ -105,6 +105,7 @@ export function makeGrid(solids, hazards, extent = null) {
     };
     return {
         x0, y0, w, h, solid, hazard, blocked,
+        wall: (gx, gy) => gx >= 0 && gx < w && blocked(gx, gy),
         free: (gx, gy) => !blocked(gx, gy - 1) && !blocked(gx, gy - 2),
         deadly: (gx, gy) => [gy - 1, gy - 2].some((row) => row >= 0 && row < h && gx >= 0 && gx < w && hazard[row * w + gx] === 1)
     };
@@ -194,12 +195,13 @@ const springLaunches = {
  *
  * @param {*} grid - Occupancy grid.
  * @param {number[]} start - Start point in pixels.
- * @param {{ dash: boolean, crystals: number[][], springs?: Array<[number, number, string]> }} options - Search options; springs are the top-left corners of 50 pixel spring cells and the way they throw.
+ * @param {{ dash: boolean, dashes?: number, crystals: number[][], springs?: Array<[number, number, string]> }} options - Search options; dashes is how many dashes Madeline has (1 or 2) and springs are the top-left corners of 50 pixel spring cells and the way they throw.
  * @returns {Set<number>} Reached cell indices.
  */
 export function search(grid, start, options) {
     const reach = new Set();
     const seen = new Set();
+    const maxDash = options.dash ? (options.dashes ?? 1) : 0;
     const crystals = new Set(options.crystals.map(([x, y]) => (Math.floor(y / CELL) - grid.y0) * grid.w + Math.floor(x / CELL) - grid.x0));
     const springs = new Map();
     for (const [x, y, dir] of options.springs ?? []) {
@@ -221,24 +223,23 @@ export function search(grid, start, options) {
         launched.add(id);
         const ox = spring.dir === "up" ? spring.x + 1 : spring.dir === "right" ? spring.x + 2 : spring.x - 1;
         const oy = spring.dir === "up" ? spring.y + 1 : spring.y + 2;
-        for (const path of springLaunches[spring.dir]) fly(ox, oy, path, CLIMB_CELLS, options.dash ? 1 : 0, false);
+        for (const path of springLaunches[spring.dir]) fly(ox, oy, path, CLIMB_CELLS, maxDash);
     };
     let sx = Math.floor(start[0] / CELL) - grid.x0;
     let sy = Math.floor(start[1] / CELL) - grid.y0;
     while (sy < grid.h && !grid.blocked(sx, sy)) sy++;
-    const queue = [[sx, sy, 0, CLIMB_CELLS, options.dash ? 1 : 0]];
+    const queue = [[sx, sy, 0, CLIMB_CELLS, maxDash]];
     let head = 0;
     const modeKey = { ground: 0, left: 1, right: 2, air: 3 };
     const push = (x, y, mode, stamina, dash) => {
         if (x < 0 || x >= grid.w || y < 0 || y >= grid.h + 2) return;
         if (grid.deadly(x, y)) return;
-        const key = ((((y * grid.w + x) * 4 + mode) * 5 + (stamina >> 2)) * 2) + dash;
+        const key = ((((y * grid.w + x) * 4 + mode) * 5 + (stamina >> 2)) * 3) + dash;
         if (seen.has(key)) return;
         seen.add(key);
         queue.push([x, y, mode, stamina, dash]);
     };
-    const fly = (x, y, path, stamina, dash, isDash) => {
-        let refilled = false;
+    const fly = (x, y, path, stamina, dash) => {
         for (const [dx, dy, vy] of path) {
             const cx = x + dx;
             const cy = y + dy;
@@ -252,18 +253,17 @@ export function search(grid, start, options) {
             }
             if (crystals.has((cy - 1) * grid.w + cx) || crystals.has((cy - 2) * grid.w + cx)) {
                 stamina = CLIMB_CELLS;
-                dash = options.dash ? 1 : 0;
-                refilled = true;
+                dash = maxDash;
             }
             if (vy >= 0 && grid.blocked(cx, cy)) {
-                push(cx, cy, modeKey.ground, CLIMB_CELLS, options.dash ? 1 : 0);
+                push(cx, cy, modeKey.ground, CLIMB_CELLS, maxDash);
                 return;
             }
             if (stamina > 0) {
-                if (grid.blocked(cx - 1, cy - 1)) push(cx, cy, modeKey.left, stamina, isDash ? 0 : dash);
-                if (grid.blocked(cx + 1, cy - 1)) push(cx, cy, modeKey.right, stamina, isDash ? 0 : dash);
+                if (grid.wall(cx - 1, cy - 1)) push(cx, cy, modeKey.left, stamina, dash);
+                if (grid.wall(cx + 1, cy - 1)) push(cx, cy, modeKey.right, stamina, dash);
             }
-            if ((!isDash || refilled) && dash) push(cx, cy, modeKey.air, stamina, 1);
+            if (dash > 0) push(cx, cy, modeKey.air, stamina, dash);
         }
     };
     while (head < queue.length) {
@@ -274,7 +274,7 @@ export function search(grid, start, options) {
             if (spring) launch(spring);
         }
         if (mode === modeKey.air) {
-            for (const path of dashes) fly(x, y, path, stamina, 0, true);
+            for (const path of dashes) fly(x, y, path, stamina, dash - 1);
             continue;
         }
         if (mode === modeKey.ground) {
@@ -282,27 +282,27 @@ export function search(grid, start, options) {
                 const nx = x + side;
                 if (grid.free(nx, y) && !grid.deadly(nx, y)) {
                     if (grid.blocked(nx, y)) push(nx, y, modeKey.ground, CLIMB_CELLS, dash);
-                    else for (const path of falls) fly(nx, y, path, stamina, dash, false);
-                } else if (grid.blocked(nx, y - 1)) {
+                    else for (const path of falls) fly(nx, y, path, stamina, dash);
+                } else if (grid.wall(nx, y - 1)) {
                     push(x, y, side < 0 ? modeKey.left : modeKey.right, stamina, dash);
                 }
             }
-            for (const path of jumps) fly(x, y, path, stamina, dash, false);
-            if (dash) for (const path of dashes) fly(x, y, path, stamina, 0, true);
+            for (const path of jumps) fly(x, y, path, stamina, dash);
+            if (dash) for (const path of dashes) fly(x, y, path, stamina, dash - 1);
             continue;
         }
         const side = mode === modeKey.left ? -1 : 1;
-        if (stamina > 0 && grid.free(x, y - 1) && grid.blocked(x + side, y - 2)) {
+        if (stamina > 0 && grid.free(x, y - 1) && grid.wall(x + side, y - 2)) {
             push(x, y - 1, mode, stamina - 1, dash);
         } else if (stamina > 0 && grid.free(x + side, y - 1)) {
             if (grid.blocked(x + side, y)) push(x + side, y, modeKey.ground, CLIMB_CELLS, dash);
-            for (const path of falls.slice(3, 6)) fly(x + side, y - 1, path, stamina, dash, false);
+            for (const path of falls.slice(3, 6)) fly(x + side, y - 1, path, stamina, dash);
         }
         if (grid.free(x, y + 1) && !grid.blocked(x, y)) push(x, y + 1, mode, stamina, dash);
-        for (const [wallSide, path] of wallJumps) if (wallSide === -side) fly(x, y, path, stamina, dash, false);
-        if (stamina >= 5) fly(x, y, climbJump, stamina - 5, dash, false);
-        if (dash) for (const path of dashes) fly(x, y, path, stamina, 0, true);
-        for (const path of falls.slice(3, 6)) fly(x, y, path, stamina, dash, false);
+        for (const [wallSide, path] of wallJumps) if (wallSide === -side) fly(x, y, path, stamina, dash);
+        if (stamina >= 5) fly(x, y, climbJump, stamina - 5, dash);
+        if (dash) for (const path of dashes) fly(x, y, path, stamina, dash - 1);
+        for (const path of falls.slice(3, 6)) fly(x, y, path, stamina, dash);
     }
     return reach;
 }

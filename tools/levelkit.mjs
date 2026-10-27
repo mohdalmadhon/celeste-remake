@@ -110,7 +110,7 @@ export function createLevel(width, height, fill) {
      * switches slides its gates, and a dash block next to reachable space is
      * broken, then the search runs again until nothing changes.
      *
-     * @param {{ debug?: boolean }} [options] - Print the reached area as text when debug is set.
+     * @param {{ debug?: boolean, start?: [number, number], dashes?: number, only?: (mark: { row: number, col: number }) => boolean }} [options] - Print the reached area as text when debug is set; start from another cell, with another dash count, and check only some marks.
      * @returns {boolean} True when every mark is reachable.
      */
     const check = (options = {}) => {
@@ -150,7 +150,7 @@ export function createLevel(width, height, fill) {
                     for (let i = 0; i <= steps; i++) {
                         solids.push([x + Math.round(entity.dx * i / steps) * TILE, y + Math.round(entity.dy * i / steps) * TILE + TILE - 64, 98, 64]);
                     }
-                } else if (entity.type === "crystal") {
+                } else if (entity.type === "crystal" || entity.type === "booster") {
                     crystals.push([x + 25, y + 25]);
                 } else if (entity.type === "spring") {
                     springs.push([x, y, entity.dir]);
@@ -166,11 +166,13 @@ export function createLevel(width, height, fill) {
                 } else if (entity.type === "spawn") {
                     start = [x + 25, y + TILE - 4];
                 } else if (entity.type === "checkpoint" || entity.type === "goal" || entity.type === "strawberry") {
-                    marks.push({ label: `${entity.type} ${entity.x},${entity.y}`, x: x + 25, y: entity.type === "strawberry" ? y + 25 : y + TILE - 4 });
+                    const mark = { label: `${entity.type} ${entity.x},${entity.y}`, col: entity.x, row: entity.y, x: x + 25, y: entity.type === "strawberry" ? y + 25 : y + TILE - 4 };
+                    if (!options.only || options.only(mark)) marks.push(mark);
                 }
             }
             grid = makeGrid(solids, hazards, { left: 0, top: 0, right: width * TILE, bottom: height * TILE });
-            reach = search(grid, start, { dash: true, crystals, springs });
+            const from = options.start ? [options.start[0] * TILE + 25, options.start[1] * TILE + TILE - 4] : start;
+            reach = search(grid, from, { dash: true, dashes: options.dashes ?? 1, crystals, springs });
             let changed = false;
             const keys = entities.filter((entity) => entity.type === "key" && !keysUsed.has(entity.id) && near(entity.x * TILE + 25, entity.y * TILE + 25));
             for (const door of entities.filter((entity) => entity.type === "door" && !opened.has(entity.id))) {
