@@ -1,5 +1,6 @@
 import { forsakenCity } from "./firstLevel.js";
 import { oshiroChase } from "./oshiroChase.js";
+import { summit } from "./summit.js";
 import { prologue } from "./tutorial.js";
 
 /**
@@ -7,4 +8,4 @@ import { prologue } from "./tutorial.js";
  *
  * @type {import("../core/session.js").ChapterDefinition[]}
  */
-export const CHAPTERS = [prologue, forsakenCity, oshiroChase];
+export const CHAPTERS = [prologue, forsakenCity, oshiroChase, summit];

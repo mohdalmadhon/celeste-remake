@@ -262,6 +262,33 @@ a {
   }
 }
 
+.echo {
+  filter: brightness(1.4) saturate(0.4) hue-rotate(190deg) drop-shadow(0 0 6px rgba(150, 190, 255, 0.9));
+}
+
+.badeline {
+  filter: drop-shadow(0 0 4px rgba(170, 90, 230, 0.9));
+  z-index: 4;
+}
+
+.game.sunrise .parallax::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 140, 120, 0) 0%, rgba(255, 160, 120, 0.35) 60%, rgba(255, 214, 150, 0.6) 100%);
+  animation: sunrise 5s ease forwards;
+}
+
+@keyframes sunrise {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .lamp {
   background-size: 100% 100%;
 }
@@ -612,8 +639,7 @@ body.cutscene .hud {
 }
 
 .speaker-echo .portrait-image {
-  filter: saturate(0.6) brightness(1.05) hue-rotate(220deg);
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 .speaker-echo {
