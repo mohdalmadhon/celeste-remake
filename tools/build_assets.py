@@ -96,14 +96,57 @@ def is_hair(r, g, b):
     return r > 90 and r > g * 1.7 and r > b * 1.6 and g < 110
 
 
+PLAYER_SHIFTS = {
+    **{(3, column): 6 for column in range(8)},
+    **{(14, column): 9 for column in range(8)},
+    **{(7, column): 3 for column in range(10, 15)},
+    **{(8, column): 3 for column in range(7)},
+    (4, 7): 3,
+    (6, 9): -3,
+}
+
+
+def clean_player_sheet(sheet):
+    """Return a copy of the Madeline sheet that animates without popping.
+
+    Some clips were drawn a few art pixels left or right of the others, so the
+    character jumped sideways whenever such a clip started. Those cells are
+    shifted onto the shared anchor, and faint pixels bleeding in from the row
+    below are removed from the bottom of every cell.
+    """
+    frame = 64
+    result = Image.new("RGBA", sheet.size, (0, 0, 0, 0))
+    columns = sheet.width // frame
+    rows = (sheet.height + frame - 1) // frame
+    for row in range(rows):
+        for column in range(columns):
+            box = (column * frame, row * frame, (column + 1) * frame, min(sheet.height, (row + 1) * frame))
+            cell = sheet.crop(box)
+            if row < 15:
+                cell_px = cell.load()
+                for y in range(61, cell.height):
+                    for x in range(cell.width):
+                        if cell_px[x, y][3] < 40:
+                            cell_px[x, y] = (0, 0, 0, 0)
+            shift = PLAYER_SHIFTS.get((row, column), 0)
+            if shift:
+                bounds = cell.getbbox()
+                if bounds and (bounds[0] + shift < 0 or bounds[2] + shift > frame):
+                    raise ValueError(f"shift for cell {row},{column} would clip the frame")
+            result.paste(cell, (box[0] + shift, box[1]), cell)
+    return result
+
+
 def build_player():
     """Create recoloured copies of the Madeline sheet.
 
+    player_red.png is the cleaned and aligned original every variant starts from,
     player_blue.png has blue hair for the state where the dash is spent,
     player_white.png is a flat white silhouette used for refill flashes,
     player_badeline.png is the purple variant used for echoes.
     """
-    sheet = Image.open(os.path.join(ASSETS, "player3.png")).convert("RGBA")
+    sheet = clean_player_sheet(Image.open(os.path.join(ASSETS, "player3.png")).convert("RGBA"))
+    sheet.save(out_path("sprites", "player_red.png"))
     blue = sheet.copy()
     white = sheet.copy()
     pixels = sheet.load()
