@@ -165,6 +165,7 @@ export default {
     "checkpoint.summit.ridge": "Cresta del viento",
     "checkpoint.summit.ice": "Recuerdos helados",
     "checkpoint.summit.cave": "Cueva del eco",
+    "checkpoint.summit.roof": "Sobre la cueva",
     "checkpoint.summit.reflection": "Reflejo",
     "checkpoint.summit.peak": "Los últimos pasos",
     "chapter.spire.name": "La Aguja Quebrada",

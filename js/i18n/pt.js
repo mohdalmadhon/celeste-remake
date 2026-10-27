@@ -165,6 +165,7 @@ export default {
     "checkpoint.summit.ridge": "Crista do vento",
     "checkpoint.summit.ice": "Memórias congeladas",
     "checkpoint.summit.cave": "Caverna do eco",
+    "checkpoint.summit.roof": "Acima da caverna",
     "checkpoint.summit.reflection": "Reflexo",
     "checkpoint.summit.peak": "Os últimos passos",
     "chapter.spire.name": "A Agulha Estilhaçada",

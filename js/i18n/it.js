@@ -165,6 +165,7 @@ export default {
     "checkpoint.summit.ridge": "Cresta del vento",
     "checkpoint.summit.ice": "Ricordi ghiacciati",
     "checkpoint.summit.cave": "Grotta dell'eco",
+    "checkpoint.summit.roof": "Sopra la grotta",
     "checkpoint.summit.reflection": "Riflesso",
     "checkpoint.summit.peak": "Gli ultimi passi",
     "chapter.spire.name": "La Guglia Infranta",

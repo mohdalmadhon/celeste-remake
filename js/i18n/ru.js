@@ -165,6 +165,7 @@ export default {
     "checkpoint.summit.ridge": "Ветреный гребень",
     "checkpoint.summit.ice": "Застывшие воспоминания",
     "checkpoint.summit.cave": "Пещера эха",
+    "checkpoint.summit.roof": "Над пещерой",
     "checkpoint.summit.reflection": "Отражение",
     "checkpoint.summit.peak": "Последние шаги",
     "chapter.spire.name": "Расколотый шпиль",

@@ -165,6 +165,7 @@ export default {
     "checkpoint.summit.ridge": "Windward Ridge",
     "checkpoint.summit.ice": "Frozen Memories",
     "checkpoint.summit.cave": "Echo Cave",
+    "checkpoint.summit.roof": "Above the Cave",
     "checkpoint.summit.reflection": "Reflection",
     "checkpoint.summit.peak": "Last Steps",
     "chapter.spire.name": "The Shattered Spire",

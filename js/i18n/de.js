@@ -165,6 +165,7 @@ export default {
     "checkpoint.summit.ridge": "Windgrat",
     "checkpoint.summit.ice": "Gefrorene Erinnerungen",
     "checkpoint.summit.cave": "Echohöhle",
+    "checkpoint.summit.roof": "Über der Höhle",
     "checkpoint.summit.reflection": "Spiegelung",
     "checkpoint.summit.peak": "Die letzten Schritte",
     "chapter.spire.name": "Die zersplitterte Spitze",

@@ -41,6 +41,7 @@ const AMBIENCE = { none: "none", snow: "wind", heavy: "wind", blizzard: "blizzar
  * @property {Level} level - The built level.
  * @property {import("../core/session.js").ChapterContext} context - Build context.
  * @property {{ x: number, y: number }|null} goal - Where the goal is, in pixels.
+ * @property {CheckpointFlag|null} flag - The goal flag entity, if the level has a goal.
  * @property {Record<string, { x: number, y: number }>} markers - Script markers by name: feet position in pixels.
  * @property {(entity: *) => *} add - Adds an entity to the level, resetting it on respawn when it can.
  * @property {string[]} checkpointOrder - Checkpoint ids in the order they are reached, starting with "start".
@@ -264,7 +265,7 @@ function buildLevelRuntime(data, context, chapter, options) {
         }
     }
     if (!checkpoints.start) checkpoints.start = { x: TILE * 2, y: TILE * 2 };
-    const script = options.script?.({ level, context, goal: goal?.spot ?? null, markers, add, checkpointOrder, switches, snowballs }) ?? {};
+    const script = options.script?.({ level, context, goal: goal?.spot ?? null, flag: goal, markers, add, checkpointOrder, switches, snowballs }) ?? {};
 
     const director = game.ui.cutscenes;
     const state = { wind: 0, finishing: false, lastCheckpoint: context.session.checkpoint, deaths: 0 };

@@ -165,6 +165,7 @@ export default {
     "checkpoint.summit.ridge": "Crête venteuse",
     "checkpoint.summit.ice": "Souvenirs gelés",
     "checkpoint.summit.cave": "Grotte des échos",
+    "checkpoint.summit.roof": "Au-dessus de la grotte",
     "checkpoint.summit.reflection": "Reflet",
     "checkpoint.summit.peak": "Les derniers pas",
     "chapter.spire.name": "La Flèche brisée",
