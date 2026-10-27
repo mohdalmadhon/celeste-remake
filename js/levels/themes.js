@@ -19,9 +19,10 @@ export const THEMES = {
         { background: "linear-gradient(180deg, #120f30 0%, #25245a 50%, #4b4580 100%)" },
         { src: `${GEN}stars.png`, width: 480, height: 200, scale: 2.5, factorX: 0.02, factorY: 0.02, y: -20 },
         { src: `${GEN}mountains_far.png`, width: 480, height: 89, scale: 2.5, factorX: 0.06, factorY: 0.05, y: 230, opacity: 0.85 },
-        { src: `${GEN}mountains_mid.png`, width: 480, height: 48, scale: 2.5, factorX: 0.12, factorY: 0.08, y: 340 },
-        { src: `${GEN}hills_near.png`, width: 480, height: 39, scale: 2.5, factorX: 0.22, factorY: 0.12, y: 410 },
-        { src: `${GEN}fog.png`, width: 480, height: 95, scale: 2.5, factorX: 0.35, factorY: 0.1, y: 330, drift: 18, opacity: 0.7 }
+        { src: `${GEN}city_far.png`, width: 480, height: 120, scale: 2.5, factorX: 0.1, factorY: 0.06, y: 240, opacity: 0.95 },
+        { src: `${GEN}fog.png`, width: 480, height: 95, scale: 2.5, factorX: 0.16, factorY: 0.08, y: 330, drift: 10, opacity: 0.45 },
+        { src: `${GEN}city_near.png`, width: 480, height: 90, scale: 2.5, factorX: 0.2, factorY: 0.1, y: 360 },
+        { src: `${GEN}fog.png`, width: 480, height: 95, scale: 2.5, factorX: 0.35, factorY: 0.1, y: 420, drift: 18, opacity: 0.55 }
     ],
     resort: [
         { background: "linear-gradient(180deg, #120a1e 0%, #24143a 55%, #3a1f4e 100%)" },
