@@ -200,7 +200,7 @@ export const MATERIALS = Object.freeze({
 });
 
 /**
- * Finds the top of the first solid below a point.
+ * Finds the top of the first solid below a point that has room for Madeline above it.
  *
  * @param {import("../systems/physics.js").CollisionWorld} world - Collision world.
  * @param {number} x - World x to probe.
@@ -210,8 +210,8 @@ export const MATERIALS = Object.freeze({
  */
 export function groundAt(world, x, fromY, maxDepth = 2000) {
     for (let y = fromY; y < fromY + maxDepth; y += 2) {
-        const hit = world.solidAt(x - 8, y, 16, 2);
-        if (hit) return hit.y;
+        const hit = world.solidAt(x - 12, y, 24, 2);
+        if (hit && !world.solidAt(x - 12, hit.y - 46, 24, 46) && !world.each(x - 12, hit.y - 46, 24, 46, "hazard", () => true)) return hit.y;
     }
     return fromY;
 }
