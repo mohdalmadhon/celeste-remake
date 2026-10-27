@@ -43,16 +43,29 @@ Every key can be rebound in Settings → Controls, and the bar under the game al
 | # | Chapter | What's in it |
 |---|---------|--------------|
 | 0 | Prologue | The original tutorial layout on a clean grid, the snow block that drops on you, the climbing bird, Granny, the collapsing bridge and the dash lesson |
-| 1 | Forsaken City | The original girder level, aligned to the grid and sitting on solid rock, with zip movers and crumbling girders |
+| 1 | Forsaken City | Night-time rooftops: a spring up the first building, a zip cart under a spiked girder, a brick tower with a rubble floor to dash through, a key to fetch from a spiked alley, Theo, three touch switches and a windy ridge to the lookout |
 | 2 | Celestial Resort | A new chapter: Oshiro chases you through the hotel, down a service shaft, across a collapsing ballroom and over the roof |
-| 3 | The Summit's Forgotten Echoes | The finale, with wind, echoes of people you met, a chase with your own doubt and a two-dash climb at the end. It's tuned to be a fun climb rather than a hard one |
+| 3 | The Summit's Forgotten Echoes | The finale: a windy traverse with snowballs, an ice cave where a seeker hunts you while you light three switches, echoes of people you met, a chase with your own doubt and a two-dash climb to the flag |
 | 4 | The Shattered Spire | Optional and hard. Unlocks after the summit |
 
 Each chapter has its own music: the main theme on the menu and in the Prologue, Golden in Forsaken City and on the summit, and Anxiety whenever something is chasing you and in the Spire. Music streams instead of loading up front, so a chapter starts playing right away.
 
 Each chapter has a timer, lives, strawberries and checkpoints. Your best time and score are saved per chapter. If you fall off the bottom of the screen you die, same as in Celeste.
 
-The Shattered Spire is meant to be difficult. You get crumbling stepping stones over spikes, a dash-crystal chain across a long spike pit, a shaft of falling footholds between spiked walls, a hall full of dust bunnies with a bridge that collapses under you, a well you climb by dashing from crystal to crystal, and a headwind on the last stretch. It has 30 lives and five checkpoints, and you'll probably use a lot of them.
+The Shattered Spire is meant to be difficult, and every part of it has a puzzle. The door out of the spike gallery is locked and the key is hidden in a pocket of the ceiling. The shaft has falling footholds, springs on the walls and a floor of rubble you have to dash through from below. The collapsing hall has four touch switches spread between dust bunnies, and the gate at the end only drops when all of them are lit. After the crystal well comes the ridge, with a headwind, snowballs, a seeker and a wall of rubble. It has 35 lives and six checkpoints, and you'll probably use a lot of them.
+
+### Things you'll run into
+
+| Object | What it does |
+|--------|--------------|
+| Spring | Throws you up, or sideways if it's on a wall, and gives your dash back |
+| Key and locked door | Pick up the key and it follows you. Walk into a locked door with it and the door opens. If you die, the key goes back |
+| Touch switch and gate | Light every switch in a group and that group's gates slide out of the way |
+| Dash block | Cracked rubble. Dash into it and it breaks |
+| Seeker | Floats around until it sees you, then chases. It gets dizzy when it slams into a wall |
+| Snowballs | Fly in with the wind. Touching one kills you, but you can bounce off the top of one |
+
+Madeline has a new idle too: she breathes instead of fidgeting, and if you leave her standing for a while she scratches her head, cracks her knuckles or sneezes.
 
 ## Developer mode
 
@@ -63,8 +76,10 @@ When you open it you get your list of levels. From there you can make a new one,
 ### Building a level
 
 - **Blocks.** Pick a material on the left and paint with the left mouse button. Right-click erases. "Fill box" (R) lets you drag out a rectangle, and right-dragging clears one. Edges and corners fill in automatically, the same way they do in the game.
-- **Objects.** Choose one from the Objects list and click on the map. You get: the player start, checkpoints, the goal flag, spikes (in four directions), crumbling blocks, falling blocks, dash crystals, boosters, strawberries, dust bunnies and zip movers. Select an object (V) to change its settings on the right, like which way spikes point, how far a dust bunny drifts, or where a zip mover travels. You can drag objects around with the Select tool.
-- **Events.** Use the "Event area" tool (T) to drag an area. When the player walks into it, the event runs its actions in order. Events can also start when the level starts, at a checkpoint, after a number of strawberries or after a number of deaths. Actions include dialogue (pick the speaker, portrait and text), messages, title cards, screen shake, flashes, changing the wind or weather, changing the number of dashes, refilling the dash, moving the camera to look at something, waiting, dropping a falling block, killing the player and finishing the level.
+- **Back walls.** Switch from "Terrain" to "Back wall" above the materials to paint dark walls behind the player. They're never solid, so you can use them to make a room look like the inside of a building or a cave.
+- **Objects.** Choose one from the Objects list and click on the map. You get: the player start, checkpoints, the goal flag, spikes (in four directions), crumbling blocks, falling blocks, dash crystals, boosters, strawberries, dust bunnies, zip movers, springs, keys, locked doors, touch switches, switch gates, dash blocks, seekers, characters (Granny or Theo), decorations and script markers. Select an object (V) to change its settings on the right, like which way spikes point, how far a dust bunny drifts, which group a switch belongs to or how tall a door is. You can drag objects around with the Select tool.
+- **Decorations.** Street lamps, lit and dark windows, crates, barrels, signs, benches, pipes, chains, banners, prayer flags, bushes, pine trees, rocks, icicles, memorials, a billboard, lanterns, a snowman, cairns, antennas and railings. They sit behind the player and don't collide with anything. Lamps, lanterns and lit windows glow.
+- **Events.** Use the "Event area" tool (T) to drag an area. When the player walks into it, the event runs its actions in order. Events can also start when the level starts, at a checkpoint, after a number of strawberries or after a number of deaths. Actions include dialogue (pick the speaker, portrait and text), messages, title cards, screen shake, flashes, changing the wind or weather, changing the number of dashes, refilling the dash, moving the camera to look at something, waiting, dropping a falling block, starting or stopping snowballs, opening a group's gates, killing the player and finishing the level.
 - **Level settings.** The Level tab has the name, author, background theme, weather, music, time limit, lives and dash count. You can also resize the level there, keeping either the top or the bottom in place.
 
 ### Shortcuts
@@ -115,6 +130,7 @@ Exported levels are plain JSON, so you can edit them by hand too. A small one lo
 
 - Sizes and positions are in 50-pixel cells. One screen is 24 × 10 cells.
 - `tiles` has one string per row. `.` is air, `s` snowy dirt, `d` dirt, `i` ice, `g` girder, `b` stone beam, `w` hotel wood.
+- `background` is optional and works the same way, but those walls are drawn darker behind the player and are never solid.
 - An object's `x` and `y` are the cell it stands in.
 - Unknown objects, triggers and actions are dropped on import, and numbers are clamped to sane ranges, so a broken file won't crash the game.
 
@@ -137,12 +153,12 @@ The short version:
 |--------|------------------|
 | `js/core` | Game loop, settings, save file, translations, the chapter session (timer, lives, checkpoints, deaths) |
 | `js/systems` | Input, audio, collision, camera, particles, weather, parallax |
-| `js/entities` | Madeline, props (strawberries, crumbling and falling blocks, zip movers, crystals, boosters), hazards, Oshiro, the echoes |
+| `js/entities` | Madeline, props (strawberries, crumbling and falling blocks, zip movers, crystals, boosters), the newer objects in `gadgets.js` (springs, keys and doors, switches and gates, dash blocks, seekers, snowballs, decorations), hazards, Oshiro, the echoes |
 | `js/levels` | One script per chapter, the tile builder, the level format and the loader for level files |
-| `js/levels/maps` | Grid maps for the Prologue, Forsaken City, the resort and the summit |
+| `js/levels/maps` | Grid maps for the Prologue and the resort |
 | `js/editor` | Developer mode |
 | `js/ui` | HUD, dialogue, cutscenes, menus, transitions |
-| `js/data` | The original level data and the Chapter 4 level file |
+| `js/data` | The original level data and the level files for Forsaken City, the summit and Chapter 4 |
 | `assets` | Original art and sound, plus `generated/` for sprite sheets, autotiles and backgrounds made by `tools/build_assets.py` |
 | `tools` | Asset and level scripts (see below) |
 
@@ -150,10 +166,10 @@ The short version:
 
 These are only for working on the game itself:
 
-- `python3 tools/build_assets.py [group ...]` regenerates every derived asset from the original art (needs Pillow).
-- `node tools/reachability.mjs ...` simulates Madeline's movement on a layout and tells you whether marked points can be reached. It's how I check that a level can actually be finished after changing it.
-- `node tools/build_spire.mjs` rebuilds the Chapter 4 level file. It refuses to write the file if any checkpoint, strawberry or the goal becomes unreachable.
-- `python3 tools/convert_city.py [fill.json]` regenerates the grid map of Forsaken City from the original level data.
+- `python3 tools/build_assets.py [group ...]` regenerates every derived asset from the original art (needs Pillow). That includes Granny, who is scaled up from the clean original with Scale3x so she matches Madeline's pixel size, and Madeline's breathing idle.
+- `python3 tools/build_gadgets.py` draws the springs, keys, doors, switches, gates, rubble, decorations, the city skyline and the darker back-wall tiles.
+- `node tools/reachability.mjs ...` simulates Madeline's movement on a layout and tells you whether marked points can be reached. It's how I check that a level can actually be finished after changing it. It knows about springs, crystals and boosters and can plan with one or two dashes.
+- `node tools/build_city.mjs`, `node tools/build_summit.mjs` and `node tools/build_spire.mjs` rebuild the level files for Forsaken City, the summit and Chapter 4. They share `tools/levelkit.mjs`, which checks the level in stages: a reachable key opens its door, a group of reachable switches opens its gates and a reachable dash block gets broken, then it searches again. They refuse to write the file if any checkpoint, strawberry or the goal becomes unreachable. Add `--debug` to print a map of where Madeline can get to.
 - `node tools/dump_level.cjs` and `node tools/backfill.mjs` dump a running chapter's collision and work out which space the player can never reach. They need Playwright, and the game has to be running on port 8123.
 
 ### Debugging
