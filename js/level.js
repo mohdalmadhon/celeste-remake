@@ -1,5 +1,6 @@
 import { RENDER_CHUNK, VIEW_HEIGHT, VIEW_WIDTH } from "./core/constants.js";
 import { Entity } from "./entities/entity.js";
+import { animationSystem } from "./systems/animationSystem.js";
 import { CollisionWorld, createBody } from "./systems/physics.js";
 import { snapPixel } from "./core/pixels.js";
 
@@ -43,7 +44,7 @@ export class Level {
     /** @type {Entity[]} */
     entities = [];
     /** @type {Array<(entities: Entity[], dt: number) => void>} */
-    systems = [];
+    systems = [animationSystem];
     /** @type {Map<string, { elem: HTMLDivElement, x: number, y: number, visible: boolean }>} */
     #chunks = new Map();
     /** @type {{ left: number, top: number, right: number, bottom: number }} */
