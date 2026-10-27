@@ -16,7 +16,7 @@ async function main() {
     const [chapter, out, ...extra] = process.argv.slice(2);
     const browser = await chromium.launch();
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-    await page.goto(`http://localhost:8123/game.html?chapter=${chapter}&debug`);
+    await page.goto(`http://localhost:8123/index.html?chapter=${chapter}&debug`);
     await page.waitForFunction(() => window.game?.level && window.game.player);
     await page.waitForTimeout(1000);
     const dump = await page.evaluate(() => {
