@@ -608,7 +608,26 @@ def build_portraits():
     }, 7)
 
 
+def build_npcs():
+    """Re-cut the granny sheet, whose frames sit on a fractional 66.5 pixel grid, into whole pixel cells."""
+    sheet = Image.open(os.path.join(ASSETS, "tiles/grany.png")).convert("RGBA")
+    step = sheet.width / 12
+    layout = {"idle": [(0, c) for c in range(7)],
+              "laugh": [(1, c) for c in range(5)] + [(2, c) for c in range(4)],
+              "quotes": [(r, c) for r in range(3, 7) for c in range(7)],
+              "walk": [(8, c) for c in range(7)]}
+    cell = 66
+    out = Image.new("RGBA", (cell * 28, cell * len(layout)), (0, 0, 0, 0))
+    for row, frames in enumerate(layout.values()):
+        for col, (r, c) in enumerate(frames):
+            box = (round(c * step), round(r * step), round(c * step) + cell, round(r * step) + cell)
+            out.paste(sheet.crop(box), (col * cell, row * cell))
+    out.save(out_path("sprites", "granny.png"))
+    print("granny", {k: (i, len(v)) for i, (k, v) in enumerate(layout.items())})
+
+
 GROUPS = {
+    "npcs": build_npcs,
     "portraits": build_portraits,
     "sheets": build_sheets,
     "player": build_player,
