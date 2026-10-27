@@ -6,7 +6,7 @@ import { SFX } from "../helpers/sound.js";
 import { Level } from "../level.js";
 import { audio } from "../systems/audio.js";
 import { createBody } from "../systems/physics.js";
-import { buildFromJson, groundAt } from "./builder.js";
+import { buildFill, buildFromJson, groundAt } from "./builder.js";
 import { createBird } from "./tutorial.js";
 
 /**
@@ -52,9 +52,11 @@ export const forsakenCity = {
         const level = new Level({ width: 3800, height: 3500 }, context.world, "forsaken-city");
         const special = buildFromJson(level, data.firstLevel.tiles);
         const world = level.world;
-        const b = level.contentBounds;
+        const b = { ...level.contentBounds };
         level.cameraBounds = { left: b.left - 20, top: b.top - 120, right: b.right + 20, bottom: b.bottom + 40 };
         level.killY = b.bottom + 160;
+        const fills = await (await fetch("./js/data/fills.json")).json();
+        buildFill(level, fills["forsaken-city"]);
         world.add(createBody(b.left - 60, b.top - 600, 60, b.bottom - b.top + 1200, "solid", { climbable: false }));
         world.add(createBody(b.right, b.top - 600, 60, b.bottom - b.top + 1200, "solid", { climbable: false }));
 
