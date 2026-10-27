@@ -164,9 +164,13 @@ export class CheckpointFlag extends Entity {
 
 /**
  * Solid block that shakes and falls when triggered, and resets on respawn.
+ *
+ * A block can be a single image or a group of tile parts that fall together.
+ * Landing blocks stop on the first solid below and crush anything trapped
+ * underneath; other blocks fall out of the level.
  */
 export class FallingBlock extends Entity {
-    /** @type {"idle"|"shaking"|"falling"|"gone"} */
+    /** @type {"idle"|"shaking"|"falling"|"landed"|"gone"} */
     status = "idle";
     /** @type {number} */
     #timer = 0;
@@ -181,20 +185,35 @@ export class FallingBlock extends Entity {
     /** @type {boolean} */
     triggerOnTouch;
     /** @type {boolean} */
-    crushes;
+    lands;
+    /** @type {(() => void)|null} */
+    onLand = null;
 
     /**
-     * @param {{ x: number, y: number, w: number, h: number, path: string }} tile - Block geometry and image.
-     * @param {{ shakeTime?: number, triggerOnTouch?: boolean, crushes?: boolean, surface?: string }} [options] - Behaviour options.
+     * @param {{ x: number, y: number, w: number, h: number, path?: string, parts?: Array<{ x: number, y: number, w: number, h: number, path: string }> }} tile - Block geometry, image or image parts relative to the block.
+     * @param {{ shakeTime?: number, triggerOnTouch?: boolean, lands?: boolean, surface?: string }} [options] - Behaviour options.
      */
     constructor(tile, options = {}) {
         super({ x: tile.x, y: tile.y }, { width: tile.w, height: tile.h });
         this.home = { x: tile.x, y: tile.y };
         this.elem.classList.add("falling-block");
-        this.setSpriteSheet(tile.path, { stretch: true });
+        if (tile.parts) {
+            for (const part of tile.parts) {
+                const child = document.createElement("div");
+                child.className = "falling-part";
+                child.style.left = `${part.x}px`;
+                child.style.top = `${part.y}px`;
+                child.style.width = `${part.w}px`;
+                child.style.height = `${part.h}px`;
+                child.style.backgroundImage = `url("${part.path}")`;
+                this.elem.appendChild(child);
+            }
+        } else {
+            this.setSpriteSheet(tile.path, { stretch: true });
+        }
         this.shakeTime = options.shakeTime ?? 0.35;
         this.triggerOnTouch = options.triggerOnTouch ?? true;
-        this.crushes = options.crushes ?? false;
+        this.lands = options.lands ?? false;
         this.body = createBody(tile.x, tile.y, tile.w, tile.h, "solid", {
             surface: options.surface || "wood",
             onTouch: (player, side) => {
@@ -234,17 +253,43 @@ export class FallingBlock extends Entity {
                 audio.play(SFX.breakBridge, { volume: 0.45 });
             }
         } else if (this.status === "falling") {
-            this.#vy = Math.min(900, this.#vy + 2000 * dt);
-            const before = this.body.y;
-            const target = Math.round(this.position.y + this.#vy * dt);
-            moveSolid(game.level.world, this.body, 0, target - before, game.player ? [game.player.box] : []);
+            this.#vy = Math.min(1100, this.#vy + 2400 * dt);
+            const world = game.level.world;
+            let move = Math.round(this.position.y + this.#vy * dt) - this.body.y;
+            if (this.lands) {
+                this.body.active = false;
+                let free = 0;
+                while (free < move && !world.solidAt(this.body.x, this.body.y + free + 1, this.body.w, this.body.h)) free++;
+                this.body.active = true;
+                if (free < move) {
+                    move = free;
+                    this.#land();
+                }
+            }
+            moveSolid(world, this.body, 0, move, game.player ? [game.player.box] : []);
             this.position.y = this.body.y;
-            if (this.position.y > (game.level.killY ?? 3000) + 400) {
+            if (!this.lands && this.position.y > (game.level.killY ?? 3000) + 400) {
                 this.status = "gone";
                 this.body.active = false;
                 this.visible = false;
             }
         }
+    }
+
+    /**
+     * Impact feedback when a landing block hits the ground.
+     *
+     * @returns {void}
+     */
+    #land() {
+        this.status = "landed";
+        game.camera?.shake(7, 0.3);
+        audio.play(SFX.quack, { volume: 0.5 });
+        const bottom = this.body.y + this.body.h;
+        for (let x = this.body.x; x <= this.body.x + this.body.w; x += 25) {
+            game.particles?.dust(x, bottom, 1.2);
+        }
+        this.onLand?.();
     }
 
     /**
