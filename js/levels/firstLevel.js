@@ -93,7 +93,7 @@ export const forsakenCity = {
         const checkpoints = {
             start: { x: 54, y: groundAt(world, 54, 100) },
             crossing: { x: 2350, y: groundAt(world, 2350, -700) },
-            chasm: { x: 2860, y: groundAt(world, 2860, -1200) },
+            chasm: { x: 2800, y: groundAt(world, 2800, -1200) },
             heights: { x: 2620, y: groundAt(world, 2620, -1900) }
         };
         const order = Object.keys(checkpoints);
