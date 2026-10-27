@@ -14,6 +14,8 @@ const SHEET_BLUE = "./assets/generated/sprites/player_blue.png";
 const SHEET_WHITE = "./assets/generated/sprites/player_white.png";
 const TRAIL_RED = "./assets/generated/sprites/player_trail_red.png";
 const TRAIL_BLUE = "./assets/generated/sprites/player_trail_blue.png";
+const SHEET_PINK = "./assets/generated/sprites/player_pink.png";
+const TRAIL_PINK = "./assets/generated/sprites/player_trail_pink.png";
 const MADELINE = "assets/soundTrack/all_sounds/Madeline/";
 
 const HITBOX = { offsetX: 21, offsetY: 19, w: 24, h: 42 };
@@ -94,6 +96,8 @@ export class Player extends Entity {
     noControl = false;
     /** @type {boolean} */
     dashEnabled = true;
+    /** @type {number} */
+    wind = 0;
 
     #jumpGrace = 0;
     #varJumpTimer = 0;
@@ -702,7 +706,7 @@ export class Player extends Entity {
         this.#dashTrailTimer -= dt;
         if (this.#dashTrailTimer <= 0) {
             this.#dashTrailTimer = 0.025;
-            game.afterimages?.spawn(this, this.dashes > 0 ? TRAIL_RED : TRAIL_BLUE, 0.28);
+            game.afterimages?.spawn(this, this.dashes > 1 ? TRAIL_PINK : this.dashes > 0 ? TRAIL_RED : TRAIL_BLUE, 0.28);
         }
         if (Math.random() < 0.6) {
             game.particles?.burst({ x: this.box.x + this.box.w / 2, y: this.box.y + this.box.h / 2, count: 1, color: this.dashes > 0 ? "#ff6f7f" : "#7fd0ff", size: 3, speed: 30, life: 0.3, jitter: 10 });
@@ -739,7 +743,8 @@ export class Player extends Entity {
      */
     #move(dt) {
         const world = game.level.world;
-        moveX(world, this.box, this.velocity.x * dt, (solid) => this.#onCollideX(solid));
+        const wind = this.state === PlayerState.CLIMB || this.state === PlayerState.DASH ? 0 : this.wind * (this.onGround ? 0.55 : 1);
+        moveX(world, this.box, (this.velocity.x + wind) * dt, (solid) => this.#onCollideX(solid));
         moveY(world, this.box, this.velocity.y * dt, (solid) => this.#onCollideY(solid));
     }
 
@@ -995,7 +1000,7 @@ export class Player extends Entity {
             this.visible = false;
             const cx = this.box.x + this.box.w / 2;
             const cy = this.box.y + this.box.h / 2;
-            const color = this.dashes > 0 ? "#d83b4a" : "#44b7ff";
+            const color = this.dashes > 1 ? "#ff6def" : this.dashes > 0 ? "#d83b4a" : "#44b7ff";
             for (let i = 0; i < 8; i++) {
                 const angle = (Math.PI * 2 * i) / 8;
                 game.particles?.burst({ x: cx, y: cy, count: 1, color, size: 10, speed: 260, angle, spread: 0, life: 0.5, drag: 4, jitter: 0, shrink: true });
@@ -1094,7 +1099,7 @@ export class Player extends Entity {
      * @returns {void}
      */
     #updateHairSheet() {
-        const sheet = this.#flashTimer > 0 ? SHEET_WHITE : this.dashes > 0 ? SHEET_RED : SHEET_BLUE;
+        const sheet = this.#flashTimer > 0 ? SHEET_WHITE : this.dashes > 1 ? SHEET_PINK : this.dashes > 0 ? SHEET_RED : SHEET_BLUE;
         if (sheet !== this.#sheet) {
             this.#sheet = sheet;
             this.elem.style.backgroundImage = `url("${sheet}")`;
