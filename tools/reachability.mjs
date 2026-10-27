@@ -206,6 +206,7 @@ export function search(grid, start, options) {
         queue.push([x, y, mode, stamina, dash]);
     };
     const fly = (x, y, path, stamina, dash, isDash) => {
+        let refilled = false;
         for (const [dx, dy, vy] of path) {
             const cx = x + dx;
             const cy = y + dy;
@@ -215,6 +216,7 @@ export function search(grid, start, options) {
             if (crystals.has((cy - 1) * grid.w + cx) || crystals.has((cy - 2) * grid.w + cx)) {
                 stamina = CLIMB_CELLS;
                 dash = options.dash ? 1 : 0;
+                refilled = true;
             }
             if (vy >= 0 && grid.blocked(cx, cy)) {
                 push(cx, cy, modeKey.ground, CLIMB_CELLS, options.dash ? 1 : 0);
@@ -224,7 +226,7 @@ export function search(grid, start, options) {
                 if (grid.blocked(cx - 1, cy - 1)) push(cx, cy, modeKey.left, stamina, isDash ? 0 : dash);
                 if (grid.blocked(cx + 1, cy - 1)) push(cx, cy, modeKey.right, stamina, isDash ? 0 : dash);
             }
-            if (!isDash && dash) push(cx, cy, modeKey.air, stamina, 1);
+            if ((!isDash || refilled) && dash) push(cx, cy, modeKey.air, stamina, 1);
         }
     };
     while (head < queue.length) {
