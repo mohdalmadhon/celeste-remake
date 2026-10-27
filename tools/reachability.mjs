@@ -13,8 +13,9 @@
  * A PPM image of the reachable area is written to /tmp/reachability.ppm.
  */
 import fs from "node:fs";
+import { pathToFileURL } from "node:url";
 
-const CELL = 25;
+export const CELL = 25;
 const GRAVITY = 3600;
 const MAX_FALL = 640;
 const JUMP = 420;
@@ -72,10 +73,12 @@ function loadRows(path, solidChars, hazardChars) {
  *
  * @param {number[][]} solids - Solid rectangles.
  * @param {number[][]} hazards - Hazard rectangles.
+ * @param {{ left: number, top: number, right: number, bottom: number }|null} [extent=null] - Area the grid must cover even where it is empty.
  * @returns {*} Grid helpers.
  */
-function makeGrid(solids, hazards) {
+export function makeGrid(solids, hazards, extent = null) {
     const all = [...solids, ...hazards];
+    if (extent) all.push([extent.left, extent.top, extent.right - extent.left, extent.bottom - extent.top]);
     const x0 = Math.floor(Math.min(...all.map((r) => r[0])) / CELL) - 4;
     const y0 = Math.floor(Math.min(...all.map((r) => r[1])) / CELL) - 12;
     const w = Math.floor(Math.max(...all.map((r) => r[0] + r[2])) / CELL) - x0 + 5;
@@ -185,7 +188,7 @@ const climbJump = arc(0, -JUMP, 0.2).map(([, dy, vy]) => [0, dy, vy]);
  * @param {{ dash: boolean, crystals: number[][] }} options - Search options.
  * @returns {Set<number>} Reached cell indices.
  */
-function search(grid, start, options) {
+export function search(grid, start, options) {
     const reach = new Set();
     const seen = new Set();
     const crystals = new Set(options.crystals.map(([x, y]) => (Math.floor(y / CELL) - grid.y0) * grid.w + Math.floor(x / CELL) - grid.x0));
@@ -261,58 +264,69 @@ function search(grid, start, options) {
     return reach;
 }
 
-const args = process.argv.slice(2);
-const flags = args.filter((a) => a.startsWith("--"));
-const rest = args.filter((a) => !a.startsWith("--"));
-const options = {
-    dash: !flags.includes("--no-dash"),
-    crystals: (flags.find((f) => f.startsWith("--crystals="))?.slice(11) || "").split(";").filter(Boolean).map((p) => p.split(":").map(Number))
-};
-let data;
-let cursor;
-if (rest[0] === "json") {
-    data = loadJson(rest[1], rest[2]);
-    cursor = 3;
-} else {
-    data = loadRows(rest[1], rest[2], rest[3]);
-    cursor = 4;
-}
-const start = [Number(rest[cursor]), Number(rest[cursor + 1])];
-const marks = rest.slice(cursor + 2).map((spec) => {
-    const [x, y, label] = spec.split(",");
-    return { x: Number(x), y: Number(y), label };
-});
-const grid = makeGrid(data.solids, data.hazards);
-const began = Date.now();
-const reach = search(grid, start, options);
-for (const mark of marks) {
-    const gx = Math.floor(mark.x / CELL) - grid.x0;
-    const gy = Math.floor(mark.y / CELL) - grid.y0;
-    let ok = false;
-    for (let dy = -1; dy <= 2 && !ok; dy++) for (let dx = -1; dx <= 1 && !ok; dx++) ok = reach.has((gy + dy) * grid.w + gx + dx);
-    mark.ok = ok;
-    console.log(`${mark.label}: ${ok ? "reachable" : "NOT reachable"}`);
-}
-console.log(`searched in ${Date.now() - began} ms`);
-const scale = 3;
-const W = grid.w * scale;
-const H = grid.h * scale;
-const pixels = Buffer.alloc(W * H * 3, 20);
-for (let gy = 0; gy < grid.h; gy++) {
-    for (let gx = 0; gx < grid.w; gx++) {
-        const i = gy * grid.w + gx;
-        const colour = grid.solid[i] ? [150, 160, 190] : grid.hazard[i] ? [230, 60, 60] : reach.has(i) ? [40, 120, 70] : null;
-        if (!colour) continue;
-        for (let dy = 0; dy < scale; dy++) for (let dx = 0; dx < scale; dx++) pixels.set(colour, ((gy * scale + dy) * W + gx * scale + dx) * 3);
+/**
+ * Command line entry point: loads a layout, searches it and reports the marks.
+ *
+ * @returns {void}
+ */
+function main() {
+    const args = process.argv.slice(2);
+    const flags = args.filter((a) => a.startsWith("--"));
+    const rest = args.filter((a) => !a.startsWith("--"));
+    const options = {
+        dash: !flags.includes("--no-dash"),
+        crystals: (flags.find((f) => f.startsWith("--crystals="))?.slice(11) || "").split(";").filter(Boolean).map((p) => p.split(":").map(Number))
+    };
+    let data;
+    let cursor;
+    if (rest[0] === "json") {
+        data = loadJson(rest[1], rest[2]);
+        cursor = 3;
+    } else {
+        data = loadRows(rest[1], rest[2], rest[3]);
+        cursor = 4;
     }
-}
-for (const mark of marks) {
-    const gx = Math.floor(mark.x / CELL) - grid.x0;
-    const gy = Math.floor(mark.y / CELL) - grid.y0;
-    for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
-        const px = gx * scale + dx;
-        const py = gy * scale + dy;
-        if (px >= 0 && py >= 0 && px < W && py < H && (Math.abs(dx) === 4 || Math.abs(dy) === 4)) pixels.set(mark.ok ? [255, 220, 0] : [255, 0, 255], (py * W + px) * 3);
+    const start = [Number(rest[cursor]), Number(rest[cursor + 1])];
+    const marks = rest.slice(cursor + 2).map((spec) => {
+        const [x, y, label] = spec.split(",");
+        return { x: Number(x), y: Number(y), label };
+    });
+    const grid = makeGrid(data.solids, data.hazards);
+    const began = Date.now();
+    const reach = search(grid, start, options);
+    for (const mark of marks) {
+        const gx = Math.floor(mark.x / CELL) - grid.x0;
+        const gy = Math.floor(mark.y / CELL) - grid.y0;
+        let ok = false;
+        for (let dy = -1; dy <= 2 && !ok; dy++) for (let dx = -1; dx <= 1 && !ok; dx++) ok = reach.has((gy + dy) * grid.w + gx + dx);
+        mark.ok = ok;
+        console.log(`${mark.label}: ${ok ? "reachable" : "NOT reachable"}`);
     }
+    console.log(`searched in ${Date.now() - began} ms`);
+    const scale = 3;
+    const W = grid.w * scale;
+    const H = grid.h * scale;
+    const pixels = Buffer.alloc(W * H * 3, 20);
+    for (let gy = 0; gy < grid.h; gy++) {
+        for (let gx = 0; gx < grid.w; gx++) {
+            const i = gy * grid.w + gx;
+            const colour = grid.solid[i] ? [150, 160, 190] : grid.hazard[i] ? [230, 60, 60] : reach.has(i) ? [40, 120, 70] : null;
+            if (!colour) continue;
+            for (let dy = 0; dy < scale; dy++) for (let dx = 0; dx < scale; dx++) pixels.set(colour, ((gy * scale + dy) * W + gx * scale + dx) * 3);
+        }
+    }
+    for (const mark of marks) {
+        const gx = Math.floor(mark.x / CELL) - grid.x0;
+        const gy = Math.floor(mark.y / CELL) - grid.y0;
+        for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
+            const px = gx * scale + dx;
+            const py = gy * scale + dy;
+            if (px >= 0 && py >= 0 && px < W && py < H && (Math.abs(dx) === 4 || Math.abs(dy) === 4)) pixels.set(mark.ok ? [255, 220, 0] : [255, 0, 255], (py * W + px) * 3);
+        }
+    }
+    fs.writeFileSync("/tmp/reachability.ppm", Buffer.concat([Buffer.from(`P6 ${W} ${H} 255\n`), pixels]));
 }
-fs.writeFileSync("/tmp/reachability.ppm", Buffer.concat([Buffer.from(`P6 ${W} ${H} 255\n`), pixels]));
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+    main();
+}
