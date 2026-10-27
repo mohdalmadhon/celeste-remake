@@ -6,7 +6,8 @@ import { SFX } from "../helpers/sound.js";
 import { Level } from "../level.js";
 import { audio } from "../systems/audio.js";
 import { createBody } from "../systems/physics.js";
-import { buildFill, buildFromJson, groundAt } from "./builder.js";
+import { addSpike, buildFromAscii, buildFromJson, groundAt, MATERIALS } from "./builder.js";
+import { buildCityMap, CITY_CRUMBLES, CITY_ORIGIN_X, CITY_ORIGIN_Y } from "./maps/cityMap.js";
 import { createBird } from "./tutorial.js";
 
 /**
@@ -50,21 +51,28 @@ export const forsakenCity = {
     async build(context) {
         const data = await (await fetch("./js/data/firstLevel.json")).json();
         const level = new Level({ width: 3800, height: 3500 }, context.world, "forsaken-city");
-        const special = buildFromJson(level, data.firstLevel.tiles);
+        buildFromJson(level, data.firstLevel.tiles, {
+            skip: (name, group) => !(group.class || []).includes("none-collision")
+        });
+        buildFromAscii(level, buildCityMap(), {
+            i: MATERIALS.ice, d: MATERIALS.dirt, s: MATERIALS.snow, g: MATERIALS.girder, b: MATERIALS.brick
+        }, {
+            x: CITY_ORIGIN_X,
+            y: CITY_ORIGIN_Y,
+            edgeSolid: false,
+            onMarker: (marker, x, y) => addSpike(level, marker, x, y)
+        });
         const world = level.world;
-        const b = { ...level.contentBounds };
+        const b = { left: 0, top: -2950, right: 3850, bottom: 550 };
         level.cameraBounds = { left: b.left - 20, top: b.top - 120, right: b.right + 20, bottom: b.bottom + 40 };
         level.killY = b.bottom + 160;
         level.voidDeath = true;
-        const fills = await (await fetch("./js/data/fills.json")).json();
-        buildFill(level, fills["forsaken-city"]);
         world.add(createBody(b.left - 60, b.top - 600, 60, b.bottom - b.top + 1200, "solid", { climbable: false }));
         world.add(createBody(b.right, b.top - 600, 60, b.bottom - b.top + 1200, "solid", { climbable: false }));
 
         const crumbles = [];
-        for (const tile of special) {
-            if (tile.type !== "cracked") continue;
-            const block = new CrumbleBlock(tile, "metal");
+        for (const [x, y] of CITY_CRUMBLES) {
+            const block = new CrumbleBlock({ x, y, w: 100, h: 30, path: "./assets/tiles/celeste/breakCracked.png" }, "metal");
             level.addEntity(block);
             world.add(block.body);
             crumbles.push(block);
@@ -94,7 +102,7 @@ export const forsakenCity = {
         }
 
         const checkpoints = {
-            start: { x: 54, y: groundAt(world, 54, 100) },
+            start: { x: 85, y: groundAt(world, 85, 100) },
             crossing: { x: 2350, y: groundAt(world, 2350, -700) },
             chasm: { x: 2800, y: groundAt(world, 2800, -1200) },
             heights: { x: 2620, y: groundAt(world, 2620, -1900) }

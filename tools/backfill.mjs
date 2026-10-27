@@ -19,7 +19,7 @@ import { CELL, makeGrid, search } from "./reachability.mjs";
 
 const TILE = 50;
 const SUB = TILE / CELL;
-const MATERIAL_FOR_SURFACE = { ice: "i", metal: "i", dirt: "d", snow: "d", wood: "d" };
+const MATERIAL_FOR_SURFACE = { ice: "i", metal: "d", dirt: "d", snow: "d", wood: "d" };
 
 /**
  * Builds the solid rectangles of one movement configuration.
