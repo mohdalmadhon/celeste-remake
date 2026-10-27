@@ -52,6 +52,8 @@ export class Input {
     #captureCallback = null;
     /** @type {boolean} */
     usingGamepad = false;
+    /** @type {number} */
+    #pressId = 0;
     /** @type {boolean} */
     enabled = true;
 
@@ -101,9 +103,10 @@ export class Input {
             return;
         }
         this.#keys.add(event.code);
+        const press = ++this.#pressId;
         for (const action of actions) {
             this.#pressAge[action] = 0;
-            events.emit("input:ui", { action, source: "keyboard" });
+            events.emit("input:ui", { action, source: "keyboard", press });
         }
         events.emit("input:key", { code: event.code });
     }
@@ -199,6 +202,7 @@ export class Input {
     poll(dt) {
         const pads = navigator.getGamepads ? navigator.getGamepads() : [];
         const state = {};
+        const press = ++this.#pressId;
         for (const pad of pads) {
             if (!pad || !pad.connected) continue;
             for (const action of ACTIONS) {
@@ -218,12 +222,12 @@ export class Input {
                 this.usingGamepad = true;
                 this.#pressAge[action] = 0;
                 this.#repeatTimer[action] = MENU_REPEAT_DELAY;
-                events.emit("input:ui", { action, source: "gamepad" });
+                events.emit("input:ui", { action, source: "gamepad", press });
             } else if (down && ["left", "right", "up", "down"].includes(action)) {
                 this.#repeatTimer[action] -= dt;
                 if (this.#repeatTimer[action] <= 0) {
                     this.#repeatTimer[action] = MENU_REPEAT_RATE;
-                    events.emit("input:ui", { action, source: "gamepad", repeat: true });
+                    events.emit("input:ui", { action, source: "gamepad", repeat: true, press: ++this.#pressId });
                 }
             }
             this.#pad[action] = down;
@@ -249,7 +253,7 @@ export class Input {
             this.#repeatTimer[key] = (this.#repeatTimer[key] ?? MENU_REPEAT_DELAY) - dt;
             if (this.#repeatTimer[key] <= 0) {
                 this.#repeatTimer[key] = MENU_REPEAT_RATE;
-                events.emit("input:ui", { action, source: "keyboard", repeat: true });
+                events.emit("input:ui", { action, source: "keyboard", repeat: true, press: ++this.#pressId });
             }
         }
     }

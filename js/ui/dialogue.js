@@ -169,6 +169,8 @@ export class Dialogue {
     /** @type {boolean} */
     active = false;
     /** @type {boolean} */
+    paused = false;
+    /** @type {boolean} */
     #skipping = false;
     /** @type {Function|null} */
     #advance = null;
@@ -209,7 +211,7 @@ export class Dialogue {
         this.textElem = root.querySelector(".dialogue-text");
         this.textElem.setAttribute("aria-live", "polite");
         events.on("input:ui", ({ action }) => {
-            if (!this.active || this.#guard > 0) return;
+            if (!this.active || this.#guard > 0 || this.paused) return;
             if (action === "confirm" || action === "jump") this.#press();
         });
         root.addEventListener("pointerdown", () => {

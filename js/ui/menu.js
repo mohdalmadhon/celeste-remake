@@ -47,6 +47,8 @@ export class Menu {
     #off;
     /** @type {number} */
     #lockUntil = 0;
+    /** @type {number} */
+    #lastPress = -1;
 
     /**
      * @param {HTMLElement} container - Element the list is rendered into.
@@ -221,6 +223,10 @@ export class Menu {
      */
     #onInput(event) {
         if (!this.active || performance.now() < this.#lockUntil) return;
+        if (event.press !== undefined) {
+            if (event.press === this.#lastPress) return;
+            this.#lastPress = event.press;
+        }
         const { action } = event;
         const next = this.horizontal ? "right" : "down";
         const previous = this.horizontal ? "left" : "up";
