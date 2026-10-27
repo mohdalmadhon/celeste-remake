@@ -43,8 +43,8 @@ Every key can be rebound in Settings → Controls, and the bar under the game al
 | # | Chapter | What's in it |
 |---|---------|--------------|
 | 0 | Prologue | The original tutorial layout on a clean grid, the snow block that drops on you, the climbing bird, Granny, the collapsing bridge and the dash lesson |
-| 1 | Forsaken City | Night-time rooftops: a spring up the first building, a zip cart under a spiked girder, a brick tower with a rubble floor to dash through, a key to fetch from a spiked alley, Theo, three touch switches and a windy ridge to the lookout |
-| 2 | Celestial Resort | A new chapter: Oshiro chases you through the hotel, down a service shaft, across a collapsing ballroom and over the roof |
+| 1 | Forsaken City | Night-time rooftops: a spring up the first building, a zip cart under a spiked girder, a brick tower with a rubble floor to dash through, a key to fetch from a spiked alley, Theo, three touch switches, a windy ridge, an old underpass and a clock tower before the lookout |
+| 2 | Celestial Resort | A new chapter: Oshiro chases you through the hotel, down a service shaft, across a collapsing ballroom, over the roof, through the old wing and up the grand staircase. He gets faster with every checkpoint |
 | 3 | The Summit's Forgotten Echoes | The finale: a windy traverse with snowballs, an ice cave where a seeker hunts you while you light three switches, echoes of people you met, a chase with your own doubt and a two-dash climb to the flag |
 | 4 | The Shattered Spire | Optional and hard. Unlocks after the summit |
 
@@ -170,6 +170,7 @@ These are only for working on the game itself:
 - `python3 tools/build_gadgets.py` draws the springs, keys, doors, switches, gates, rubble, decorations, the city skyline and the darker back-wall tiles.
 - `node tools/reachability.mjs ...` simulates Madeline's movement on a layout and tells you whether marked points can be reached. It's how I check that a level can actually be finished after changing it. It knows about springs, crystals and boosters and can plan with one or two dashes.
 - `node tools/build_city.mjs`, `node tools/build_summit.mjs` and `node tools/build_spire.mjs` rebuild the level files for Forsaken City, the summit and Chapter 4. They share `tools/levelkit.mjs`, which checks the level in stages: a reachable key opens its door, a group of reachable switches opens its gates and a reachable dash block gets broken, then it searches again. They refuse to write the file if any checkpoint, strawberry or the goal becomes unreachable. Add `--debug` to print a map of where Madeline can get to.
+- `node tools/check_resort.mjs` runs the same check on the Celestial Resort map.
 - `node tools/dump_level.cjs` and `node tools/backfill.mjs` dump a running chapter's collision and work out which space the player can never reach. They need Playwright, and the game has to be running on port 8123.
 
 ### Debugging
