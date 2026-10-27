@@ -109,7 +109,7 @@ export class BadelineChaser extends Entity {
         this.delaySteps = Math.round(delay * 120);
         this.elem.classList.add("badeline");
         this.elem.style.transformOrigin = "33px 61px";
-        this.setSpriteSheet("./assets/player3.png", { frameWidth: 64, frameHeight: 64 });
+        this.setSpriteSheet("./assets/generated/sprites/player_red.png", { frameWidth: 64, frameHeight: 64 });
         this.body = createBody(-500, -500, 20, 36, "hazard", { direction: "any", active: false });
         this.visible = false;
         this.setUpdate((self) => self.step());
