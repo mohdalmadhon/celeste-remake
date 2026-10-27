@@ -688,7 +688,6 @@ body.cutscene .hud {
 
 @keyframes wipeIn {
   from {
-    clip-path: polygon(50% -60%, 160% 50%, 50% 160%, -60% 50%);
     clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
   }
 
