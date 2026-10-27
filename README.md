@@ -48,3 +48,5 @@ Every key can be remapped in Settings → Controls.
 
 - `python3 tools/build_assets.py [group ...]` rebuilds every derived asset from the original art.
 - `node tools/reachability.mjs ...` checks that a layout can be completed with the current movement.
+- `node tools/dump_level.cjs <chapter> <dump.json> [x,y,label]` (needs Playwright and the game served on port 8123, with the chapter's entry removed from `js/data/fills.json`) writes a chapter's collision layout.
+- `node tools/backfill.mjs <dump.json> <chapter> js/data/fills.json --doomed [--sides=12]` fills the space the player can never reach with solid terrain and refuses to write anything that would cut off a checkpoint, strawberry or ending.
