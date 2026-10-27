@@ -516,7 +516,7 @@
                 ]
             },
             "ironBarOne": {
-                "path": "./assets/tiles/celeste/ironBarOne.png",
+                "path": "./assets/tiles/celeste/IronBarOne.png",
                 "dimensions": {
                     "height": 32,
                     "width": 32
