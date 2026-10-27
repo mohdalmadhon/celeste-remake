@@ -1,495 +1,385 @@
-import { Entity } from "../entities/entity.js";
-import { Level } from "../level.js";
-import { animationFrameId, camera, gameContainer, gameTimeRemaining, lastDisplayedTime, levels, main, mainLevel, player } from "../main.js";
-import { collision, gravity } from "../systems/physics.js";
-import { animationSystem } from "../systems/animationSystem.js";
 import { addAnimation, playAnimation } from "../components/animation.js";
-import { playSound } from "../helpers/sound.js";
-import { hideSign, revealTitle, showSign } from "../helpers/sign.js";
-import { applyGravity } from "../components/physics.js";
-import { deathCount, playerDeath } from "../entities/player.js";
-import { detectInput, initInputs, inputs, keys, removeKey } from "../systems/input.js";
-import { showDialogue, wait } from "../helpers/scene.js";
-import { createSnow } from "../helpers/snow.js";
-import { createBird } from "../entities/bird.js";
-import { fadeFromBlack, showEndDialogue, showMainMenu, showWinScreen, stopGame } from "../helpers/mainMenu.js";
-import { resumeGame } from "../helpers/gameState.js";
+import { game } from "../core/game.js";
+import { Npc, Strawberry, CheckpointFlag, FallingBlock } from "../entities/props.js";
+import { PlayerState } from "../entities/player.js";
+import { PromptSign } from "../helpers/sign.js";
+import { SFX } from "../helpers/sound.js";
+import { Level } from "../level.js";
+import { audio } from "../systems/audio.js";
+import { input } from "../systems/input.js";
+import { buildFromJson, groundAt } from "./builder.js";
 
-let fallingBlocks;
-let level;
-let snow;
-export let birdSounded = false;
-let triggered = false;
-let soundTriggered = false;
-let death = false;
-let first = false;
-let breakTrapTriggered = false;
-let birdLanded = false;
-let dashBird;
-
-export let grannyConvo = false;
-export let granyConvoEnd = false;
-
-let bird;
-let dashTutorial = false;
-let positionX = 0;
-let positionY = 0;
-
-export async function createTutorial(reset = true) {
-    if (mainLevel != null) {
-        if (reset == true) {
-            mainLevel.removeEntities();
-        }
-    }
-    snow = createSnow(gameContainer);
-    fadeFromBlack(7000);
-
-    resumeGame()
-    initInputs();
-    fallingBlocks = createFallingBlock();
-    player.alive = true;
-    death = false;
-    first = false;
-    triggered = false;
-    soundTriggered = false;
-    breakTrapTriggered = false;
-    birdLanded = false;
-    birdSounded = false;
-    dashTutorial = false;
-    camera.target = player;
-    player.freeze = false;
-
-    if (reset) {
-        grannyConvo = false;
-        granyConvoEnd = false;
-        player.lives = 3;
-        document.getElementById('live-count').textContent = `Lives: ${player.lives}`;
-    }
-
-    player.position = {
-        x: 0,
-        y: 200
-    }
-
-    const response = await fetch("./js/data/levels.json");
-
-    const levelData = await response.json();
-    bird = createBird();
-
-    level = new Level({ height: 550, width: 1200 }, gameContainer);
-    level.addSystem(gravity);
-
-    level.addSystem(animationSystem);
-    level.addEntity(bird);
-    for (let i = 0; i < fallingBlocks.length; i++) {
-        level.addEntity(fallingBlocks[i]);
-    }
-
-    dashBird = createDashBird();
-
-    Object.values(levelData.tutorial.tiles).forEach(tileData => {
-        tileData.positions.forEach(position => {
-            const tile = new Entity(
-                {
-                    x: position.x,
-                    y: position.y - 200
-                },
-                {
-                    height: tileData.dimensions.height,
-                    width: tileData.dimensions.width
-                },
-            );
-            if (tileData.class) {
-                tileData.class.forEach((c) => {
-                    tile.elem.classList.add(c);
-                })
-                tile.elem.classList.add("no-render");
-            }
-            tile.elem.style.backgroundSize = 'cover';
-            tile.setSpriteSheet(tileData.path);
-            level.addEntity(tile);
-        });
+/**
+ * Creates the bird that teaches climbing and dashing.
+ *
+ * @param {number} x - Left edge.
+ * @param {number} y - Top edge.
+ * @returns {Npc} The bird.
+ */
+export function createBird(x, y) {
+    const bird = new Npc("bird", { x, y }, { width: 64, height: 50 }, "./assets/bird.png", {
+        frameWidth: 64, frameHeight: 50
     });
-    level.addEntity(player);
-    const grany = new Entity({ x: 4300, y: 200 }, { height: 80, width: 66.6 });
-    grany.setSpriteSheet("./assets/tiles/grany.png");
-    grany.setUpdate(granyUpdate);
-    grany.elem.classList.add('none-collision');
-    grany.elem.style.scale = '1.2';
-    addAnimation(grany, "idle", {
-        row: 0,
-        frameCount: 7,
-        startFrame: 0,
-        fps: 12
-    });
-    playAnimation(grany, "idle");
-    bird.components.movement = {}
-    bird.components.movement.direction = -1;
-    level.addEntity(grany);
-    level.addEntity(dashBird);
-
-    initInputs();
-    level.setConditions(conditions);
-    level.end = false;
-    return level;
-}
-
-async function conditions(dt) {
-
-    if (death && !first) {
-        first = true;
-        stopGame();
-        await wait(1000);
-
-        mainLevel.removeEntities();
-        let newLevel = await createTutorial(false);
-        main(newLevel);
-    }
-
-    if ((player.position.x >= 1100 || triggered)) {
-        triggered = true;
-
-        if (!(fallingBlocks[0].position.y >= 253)) {
-            for (let i = 0; i < fallingBlocks.length; i++) {
-                fallingBlocks[i].position.y += 280 * dt;
-            }
-        } else {
-            if (!soundTriggered) { playSound("./assets/soundTrack/quack.wav"); soundTriggered = true };
-        }
-
-    }
-
-    let sign = null;
-    if (player.position.x >= 2200 && !birdSounded) {
-        birdSounded = true;
-        playAnimation(bird, "sound");
-        playSound("./assets/soundTrack/bird/squawk.wav");
-        setInterval(() => {
-            playAnimation(bird, "idle");
-        }, 500);
-
-        sign = showSign("./assets/signs/climb.png", 950, 10, document.getElementById('game'));
-        setInterval(() => {
-            hideSign(sign);
-        }, 2000);
-    }
-    snow.update();
-    if (player.position.y >= 500) {
-        if (player.alive) playSound("./assets/soundTrack/player/death.wav");
-        player.alive = false;
-        if (!death) {
-            death = true;
-            deathCount();
-        }
-    }
-
-    if (player.position.x >= 1100 &&
-        player.position.x <= 1247 &&
-        player.position.y >= 206 &&
-        player.position.y <= 253 &&
-        fallingBlocks[0].position.y >= 189 &&
-        fallingBlocks[0].position.y <= 250
-    ) {
-        if (player.alive) playSound("./assets/soundTrack/player/death.wav");
-
-
-        player.alive = false;
-        if (!death) {
-            deathCount();
-        }
-        death = true;
-    }
-    breakTrap(player);
-    if (player.position.x >= 6600 && player.position.y >= 400 && !dashTutorial) {
-        player.freeze = true;
-        dashTutorial = true;
-        dashTutorialScene();
-    }
-
-    if (dashTutorial && inputs.includes(keys.dash)) {
-        player.freeze = false;
-    }
-
-    let loop;
-    if (player.position.x >= 7001 && player.position.y <= 271) {
-        player.freeze = true;
-        camera.target = null;
-        playAnimation(player, "idle");
-        async function cameraMovement() {
-            camera.position.y -= 3;
-            if (camera.position.y <= -100) {
-                clearInterval(loop);
-                if (!level.end) {
-                    level.end = true
-
-                    await wait(3500);
-                    stopGame();
-                    levels.tutorial = true;
-                    showEndDialogue(getTimeScore(lastDisplayedTime), null);
-                }
-            }
-        }
-
-        loop = setInterval(cameraMovement, 40);
-    }
-
-    if (player.position.x >= 4090 && !grannyConvo && !granyConvoEnd) {
-        player.noControl = true;
-        playAnimation(player, "talk");
-        window.removeEventListener('keydown', detectInput);
-        window.removeEventListener('keyup', removeKey);
-        inputs.length = 0;
-        grannyConvo = true;
-
-        await showDialogue(
-            "Excuse me, ma'am?",
-            "./assets/faces/madline.png",
-            "./assets/soundTrack/player/talk1.wav"
-        );
-
-
-        await (async () => {
-            inputs.push('ArrowRight');
-            setTimeout(() => {
-                inputs.length = 0;
-                playAnimation(player, "talk");
-            }, 500);
-        })();
-
-        await showDialogue(
-            "The sign out front is busted...\nis this the Mountain trail?",
-            "./assets/faces/madline.png",
-            "./assets/soundTrack/player/talk2.wav"
-        );
-
-        await showDialogue(
-            "You are almost there.\nIt's across the bridge.",
-            "./assets/faces/grany.png",
-            "./assets/soundTrack/grany/talk1.wav"
-        );
-
-        await (async () => {
-            inputs.push('ArrowRight');
-            setTimeout(() => {
-                inputs.length = 0;
-                playAnimation(player, "talk");
-                player.components.movement.direction = -1;
-            }, 900);
-        })();
-
-        await showDialogue(
-            "By The Way. You should call someone about your\ndriveWay. The ridge collapsed and I nearly died.",
-            "./assets/faces/madlineSad.png",
-            "./assets/soundTrack/player/talk3.wav"
-        );
-
-        await showDialogue(
-            "Ha..HA...HA.HA",
-            "./assets/faces/granyLaugh.png",
-            "./assets/soundTrack/grany/laugh.wav"
-        );
-
-        await showDialogue(
-            "if my driveway almost did you in,\nthe mountain might be a bit too much for you.",
-            "./assets/faces/granyLaugh.png",
-            "./assets/soundTrack/grany/talk1.wav"
-        );
-
-        await showDialogue(
-            "well, if an old bat like you survive out here, I think I'll be fine.",
-            "./assets/faces/madlineMad.png",
-            "./assets/soundTrack/player/talk2.wav"
-        );
-
-        await showDialogue(
-            "but you should know,\nCeleste mountains is a strange place.",
-            "./assets/faces/grany.png",
-            "./assets/soundTrack/grany/talk2.wav"
-        );
-
-        await showDialogue(
-            "Ha..HA...HA.HA",
-            "./assets/faces/granyLaugh.png",
-            "./assets/soundTrack/grany/laugh.wav"
-        );
-
-        await showDialogue(
-            "......",
-            "./assets/faces/madlineMad.png"
-        );
-
-        inputs.length = 0;
-        granyConvoEnd = true;
-        window.addEventListener('keydown', detectInput);
-        window.addEventListener('keyup', removeKey);
-        player.noControl = false;
-
-    }
-}
-
-function createFallingBlock() {
-    const EdgeLeft = new Entity({ x: 1100, y: 0 }, { height: 50, width: 50 });
-    EdgeLeft.setSpriteSheet("assets/tiles/celeste/blueIceEdgeLeft.png");
-    EdgeLeft.elem.style.backgroundSize = 'cover';
-    EdgeLeft.elem.classList.add('falling-snow');
-
-    const topCenter = new Entity({ x: 1149, y: 0 }, { height: 50, width: 50 });
-    topCenter.setSpriteSheet("assets/tiles/celeste/blueIce.png");
-    topCenter.elem.style.backgroundSize = 'cover';
-    topCenter.elem.classList.add('falling-snow');
-
-    const EdgeRight = new Entity({ x: 1198, y: 0 }, { height: 50, width: 50 });
-    EdgeRight.setSpriteSheet("assets/tiles/celeste/blueIceEdgeRight.png");
-    EdgeRight.elem.style.backgroundSize = 'cover';
-    EdgeRight.elem.classList.add('falling-snow');
-
-    const EdgeBottomLeft = new Entity({ x: 1100, y: 49 }, { height: 50, width: 50 });
-    EdgeBottomLeft.setSpriteSheet("assets/tiles/celeste/blueIceEdgeLeftBottom.png");
-    EdgeBottomLeft.elem.style.backgroundSize = 'cover';
-    EdgeBottomLeft.elem.classList.add('falling-snow');
-
-    const bottomCenter = new Entity({ x: 1149, y: 49 }, { height: 50, width: 50 });
-    bottomCenter.setSpriteSheet("assets/tiles/celeste/blueIceDown.png");
-    bottomCenter.elem.style.backgroundSize = 'cover';
-    bottomCenter.elem.classList.add('falling-snow');
-
-    const EdgeBottomRight = new Entity({ x: 1198, y: 49 }, { height: 50, width: 50 });
-    EdgeBottomRight.setSpriteSheet("assets/tiles/celeste/blueIceEdgeRightBototm.png");
-    EdgeBottomRight.elem.style.backgroundSize = 'cover';
-    EdgeBottomRight.elem.classList.add('falling-snow');
-
-
-    return [EdgeBottomLeft, EdgeLeft, topCenter, EdgeRight, EdgeBottomRight, bottomCenter];
-}
-
-function breakTrap(player) {
-    if (breakTrapTriggered) return;
-
-    if (player.position.x >= 6500) {
-        breakTrapTriggered = true;
-
-        const arr = document.getElementsByClassName("fallingBreak");
-
-        for (const elem of arr) {
-            elem.classList.add("falling");
-        }
-        playSound("./assets/soundTrack/breakBridge.wav");
-
-    }
-}
-
-function createDashBird() {
-    const bird = new Entity({ x: 7100, y: 240 }, { height: 56, width: 64 }, "bird");
-    bird.setSpriteSheet("./assets/bird.png");
-    bird.elem.classList.add('none-collision');
-    bird.components.movement = {
-        direction: -1
-    }
-    bird.landed = false;
-
-    addAnimation(bird, "idle", {
-        row: 0,
-        startFrame: 0,
-        frameCount: 1,
-        fps: 12
-    });
-    addAnimation(bird, "fly", {
-        row: 0,
-        startFrame: 32,
-        frameCount: 5,
-        fps: 12
-    });
-
-    addAnimation(bird, "sound", {
-        row: 0,
-        startFrame: 7,
-        frameCount: 7,
-        fps: 12
-    });
-
-    playAnimation(bird, "idle")
+    addAnimation(bird, "idle", { row: 0, startFrame: 0, frameCount: 1, fps: 1 });
+    addAnimation(bird, "peck", { row: 0, frames: [0, 1, 2, 1, 0], startFrame: 0, frameCount: 5, fps: 10, loop: false, next: "idle" });
+    addAnimation(bird, "squawk", { row: 0, startFrame: 7, frameCount: 7, fps: 14, loop: false, next: "idle" });
+    addAnimation(bird, "fly", { row: 1, startFrame: 0, frameCount: 4, fps: 12 });
+    addAnimation(bird, "flyUp", { row: 2, startFrame: 0, frameCount: 12, fps: 14 });
+    addAnimation(bird, "hover", { row: 3, startFrame: 0, frameCount: 6, fps: 10 });
+    playAnimation(bird, "idle");
+    bird.facing = -1;
     return bird;
 }
 
-function dashTutorialScene(bird, dt) {
-    // landing position x = 7100, y = 240
+/**
+ * Creates Granny with her idle, laugh and walk clips.
+ *
+ * @param {number} x - Left edge.
+ * @param {number} y - Top edge.
+ * @returns {Npc} Granny.
+ */
+export function createGranny(x, y) {
+    const granny = new Npc("granny", { x, y }, { width: 132, height: 132 }, "./assets/generated/sprites/granny.png", {
+        frameWidth: 66, frameHeight: 66, scale: 2, sheetWidth: 1848, sheetHeight: 264
+    });
+    granny.elem.style.transformOrigin = "50% 100%";
+    addAnimation(granny, "idle", { row: 0, startFrame: 0, frameCount: 7, fps: 7 });
+    addAnimation(granny, "laugh", { row: 1, startFrame: 0, frameCount: 9, fps: 10 });
+    addAnimation(granny, "talk", { row: 2, startFrame: 0, frameCount: 28, fps: 12 });
+    addAnimation(granny, "walk", { row: 3, startFrame: 0, frameCount: 7, fps: 9 });
+    playAnimation(granny, "idle");
+    granny.facing = -1;
+    return granny;
+}
 
+/**
+ * Prologue: the road to the mountain, Granny's house, the collapsing bridge
+ * and the bird teaching the dash, built from the original level data.
+ *
+ * @type {import("../core/session.js").ChapterDefinition}
+ */
+export const prologue = {
+    id: "prologue",
+    number: 0,
+    nameKey: "chapter.prologue.name",
+    subtitleKey: "chapter.prologue.subtitle",
+    art: "./assets/generated/checkpoints/prologue.png",
+    icon: "flag",
+    timeLimit: 300,
+    lives: 5,
+    strawberries: 2,
+    music: SFX.theme,
+    musicVolume: 0.45,
+    ambience: "wind",
+    weather: { type: "snow", density: 0.7, wind: -25 },
+    parallax: "forest",
+    checkpointNames: { climb: "checkpoint.prologue.climb", granny: "checkpoint.prologue.granny", bridge: "checkpoint.prologue.bridge" },
 
-    function birdUpdate(dashBird, dt) {
+    /**
+     * Builds the Prologue.
+     *
+     * @param {import("../core/session.js").ChapterContext} context - Build context.
+     * @returns {Promise<import("../core/session.js").ChapterRuntime>} The live chapter.
+     */
+    async build(context) {
+        const data = await (await fetch("./js/data/levels.json")).json();
+        const level = new Level({ width: 7200, height: 700 }, context.world, "prologue");
+        const special = buildFromJson(level, data.tutorial.tiles);
+        level.cameraBounds = { left: 0, top: -150, right: 7240, bottom: 640 };
+        level.killY = 720;
+        const world = level.world;
 
-        if (!birdLanded) {
-            birdLanded = true;
-            playSound("./assets/soundTrack/bird/squawk.wav");
-            playAnimation(dashBird, "sound");
+        const wallLeft = { x: -50, y: -800, w: 50, h: 1600, kind: "solid", active: true, climbable: false, cells: [] };
+        world.add(wallLeft);
 
-            let sign = showSign("./assets/signs/dash_sign.png", 920, 150, document.getElementById('game'));
+        const iceParts = [
+            { x: 0, y: 0, w: 50, h: 50, path: "assets/tiles/celeste/blueIceEdgeLeft.png" },
+            { x: 49, y: 0, w: 50, h: 50, path: "assets/tiles/celeste/blueIce.png" },
+            { x: 98, y: 0, w: 50, h: 50, path: "assets/tiles/celeste/blueIceEdgeRight.png" },
+            { x: 0, y: 49, w: 50, h: 50, path: "assets/tiles/celeste/blueIceEdgeLeftBottom.png" },
+            { x: 49, y: 49, w: 50, h: 50, path: "assets/tiles/celeste/blueIceDown.png" },
+            { x: 98, y: 49, w: 50, h: 50, path: "assets/tiles/celeste/blueIceEdgeRightBototm.png" }
+        ];
+        const iceTrap = new FallingBlock({ x: 1100, y: -60, w: 148, h: 99, parts: iceParts }, { triggerOnTouch: false, lands: true, shakeTime: 0.25, surface: "ice" });
+        level.addEntity(iceTrap);
+        world.add(iceTrap.body);
 
-            setTimeout(() => {
-                hideSign(sign);
-            }, 3000);
+        const bridge = [];
+        for (const tile of special) {
+            if (tile.type !== "fall") continue;
+            const block = new FallingBlock(tile, { triggerOnTouch: false, shakeTime: 0.3, surface: "wood" });
+            if (tile.name === "woodStick") {
+                block.body.active = false;
+                block.layer = "back";
+            } else {
+                world.add(block.body);
+            }
+            level.addEntity(block);
+            bridge.push(block);
+        }
+        bridge.sort((a, b) => a.home.x - b.home.x);
 
-            setTimeout(() => {
-                playAnimation(dashBird, "idle");
-            }, 600);
+        const climbBird = createBird(2360, 103);
+        level.addEntity(climbBird);
+        const dashBird = createBird(7300, -120);
+        level.addEntity(dashBird);
+        const granny = createGranny(4270, 182);
+        level.addEntity(granny);
+
+        const climbSign = new PromptSign(2380, 60, () => [
+            [{ text: "sign.hold" }],
+            [{ action: "left" }, { text: "sign.or" }, { action: "right" }, { text: "sign.or" }, { action: "grab" }],
+            [{ text: "sign.toClimb" }]
+        ]);
+        level.addEntity(climbSign);
+        const jumpSign = new PromptSign(420, 250, () => [
+            [{ text: "sign.press" }, { action: "jump" }, { text: "sign.toJump" }],
+            [{ text: "sign.holdHigher" }]
+        ]);
+        level.addEntity(jumpSign);
+        const dashSign = new PromptSign(6820, 230, () => [
+            [{ text: "sign.press" }],
+            [{ action: "dash" }, { text: "sign.plus" }, { action: "right" }, { text: "sign.plus" }, { action: "up" }],
+            [{ text: "sign.toDash" }]
+        ]);
+        level.addEntity(dashSign);
+
+        const berries = [
+            new Strawberry("prologue-berry-1", 1000, -40),
+            new Strawberry("prologue-berry-2", 3720, -250)
+        ];
+        for (const berry of berries) {
+            if (context.session.strawberries.has(berry.id)) continue;
+            level.addEntity(berry);
+            world.add(berry.body);
         }
 
+        const checkpoints = {
+            start: { x: 60, y: groundAt(world, 60, -200) },
+            climb: { x: 2080, y: groundAt(world, 2080, 100) },
+            granny: { x: 3950, y: groundAt(world, 3950, 100) },
+            bridge: { x: 4700, y: groundAt(world, 4700, 100) }
+        };
+        for (const [id, point] of Object.entries(checkpoints)) {
+            if (id === "start") continue;
+            const flag = new CheckpointFlag(id, point.x, point.y, (reached) => context.session.reachCheckpoint(reached));
+            if (Object.keys(checkpoints).indexOf(id) <= Object.keys(checkpoints).indexOf(context.session.checkpoint)) flag.activate();
+            level.addEntity(flag);
+            world.add(flag.body);
+        }
 
-        const animation = dashBird.components.animation;
-        if (!animation) return;
+        const state = { birdSquawked: false, grannyTalked: false, bridgeCollapsing: false, dashTaught: false, dashWaiting: false, ending: false, jumpSignShown: false };
+        const director = game.ui.cutscenes;
 
-        const sprite = animation.sprites[animation.state.sprite];
-        if (!sprite) return;
+        /**
+         * Granny conversation in front of her house.
+         *
+         * @returns {Promise<void>} Resolves when the scene ends.
+         */
+        const grannyScene = async () => {
+            state.grannyTalked = true;
+            await director.run(async (cs) => {
+                await cs.walk(4150, 0.5);
+                cs.face(1);
+                cs.pan(4260, 220, 1.2);
+                await cs.say([
+                    { speaker: "madeline", emotion: "normal", key: "prologue.granny.1" },
+                    { speaker: "madeline", emotion: "distracted", key: "prologue.granny.2" }
+                ]);
+                playAnimation(granny, "talk");
+                await cs.say([{ speaker: "granny", key: "prologue.granny.3" }]);
+                playAnimation(granny, "idle");
+                await cs.walk(4180, 0.3);
+                cs.face(-1);
+                await cs.wait(0.4);
+                cs.face(1);
+                await cs.say([{ speaker: "madeline", emotion: "upset", key: "prologue.granny.4" }]);
+                playAnimation(granny, "laugh");
+                audio.play("assets/soundTrack/grany/laugh.wav", { volume: 0.5 });
+                await cs.say([
+                    { speaker: "granny", emotion: "laugh", key: "prologue.granny.5" },
+                    { speaker: "granny", emotion: "laugh", key: "prologue.granny.6" }
+                ]);
+                playAnimation(granny, "idle");
+                await cs.say([{ speaker: "madeline", emotion: "angry", key: "prologue.granny.7" }]);
+                playAnimation(granny, "talk");
+                await cs.say([{ speaker: "granny", key: "prologue.granny.8" }]);
+                playAnimation(granny, "laugh");
+                audio.play("assets/soundTrack/grany/laugh.wav", { volume: 0.5 });
+                await cs.say([{ speaker: "granny", emotion: "laugh", key: "prologue.granny.9" }]);
+                await cs.wait(0.5);
+                await cs.say([{ speaker: "madeline", emotion: "deadpan", key: "prologue.granny.10" }]);
+                await cs.follow(0.6);
+            }, {
+                onEnd: () => {
+                    playAnimation(granny, "idle");
+                }
+            });
+        };
 
-        const frame = sprite.startFrame + animation.state.frame;
+        /**
+         * Ending: Madeline looks up at the mountain.
+         *
+         * @returns {Promise<void>} Resolves when the chapter completes.
+         */
+        const endingScene = async () => {
+            state.ending = true;
+            await director.run(async (cs) => {
+                await cs.walk(7090, 0.45);
+                cs.face(1);
+                cs.pose("lookUp");
+                audio.playMusic(SFX.theme, { fade: 3, volume: 0.8 });
+                await cs.pan(7100, -380, 4);
+                await cs.wait(0.5);
+                game.ui.chapterCard?.("chapter.prologue.ending", "chapter.prologue.endingSub");
+                await cs.wait(2.8);
+            });
+            context.session.ui.completeChapter();
+        };
 
-        dashBird.elem.style.backgroundPosition =
-            `-${frame * dashBird.dimensions.width}px -${sprite.row * dashBird.dimensions.height}px`;
+        return {
+            level,
+            checkpoints,
+            preload: [SFX.jump, SFX.dashRight, SFX.dashLeft, SFX.death, SFX.predeath, SFX.revive, SFX.breakBridge, SFX.crack, SFX.squawk, SFX.quack],
+
+            /**
+             * Shows the opening camera move on a fresh start.
+             *
+             * @param {string} checkpoint - Starting checkpoint.
+             * @param {boolean} fresh - Whether this is a new run.
+             * @returns {void}
+             */
+            onStart(checkpoint, fresh) {
+                if (checkpoint !== "start") {
+                    iceTrap.trigger();
+                    iceTrap.position.y = 254 - 99;
+                }
+                if (["granny", "bridge"].includes(checkpoint)) state.grannyTalked = true;
+                if (checkpoint !== "start") state.birdSquawked = true;
+                if (fresh) {
+                    director.run(async (cs) => {
+                        game.ui.chapterCard?.("chapter.prologue.name", "chapter.prologue.subtitle");
+                        cs.pose("back");
+                        await cs.wait(1.6);
+                        cs.pose(null);
+                        await cs.walk(150, 0.4);
+                    }, { letterbox: false });
+                }
+            },
+
+            /**
+             * Level script.
+             *
+             * @returns {void}
+             */
+            step() {
+                const player = game.player;
+                if (!player || player.state === PlayerState.DEAD) return;
+                const px = player.box.x + player.box.w / 2;
+                const py = player.box.y + player.box.h;
+
+                if (!state.jumpSignShown && px > 330) {
+                    state.jumpSignShown = true;
+                    jumpSign.show();
+                }
+                if (jumpSign.shown && px > 760) jumpSign.hide();
+
+                if (px >= 1060 && iceTrap.status === "idle") {
+                    iceTrap.trigger();
+                    game.camera.shake(2, 0.3);
+                }
+
+                if (!state.birdSquawked && px >= 2150) {
+                    state.birdSquawked = true;
+                    playAnimation(climbBird, "squawk", true);
+                    audio.play(SFX.squawk, { volume: 0.6 });
+                    climbSign.show();
+                }
+                if (climbSign.shown && (py < 120 || px > 2600)) climbSign.hide();
+
+                if (!state.grannyTalked && px >= 4080 && player.onGround) {
+                    grannyScene();
+                }
+
+                for (const block of bridge) {
+                    if (block.status === "idle" && px > block.home.x + block.dimensions.width + 70 && px < 6400) {
+                        block.trigger(0.15);
+                    }
+                }
+                if (!state.bridgeCollapsing && px >= 6450) {
+                    state.bridgeCollapsing = true;
+                    for (const block of bridge) {
+                        if (block.status === "idle") block.trigger(Math.max(0, (block.home.x - 6400) / 1200));
+                    }
+                    game.camera.shake(3, 0.4);
+                    dashBird.moveTo(7130, 180, 500);
+                    playAnimation(dashBird, "fly");
+                }
+                if (state.bridgeCollapsing && dashBird.position.x <= 7131 && dashBird.components.animation.state.sprite === "fly") {
+                    playAnimation(dashBird, "idle");
+                }
+
+                if (!state.dashTaught && state.bridgeCollapsing && py > 400 && px > 6500 && !state.dashWaiting) {
+                    state.dashWaiting = true;
+                    player.refillDash(false);
+                    dashSign.show();
+                    playAnimation(dashBird, "squawk", true);
+                    audio.play(SFX.squawk, { volume: 0.7 });
+                }
+                if (state.dashWaiting) {
+                    if (input.pressedWithin("dash", 0.1)) {
+                        state.dashWaiting = false;
+                        state.dashTaught = true;
+                        dashSign.hide();
+                    } else {
+                        game.freezeTimer = 0.05;
+                        player.velocity.y = Math.min(player.velocity.y, 60);
+                    }
+                }
+
+                if (!state.ending && px >= 7010 && py <= 340 && player.onGround) {
+                    endingScene();
+                }
+            },
+
+            /**
+             * Resets props after a death.
+             *
+             * @param {string} checkpoint - Respawn checkpoint.
+             * @returns {void}
+             */
+            onRespawn(checkpoint) {
+                if (checkpoint === "start" && iceTrap.status !== "landed") iceTrap.reset();
+                if (checkpoint === "bridge") {
+                    for (const block of bridge) block.reset();
+                    state.bridgeCollapsing = false;
+                    state.dashWaiting = false;
+                    dashSign.hide();
+                    dashBird.position.x = 7300;
+                    dashBird.position.y = -120;
+                    dashBird.snap();
+                }
+            },
+
+            /**
+             * Releases sign listeners.
+             *
+             * @returns {void}
+             */
+            onExit() {
+                climbSign.dispose();
+                jumpSign.dispose();
+                dashSign.dispose();
+            }
+        };
     }
+};
 
-    dashBird.setUpdate(birdUpdate);
-
-    level.addEntity(dashBird);
-    level.mountEntities();
-}
-
-function granyUpdate(grany) {
-    const animation = grany.components.animation;
-
-    if (!animation) return;
-
-    const sprite =
-        animation.sprites[
-        animation.state.sprite
-        ];
-
-    if (!sprite) return;
-
-    const frame =
-        sprite.startFrame +
-        animation.state.frame;
-
-    const frameWidth =
-        grany.dimensions.width;
-
-    const frameHeight =
-        grany.dimensions.height;
-
-    grany.elem.style.backgroundPosition =
-        `-${frame * frameWidth}px -${sprite.row * frameHeight}px`;
-}
-
-export function getTimeScore(timeInSeconds) {
-    const threeMinutes = 180;
-    const fourMinutes = 240;
-
-    if (timeInSeconds < threeMinutes) {
-        const progress = timeInSeconds / threeMinutes;
-        return Math.round(100 - progress * 20);
-    }
-
-    if (timeInSeconds < fourMinutes) {
-        return 80;
-    }
-
-    return 60;
+/**
+ * Kept for compatibility with the original module interface.
+ *
+ * @returns {typeof prologue} The prologue definition.
+ */
+export function createTutorial() {
+    return prologue;
 }
